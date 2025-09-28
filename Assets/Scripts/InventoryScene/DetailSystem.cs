@@ -1,27 +1,32 @@
 using UnityEngine;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine.UI;
+using TMPro;
+using System.Collections.Generic;
 
 public class DetailSystem : MonoBehaviour
 {
+    [Header("UI Components")]
+    [SerializeField] private GameObject detailPanel; // 詳細パネル全体
     [SerializeField] private Image icon;
     [SerializeField] private TextMeshProUGUI objectName;
-    [SerializeField] private int rarity;
-    [SerializeField] private int ownedCount;
+    [SerializeField] private TextMeshProUGUI rarityText;
+    [SerializeField] private TextMeshProUGUI ownedCountText;
     [SerializeField] private Image typeIcon;
-    [SerializeField] private List<Image> typeIconList;
-    [SerializeField] private string descrption;
+    [SerializeField] private TextMeshProUGUI descriptionText;
 
-    
-    void Start()
-    {
-        
-    }
+    private ScriptableObject currentSelectedItem;
+
+    [Header("Icon Settings")]
+    [Tooltip("OrganCategoryのenumの順番に合わせて設定 (Viscera, Muscle, Bone, Other)")]
+    [SerializeField] private List<Sprite> organCategoryIcons;
+    [Tooltip("MonsterTypeのenumの順番に合わせて設定 (Fire, Water, Grass, Other)")]
+    [SerializeField] private List<Sprite> monsterTypeIcons;
 
     private void OnEnable()
     {
         GenericSlotUI.OnSlotClicked += ShowDetail;
+        // 最初は非表示にしておく
+        if (detailPanel != null) detailPanel.SetActive(false);
     }
     private void OnDisable()
     {
@@ -33,24 +38,65 @@ public class DetailSystem : MonoBehaviour
     /// </summary>
     private void ShowDetail(ScriptableObject data)
     {
-        if (data is OrganData)
+        // データがnullならパネルを非表示にして終了
+        if (data == null)
         {
-            // OrganData型に変換（キャスト）
-            OrganData organData = data as OrganData;
-        }
-        else if (data is MonsterData)
-        {
-
-        }
-        else
-        {
+            if (detailPanel != null) detailPanel.SetActive(false);
             return;
         }
-    }
+        // クリックされたのが、既に選択中のアイテムの場合
+        if (data == currentSelectedItem)
+        {
+            // パネルを非表示にし、選択を解除して終了
+            detailPanel.SetActive(false);
+            currentSelectedItem = null;
+            return;
+        }
+        currentSelectedItem = data; // 新しく選択されたアイテムを記憶
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        if (detailPanel != null) detailPanel.SetActive(true);
+
+        // 受け取ったデータがOrganData型かどうかをチェック
+        if (data is OrganData organData)
+        {
+            icon.sprite = organData.icon;
+            objectName.text = organData.organName;
+            rarityText.text = organData.rarity.ToString();
+            ownedCountText.text = organData.GetCount().ToString();
+            descriptionText.text = organData.description;
+
+            // カテゴリーに応じてアイコンを設定
+            int categoryIndex = (int)organData.category;
+            if (organCategoryIcons != null && organCategoryIcons.Count > categoryIndex)
+            {
+                typeIcon.enabled = true;
+                typeIcon.sprite = organCategoryIcons[categoryIndex];
+            }
+            else
+            {
+                typeIcon.enabled = false;
+            }
+        }
+        // 受け取ったデータがMonsterData型かどうかをチェック
+        else if (data is MonsterData monsterData)
+        {
+            icon.sprite = monsterData.icon;
+            objectName.text = monsterData.monsterName;
+            rarityText.text = monsterData.rarity.ToString();
+            ownedCountText.text = monsterData.GetCount().ToString();
+            descriptionText.text = monsterData.description;
+
+            // タイプに応じてアイコンを設定
+            int typeIndex = (int)monsterData.type;
+            if (monsterTypeIcons != null && monsterTypeIcons.Count > typeIndex)
+            {
+                typeIcon.enabled = true;
+                typeIcon.sprite = monsterTypeIcons[typeIndex];
+            }
+            else
+            {
+                typeIcon.enabled = false;
+            }
+        }
     }
 }
