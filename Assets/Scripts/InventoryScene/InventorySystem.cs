@@ -9,15 +9,17 @@ public class InventorySystem : MonoBehaviour
     [SerializeField] private GameObject inventoryPanel;
     [SerializeField] private GameObject organPanel;
     [SerializeField] private GameObject monsterPanel;
-    //[SerializeField] private GameObject detailPanel;
+    [SerializeField] private GameObject artifactPanel;
 
     [Header("Grid Contents")]
     [SerializeField] private Transform organGridContent;
     [SerializeField] private Transform monsterGridContent;
+    [SerializeField] private Transform artifactGridContent;
 
     [Header("Tab Buttons")]
     [SerializeField] private Button organTabButton;
     [SerializeField] private Button monsterTabButton;
+    [SerializeField] private Button artifactTabButton;
 
     [Header("Prefabs")]
     [SerializeField] private GameObject genericSlotPrefab;
@@ -29,6 +31,7 @@ public class InventorySystem : MonoBehaviour
     // 生成したスロットの参照を保存しておくリスト
     private List<GenericSlotUI> organSlots = new List<GenericSlotUI>();
     private List<GenericSlotUI> monsterSlots = new List<GenericSlotUI>();
+    private List<GenericSlotUI> artifactSlots = new List<GenericSlotUI>();
     public int maxSlots;
     // 現在選択されているスロットのデータを保持する
     private ScriptableObject selectedItem; 
@@ -48,10 +51,16 @@ public class InventorySystem : MonoBehaviour
             GameObject slotGO = Instantiate(genericSlotPrefab, monsterGridContent);
             monsterSlots.Add(slotGO.GetComponent<GenericSlotUI>());
         }
+        for (int i = 0; i < maxSlots; i++)
+        {
+            GameObject slotGO = Instantiate(genericSlotPrefab, artifactGridContent);
+            artifactSlots.Add(slotGO.GetComponent<GenericSlotUI>());
+        }
 
         // タブボタンに、対応するパネルを表示するメソッドを登録
         organTabButton?.onClick.AddListener(ShowOrganPanel);
         monsterTabButton?.onClick.AddListener(ShowMonsterPanel);
+        artifactTabButton?.onClick.AddListener(ShowArtifactPanel);
 
         // 最初は臓器パネルを表示
         ShowOrganPanel();
@@ -112,6 +121,7 @@ public class InventorySystem : MonoBehaviour
         // organPanelが表示されているかどうかに応じて色を設定
         organTabButton.GetComponent<Image>().color = organPanel.activeSelf ? selectedColor : deselectedColor;
         monsterTabButton.GetComponent<Image>().color = monsterPanel.activeSelf ? selectedColor : deselectedColor;
+        artifactTabButton.GetComponent<Image>().color = artifactPanel.activeSelf ? selectedColor : deselectedColor;
     }
 
     public void ShowOrganPanel()
@@ -119,6 +129,7 @@ public class InventorySystem : MonoBehaviour
         //Debug.Log("Organパネル表示");
         organPanel.SetActive(true);
         monsterPanel.SetActive(false);
+        artifactPanel.SetActive(false);
         PopulateOrganGrid();
         UpdateTabColors();
     }
@@ -127,10 +138,21 @@ public class InventorySystem : MonoBehaviour
     {
         //Debug.Log("Monsterパネル表示");
         organPanel.SetActive(false);
+        artifactPanel.SetActive(false);
         monsterPanel.SetActive(true);
         PopulateMonsterGrid();
         UpdateTabColors();
     }
+
+    public void ShowArtifactPanel()
+    {
+        //Debug.Log("Artifactパネル表示");
+        organPanel.SetActive(false);
+        monsterPanel.SetActive(false);
+        artifactPanel.SetActive(true);
+        PopulateArtifactGrid();
+        UpdateTabColors();
+    }    
 
     // 臓器グリッドにデータを表示
     private void PopulateOrganGrid()
@@ -180,8 +202,25 @@ public class InventorySystem : MonoBehaviour
         }
     }
     
-    // private void ShowDetail(ScriptableObject data)
-    // {
-    //     // クリックされたアイテムの詳細をdetailPanelに表示する処理
-    // }
+    private void PopulateArtifactGrid()
+    {
+        var ownedArtifacts = GameManager.Instance.PlayerData.ownedArtifacts;
+        List<ArtifactData> sortedArtifacts = ownedArtifacts.OrderBy(k => k.artifactID).ToList();
+
+        for (int i = 0; i < artifactSlots.Count; i++)
+        {
+            if (i < sortedArtifacts.Count)
+            {
+                ArtifactData artifact = sortedArtifacts[i];
+                //int count = ownedArtifacts[artifact];
+                artifactSlots[i].gameObject.SetActive(true);
+                artifactSlots[i].Setup(artifact);
+            }
+            else
+            {
+                artifactSlots[i].Clear();
+                //monsterSlots[i].gameObject.SetActive(false);
+            }
+        }
+    }
 }

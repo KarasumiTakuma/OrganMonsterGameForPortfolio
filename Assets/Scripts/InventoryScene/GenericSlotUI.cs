@@ -80,6 +80,17 @@ public class GenericSlotUI : MonoBehaviour
     }
 
     /// <summary>
+    /// ArtifactDataを受け取って、スロットの見た目を設定する
+    /// </summary>
+    public void Setup(ArtifactData data)
+    {
+        assignedData = data;
+        icon.enabled = true;
+        icon.sprite = data.icon;
+        countText.text = ""; // アーティファクトに個数表示は不要なため
+    }
+
+    /// <summary>
     /// スロットを空の状態にする
     /// </summary>
     public void Clear()
