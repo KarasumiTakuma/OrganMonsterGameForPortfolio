@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d8791fb4ad5394e40907c2b122957215
+guid: dc550de8ac3cd4f1c99962a28c5ac9ea
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8572589933661624845
-    second: IMG_6062_0
+      213: -2055008003363216766
+    second: monster1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Karasumi_eat_cheese
+      name: monster1_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 2316
-        height: 3088
+        x: 11
+        y: 7
+        width: 52
+        height: 65
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d0a9df80025f7f670800000000000000
-      internalID: 8572589933661624845
+      spriteID: 28263fcdb152b73e0800000000000000
+      internalID: -2055008003363216766
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: e92d2a2132e70420f98cf8d1a2e54c89
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -148,8 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Karasumi_eat_cheese: 8572589933661624845
-      cheese: 8572589933661624845
+      monster1_0: -2055008003363216766
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
