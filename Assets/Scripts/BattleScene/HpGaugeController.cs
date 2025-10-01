@@ -7,15 +7,13 @@ public class HpGaugeController : MonoBehaviour
     [SerializeField] private GameObject gauge;
     // 猶予ゲージ(裏のゲージ)
     [SerializeField] private GameObject graceGauge;
-    // 最大HP
-    [SerializeField] private int maxHP;
-    
-    // HP1あたりの幅
-    private float perHP;
+
+    private int maxHP;      // 最大HP
+    private int currentHP;  // 現在のHP
+    private float perHP;    // HP1あたりの幅
+
     // 体力ゲージが減った後裏ゲージが減るまでの待機時間
     private float waitingTimeAfterFrontGauge = 0.5f;
-    // 現在のHP
-    private int currentHP;
 
     // RectTransformをキャッシュするための変数
     private RectTransform gaugeRect;
@@ -27,13 +25,26 @@ public class HpGaugeController : MonoBehaviour
         // RectTransformを取得して変数に保存
         gaugeRect = gauge.GetComponent<RectTransform>();
         graceGaugeRect = graceGauge.GetComponent<RectTransform>();
+    }
 
-        // 表ゲージの幅を最大HPで割り、HP1あたりの幅を計算
+    /// <summary>
+    /// 最大HPを設定し、ゲージを初期化する
+    /// </summary>
+    public void SetMaxHP(int hp)
+    {
+        maxHP = hp;
+        currentHP = maxHP;
+
+        // HP1あたりの幅を計算
         perHP = gaugeRect.sizeDelta.x / maxHP;
 
-        // 初期HPを最大HPに設定
-        currentHP = maxHP;
+        // 初期ゲージを満タンにする
+        Vector2 fullSize = gaugeRect.sizeDelta;
+        fullSize.x = perHP * currentHP;
+        gaugeRect.sizeDelta = fullSize;
+        graceGaugeRect.sizeDelta = fullSize;
     }
+
 
     // ダメージを受けた際に呼ばれるメソッド
     public void BeInjured(int attack)
@@ -49,7 +60,7 @@ public class HpGaugeController : MonoBehaviour
 
     }
 
-    // 体力ゲージを減らすコルーチン
+    // 体力ゲージを減らすコルーチン(アニメーション)
     IEnumerator DamageAnimation(float remainingHPGaugeWidth)
     {
 

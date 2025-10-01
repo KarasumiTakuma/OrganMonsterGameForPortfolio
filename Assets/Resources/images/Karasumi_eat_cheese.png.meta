@@ -3,8 +3,8 @@ guid: d8791fb4ad5394e40907c2b122957215
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8572589933661624845
-    second: IMG_6062_0
+      213: 8334132735580529552
+    second: Karasumi_eat_cheese_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -96,19 +96,6 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: iOS
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -128,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d0a9df80025f7f670800000000000000
-      internalID: 8572589933661624845
+      spriteID: 0936b3f1199c8a370800000000000000
+      internalID: 8334132735580529552
       vertices: []
       indices: 
       edges: []
@@ -138,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: e92d2a2132e70420f98cf8d1a2e54c89
+    spriteID: 813b11ac22311428d9fa7406e728b6bc
     internalID: 0
     vertices: []
     indices: 
@@ -148,8 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Karasumi_eat_cheese: 8572589933661624845
-      cheese: 8572589933661624845
+      Karasumi_eat_cheese: 8334132735580529552
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
