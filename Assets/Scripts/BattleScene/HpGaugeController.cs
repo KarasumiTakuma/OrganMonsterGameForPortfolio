@@ -45,6 +45,14 @@ public class HpGaugeController : MonoBehaviour
         graceGaugeRect.sizeDelta = fullSize;
     }
 
+    /// <summary>
+    /// 現在HPを返す
+    /// </summary>
+    public int GetCurrentHP()
+    {
+        return currentHP;
+    }
+
 
     // ダメージを受けた際に呼ばれるメソッド
     public void BeInjured(int attack)
