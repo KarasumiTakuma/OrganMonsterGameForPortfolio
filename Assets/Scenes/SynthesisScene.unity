@@ -907,8 +907,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u5408\u6210"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 5a10c43262db04caba416c6b0bd78962, type: 2}
-  m_sharedMaterial: {fileID: -2269777868690256331, guid: 5a10c43262db04caba416c6b0bd78962, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: b05317b7050814f2b9f02fdcb534c0d4, type: 2}
+  m_sharedMaterial: {fileID: -3486269438006172178, guid: b05317b7050814f2b9f02fdcb534c0d4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2549,7 +2549,6 @@ MonoBehaviour:
   m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
-  m_Version: 2
   m_TaaSettings:
     m_Quality: 3
     m_FrameInfluence: 0.1
@@ -2557,6 +2556,7 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+  m_Version: 2
 --- !u!1 &1998418626
 GameObject:
   m_ObjectHideFlags: 0
@@ -2735,7 +2735,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 6191af2bc02d345fda233fc08551dd07, type: 3}
+    m_Font: {fileID: 12800000, guid: a9195f6985fee4ea98ae45d04657a39b, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
