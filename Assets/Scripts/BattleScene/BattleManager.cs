@@ -7,6 +7,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private DeckManager deckManager;
     [SerializeField] private ManaManager manaManager;
     [SerializeField] private HandAreaManager handAreaManager; // HandAreaManagerの参照
+    [SerializeField] private EnemyAreaManager enemyAreaManager;
     [SerializeField] private Sprite defaultCardSprite; // カード画像表示用(一時的)
 
 
@@ -15,7 +16,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private int enemyHP = 30;
     [SerializeField] private TMP_Text playerHPText;
     [SerializeField] private TMP_Text enemyHPText;
-    
+
 
 
     [Header("UI")]
@@ -40,9 +41,12 @@ public class BattleManager : MonoBehaviour
 
         deckManager.ShuffleDeck();
     }
-    
+
     void Start()
     {
+        // 敵を生成
+        enemyAreaManager.SpawnEnemies();
+
         // ゲーム開始時の手札5枚ドロー
         deckManager.DrawInitialHand();
 
