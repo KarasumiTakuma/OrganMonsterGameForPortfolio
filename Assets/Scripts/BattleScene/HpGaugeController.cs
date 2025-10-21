@@ -40,7 +40,7 @@ public class HpGaugeController : MonoBehaviour
 
         // 初期ゲージを満タンにする
         Vector2 fullSize = gaugeRect.sizeDelta;
-        fullSize.x = perHP * currentHP;
+        fullSize.x = perHP * currentHP;    // ゲージを確実に満タンにするためにする計算
         gaugeRect.sizeDelta = fullSize;
         graceGaugeRect.sizeDelta = fullSize;
     }
@@ -60,11 +60,11 @@ public class HpGaugeController : MonoBehaviour
         // 攻撃分のダメージを現在のHPから減算(この時HPがマイナスにならないようにする)
         currentHP = Mathf.Max(currentHP - attack, 0);
 
-        // 体力1あたりの幅とダメージを考慮したcurrentHPの積が攻撃を受けた後に残るHPゲージの幅
+        // 体力1あたりの幅と受けたダメージ量を考慮したcurrentHPの積が攻撃を受けた後に残るHPゲージの幅
         float remainingHPGaugeWidth = perHP * currentHP;
 
         // コルーチンでゲージを徐々に減らす
-        StartCoroutine(DamageAnimation(remainingHPGaugeWidth));  // ダメージ後の挙動を制御
+        StartCoroutine(DamageAnimation(remainingHPGaugeWidth));  // ダメージ後のゲージの挙動を制御
 
     }
 
@@ -74,9 +74,9 @@ public class HpGaugeController : MonoBehaviour
 
         // 現在の表ゲージのサイズ(幅と高さ)をVector2で取得
         Vector2 currentSize = gaugeRect.sizeDelta;
-        // 目標のゲージ(ダメージ後のゲージ)のサイズを設定(初期値は現在の表ゲージサイズ)
+        // 目標のゲージ(ダメージ後のゲージ)のサイズを設定(初期値は現在の表ゲージサイズ。ダメージ後に残っているゲージの幅とはまだ不一致)
         Vector2 targetSize = currentSize;
-        targetSize.x = remainingHPGaugeWidth;  // ダメージ後の残ったHPゲージ幅を目標ゲージの幅とする
+        targetSize.x = remainingHPGaugeWidth;  // ダメージ後の残ったHPゲージの幅を目標ゲージの幅とする
 
         // ゲージを0.3秒かけてなめらかに減らす
         float elapsed = 0f;      // 経過時間
@@ -88,7 +88,11 @@ public class HpGaugeController : MonoBehaviour
             // 現在ゲージサイズから目標ゲージサイズまで、(elapsed / duration)の割合でゲージを減らしていく
             currentSize.x = Mathf.Lerp(currentSize.x, targetSize.x, elapsed / duration);
             gaugeRect.sizeDelta = currentSize;  // 表ゲージのサイズを更新
-            elapsed += Time.deltaTime;          // 前フレームからの経過時間を加算(60FPSなら0.0166s)
+            // 前フレームからの経過時間を加算(60FPSなら0.0166s)(FPSが異なっていても、
+            // 時間当たりに減るゲージの幅は等しくするため)。
+            // (60FPSなら、1フレーム ≈ 0.0166秒、0.0166 × 約18フレームで0.3秒、18フレームでゲージが目的ゲージまで減る
+            // (30FPSなら、1フレーム ≈ 0.033秒、0.033 × 約9フレームで0.3秒、9フレームでゲージが目的ゲージまで減る)
+            elapsed += Time.deltaTime;
             yield return null;                  // 1フレーム待つ
         }
 
