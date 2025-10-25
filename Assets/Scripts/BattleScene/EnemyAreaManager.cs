@@ -28,12 +28,26 @@ public class EnemyAreaManager : MonoBehaviour
         // 各スポーンポイントに敵を生成
         foreach (var point in spawnPoints)
         {
-            // SpawnPointを親にして生成
+            // enemyオブジェクトはそのスポーン位置(point)を親とする
             GameObject enemy = Instantiate(enemyPrefab, point);
 
-            // 各敵オブジェクトの位置をそれぞれの親spawnPointsの位置にする
-            enemy.transform.localPosition = point.localPosition;
-            enemy.transform.localScale = Vector3.one; // Canvas内では scale が重要
+            // enemyオブジェとそのスポーンポイント(point)のRectTransformを取得
+            RectTransform enemyRect = enemy.GetComponent<RectTransform>();
+            RectTransform pointRect = point.GetComponent<RectTransform>();
+
+            if (enemyRect != null && pointRect != null) //RectTransformが空値でないかを確認
+            {   
+                //Inspector上で各オブジェクトのサイズ設定を誤っても正しいサイズにするため
+                
+                // enemyオブジェクトのサイズをspawnPointに合わせる
+                enemyRect.sizeDelta = pointRect.sizeDelta;
+
+                // 各敵オブジェクトの位置をそれぞれの親であるpointのpivot位置(中心)にする
+                enemyRect.anchoredPosition = Vector2.zero;
+
+                // enemyのサイズは1に固定
+                enemyRect.localScale = Vector3.one;
+            }
 
             // HpGaugeControllerを取得して最大HPを設定
             HpGaugeController hpCtrl = enemy.GetComponentInChildren<HpGaugeController>();
