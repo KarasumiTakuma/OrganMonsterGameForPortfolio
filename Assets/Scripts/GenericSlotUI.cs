@@ -123,9 +123,9 @@ public class GenericSlotUI : MonoBehaviour
         else
         {
             // 共通の「？」画像を使う場合
-            // icon.sprite = unknownDefaultIcon; // unknownDefaultIconは別途用意
-            icon.sprite = null; // または単に非表示
-            icon.enabled = false;
+            icon.sprite = defaultUnknownIcon; 
+            //icon.sprite = null; // または単に非表示
+            //icon.enabled = false;
         }
 
         // 名前を「？？？」にする
