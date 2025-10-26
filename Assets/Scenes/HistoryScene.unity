@@ -355,17 +355,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GridLayoutGroup
   m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
+    m_Left: 8
+    m_Right: 5
+    m_Top: 5
+    m_Bottom: 5
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 100, y: 100}
-  m_Spacing: {x: 0, y: 0}
-  m_Constraint: 0
-  m_ConstraintCount: 2
+  m_CellSize: {x: 35, y: 35}
+  m_Spacing: {x: 1, y: 1}
+  m_Constraint: 1
+  m_ConstraintCount: 10
 --- !u!1 &139867615
 GameObject:
   m_ObjectHideFlags: 0
@@ -1022,6 +1022,30 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -5953760870428627947, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
+      propertyPath: testOrgan.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: -5953760870428627947, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
+      propertyPath: 'testOrgan.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 99c226341409d4d56b24d4ee8bb81735, type: 2}
+    - target: {fileID: -5953760870428627947, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
+      propertyPath: 'testOrgan.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 8bf1a3e386c7b4f16899b1805c1a17b3, type: 2}
+    - target: {fileID: -5953760870428627947, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
+      propertyPath: 'testOrgan.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 246e53a6181764ba596c6d977613c35f, type: 2}
+    - target: {fileID: -5953760870428627947, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
+      propertyPath: 'testOrgan.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 3a99bf8e7a57a4fc69485a562bad3cc0, type: 2}
+    - target: {fileID: -5953760870428627947, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
+      propertyPath: 'testOrgan.Array.data[4]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 60065eee0faef4a64abc1e61be165c12, type: 2}
     - target: {fileID: 5514121258907560936, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
       propertyPath: m_Name
       value: GameManager
@@ -1481,7 +1505,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 812504526}
   m_HandleRect: {fileID: 812504525}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1771,6 +1795,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 921522339}
+  - component: {fileID: 921522341}
+  - component: {fileID: 921522340}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -1795,8 +1821,46 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 300}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
+--- !u!114 &921522340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 921522338}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GridLayoutGroup
+  m_Padding:
+    m_Left: 8
+    m_Right: 5
+    m_Top: 5
+    m_Bottom: 5
+  m_ChildAlignment: 0
+  m_StartCorner: 0
+  m_StartAxis: 0
+  m_CellSize: {x: 35, y: 35}
+  m_Spacing: {x: 1, y: 1}
+  m_Constraint: 1
+  m_ConstraintCount: 10
+--- !u!114 &921522341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 921522338}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 0
+  m_VerticalFit: 1
 --- !u!1 &987121434
 GameObject:
   m_ObjectHideFlags: 0
@@ -3158,7 +3222,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1967223537}
   m_HandleRect: {fileID: 1967223536}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -3481,6 +3545,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2001944324}
+  - component: {fileID: 2001944326}
+  - component: {fileID: 2001944325}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -3505,8 +3571,46 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 300}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
+--- !u!114 &2001944325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2001944323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 0
+  m_VerticalFit: 1
+--- !u!114 &2001944326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2001944323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GridLayoutGroup
+  m_Padding:
+    m_Left: 8
+    m_Right: 5
+    m_Top: 5
+    m_Bottom: 5
+  m_ChildAlignment: 0
+  m_StartCorner: 0
+  m_StartAxis: 0
+  m_CellSize: {x: 35, y: 35}
+  m_Spacing: {x: 1, y: 1}
+  m_Constraint: 1
+  m_ConstraintCount: 10
 --- !u!1 &2011561658
 GameObject:
   m_ObjectHideFlags: 0
