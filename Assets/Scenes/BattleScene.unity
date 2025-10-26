@@ -488,10 +488,10 @@ RectTransform:
   - {fileID: 767193671}
   m_Father: {fileID: 1388838492}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.04625, y: 0.5}
-  m_AnchorMax: {x: 0.9412501, y: 0.96700007}
-  m_AnchoredPosition: {x: 5.5925293, y: 44.92102}
-  m_SizeDelta: {x: -11.185, y: -80.9883}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 160}
+  m_SizeDelta: {x: 500, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &995359341
 MonoBehaviour:
@@ -869,9 +869,10 @@ MonoBehaviour:
   deckManager: {fileID: 667891639}
   manaManager: {fileID: 93932253}
   handAreaManager: {fileID: 1381604163}
-  defaultCardSprite: {fileID: 4755728945844721729, guid: 3a36a0ce6b0fe4d90a070ac2de83f667, type: 3}
   enemyAreaManager: {fileID: 995359341}
+  defaultCardSprite: {fileID: 4755728945844721729, guid: 3a36a0ce6b0fe4d90a070ac2de83f667, type: 3}
   playerHP: 30
+  enemyHP: 30
   playerHPText: {fileID: 0}
   enemyHPText: {fileID: 0}
   logText: {fileID: 0}
