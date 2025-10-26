@@ -6,39 +6,33 @@ public class EnemyAreaManager : MonoBehaviour
     [Header("Enemy Settings")]
     [SerializeField] private GameObject enemyPrefab;       // 敵プレハブ
     [SerializeField] private Transform[] spawnPoints;      // 敵出現位置（EnemyAreaの子）
-    [SerializeField] private int enemyMaxHP = 30;          // 敵の最大HP
-    [SerializeField] private Canvas canvas;               // UI CanvasをInspectorでセット
 
-    private List<GameObject> spawnedEnemies = new List<GameObject>();
-    private List<HpGaugeController> hpControllers = new List<HpGaugeController>();
+    // 生成済みのEnemyスクリプトのリスト
+    private List<Enemy> spawnedEnemies = new List<Enemy>();
+
 
     /// <summary>
-    /// 敵を全てスポーン
+    /// スポーンポイントに敵を生成
     /// </summary>
     public void SpawnEnemies()
     {
         // 既存の敵がいたら削除
-        foreach (var enemy in spawnedEnemies)
-        {
-            Destroy(enemy);
-        }
-        spawnedEnemies.Clear();
-        hpControllers.Clear();
+        ClearEnemies();
 
         // 各スポーンポイントに敵を生成
         foreach (var point in spawnPoints)
         {
-            // enemyオブジェクトはそのスポーン位置(point)を親とする
-            GameObject enemy = Instantiate(enemyPrefab, point);
+            // enemyObjはそのスポーン位置(point)を親とする
+            GameObject enemyObj = Instantiate(enemyPrefab, point);
 
             // enemyオブジェとそのスポーンポイント(point)のRectTransformを取得
-            RectTransform enemyRect = enemy.GetComponent<RectTransform>();
+            RectTransform enemyRect = enemyObj.GetComponent<RectTransform>();
             RectTransform pointRect = point.GetComponent<RectTransform>();
 
             if (enemyRect != null && pointRect != null) //RectTransformが空値でないかを確認
-            {   
+            {
                 //Inspector上で各オブジェクトのサイズ設定を誤っても正しいサイズにするため
-                
+
                 // enemyオブジェクトのサイズをspawnPointに合わせる
                 enemyRect.sizeDelta = pointRect.sizeDelta;
 
@@ -49,37 +43,34 @@ public class EnemyAreaManager : MonoBehaviour
                 enemyRect.localScale = Vector3.one;
             }
 
-            // HpGaugeControllerを取得して最大HPを設定
-            HpGaugeController hpCtrl = enemy.GetComponentInChildren<HpGaugeController>();
-            if (hpCtrl != null)
+            // Enemyスクリプト取得
+            Enemy enemy = enemyObj.GetComponent<Enemy>();
+            if (enemy != null)
             {
-                hpCtrl.SetMaxHP(enemyMaxHP);
-                hpControllers.Add(hpCtrl);
+                spawnedEnemies.Add(enemy);
             }
-
-            spawnedEnemies.Add(enemy);
         }
     }
 
 
     /// <summary>
-    /// 指定の敵にダメージを与える
+    /// 指定の敵にダメージ
     /// </summary>
     public void DamageEnemy(int index, int damage)
     {
-        if (index < 0 || index >= hpControllers.Count) return;
-
-        hpControllers[index].BeInjured(damage);
+        if (index < 0 || index >= spawnedEnemies.Count) return;
+        spawnedEnemies[index].TakeDamage(damage);
     }
 
+
     /// <summary>
-    /// 敵全体にダメージ（全体攻撃用）
+    /// 全敵にダメージ
     /// </summary>
     public void DamageAllEnemies(int damage)
     {
-        foreach (var hp in hpControllers)
+        foreach (var enemy in spawnedEnemies)
         {
-            hp.BeInjured(damage);
+            enemy.TakeDamage(damage);
         }
     }
 
@@ -88,26 +79,21 @@ public class EnemyAreaManager : MonoBehaviour
     /// </summary>
     public int GetEnemyCurrentHP(int index)
     {
-        if (index < 0 || index >= hpControllers.Count) return 0;
-        return hpControllers[index].GetCurrentHP();
+        if (index < 0 || index >= spawnedEnemies.Count) return 0;
+        return spawnedEnemies[index].currentHP;
     }
 
     /// <summary>
-    /// 現在スポーンしている敵の数を取得
-    /// </summary>
-    public int GetEnemyCount()
-    {
-        return spawnedEnemies.Count;
-    }
-
-    /// <summary>
-    /// 指定の敵が生きているかどうか
+    /// 敵の生存確認
     /// </summary>
     public bool IsEnemyAlive(int index)
     {
-        if (index < 0 || index >= hpControllers.Count) return false;
-        return hpControllers[index].GetCurrentHP() > 0;
+        if (index < 0 || index >= spawnedEnemies.Count) return false;
+        return spawnedEnemies[index].IsAlive();
     }
+
+
+    public int GetEnemyCount() => spawnedEnemies.Count;
 
 
     /// <summary>
@@ -117,9 +103,8 @@ public class EnemyAreaManager : MonoBehaviour
     {
         foreach (var enemy in spawnedEnemies)
         {
-            Destroy(enemy);
+            if (enemy != null) Destroy(enemy.gameObject);
         }
         spawnedEnemies.Clear();
-        hpControllers.Clear();
     }
 }
