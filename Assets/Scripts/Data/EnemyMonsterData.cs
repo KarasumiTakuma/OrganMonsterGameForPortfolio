@@ -9,26 +9,25 @@ using System.Collections.Generic;
 public class EnemyMonsterData : ScriptableObject
 {
     [Header("基本情報")]
-    public int monsterID;                 // 敵のID(図鑑に登録される時のものと同一)
-    public string enemyMonsterName;       // この敵モンスターの名前
+    [SerializeField] private int monsterID;                 // 敵のID(図鑑に登録される時のものと同一)
+    [SerializeField] private string enemyMonsterName;       // この敵モンスターの名前
 
     [Header("ゲームロジック用")]
     
-    public int maxHP;              // この敵モンスターの最大HP
-    public int attackPower;        // この敵モンスターの攻撃力
+    [SerializeField] private int maxHP;              // この敵モンスターの最大HP
+    [SerializeField] private int attackPower;        // この敵モンスターの攻撃力
 
     [Header("UI表示用")]
     [TextArea]
-    public string description;            // Imageクリック時の敵情報表示用
+    [SerializeField] private string description;            // Imageクリック時の敵情報表示用
 
-    public Sprite enemyMonsterImage;      // この敵モンスターの画像
+    [SerializeField] private Sprite enemyMonsterImage;      // この敵モンスターの画像
 
 
     public int GetMonsterID() => monsterID;
     public string GetName() => enemyMonsterName;
-    public Sprite GetImage() => enemyMonsterImage;
     public int GetMaxHP() => maxHP;
     public int GetAttackPower() => attackPower;
-
+    public Sprite GetImage() => enemyMonsterImage;
 
 }
