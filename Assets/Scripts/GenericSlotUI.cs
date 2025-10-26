@@ -10,6 +10,7 @@ public class GenericSlotUI : MonoBehaviour
 {
     [Header("UI Components")]
     public Image icon;
+    public Sprite defaultUnknownIcon; // 共通の「？」アイコン
     public TextMeshProUGUI countText;
     private Button button;
     public Image background;
@@ -99,5 +100,35 @@ public class GenericSlotUI : MonoBehaviour
         icon.enabled = false;
         icon.sprite = null;
         countText.text = "";
+    }
+
+    /// <summary>
+    /// 未所持アイテムとしてスロットを設定する
+    /// </summary>
+    public void SetupAsUnknown(ScriptableObject data)
+    {
+        assignedData = data;
+        icon.enabled = true;
+        countText.text = ""; // 個数は表示しない
+
+        // 影画像を表示するロジック
+        if (data is MonsterData monsterData && monsterData.shadowIcon != null)
+        {
+            icon.sprite = monsterData.shadowIcon;
+        }
+        else if (data is OrganData organData && organData.shadowIcon != null)
+        {
+            icon.sprite = organData.shadowIcon;
+        }
+        else
+        {
+            // 共通の「？」画像を使う場合
+            // icon.sprite = unknownDefaultIcon; // unknownDefaultIconは別途用意
+            icon.sprite = null; // または単に非表示
+            icon.enabled = false;
+        }
+
+        // 名前を「？？？」にする
+        // nameText.text = "？？？";
     }
 }
