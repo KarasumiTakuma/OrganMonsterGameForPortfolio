@@ -27,8 +27,10 @@ public class MonsterData : ScriptableObject, IDisplayable
     [Header("このモンスターが提供するカード (10枚)")]
     public List<CardData> cards = new List<CardData>();
 
-    public Sprite GetIcon() { return icon; }
-    public string GetName() { return monsterName; }
+    public Sprite GetIcon() => icon;
+    public string GetName() => monsterName;
+    public int GetRarity() => rarity;
+    public string GetDescription => description;
     public int GetCount() 
     {
         if (GameManager.Instance != null && GameManager.Instance.PlayerData.ownedMonsters.ContainsKey(this))

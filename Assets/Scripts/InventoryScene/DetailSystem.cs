@@ -80,11 +80,11 @@ public class DetailSystem : MonoBehaviour
         // 受け取ったデータがMonsterData型かどうかをチェック
         else if (data is MonsterData monsterData)
         {
-            icon.sprite = monsterData.icon;
-            objectName.text = monsterData.monsterName;
-            rarityText.text = monsterData.rarity.ToString();
+            icon.sprite = monsterData.GetIcon();
+            objectName.text = monsterData.GetName();
+            rarityText.text = monsterData.GetRarity().ToString();
             ownedCountText.text = monsterData.GetCount().ToString();
-            descriptionText.text = monsterData.description;
+            descriptionText.text = monsterData.GetDescription;
 
             // タイプに応じてアイコンを設定
             int typeIndex = (int)monsterData.type;
