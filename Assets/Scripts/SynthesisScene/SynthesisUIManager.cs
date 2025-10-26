@@ -52,6 +52,26 @@ public class SynthesisUIManager : MonoBehaviour
     {
         // ボタンがクリックされるとPerformSynthesisメソッドを呼び出す予約
         synthesisButton.onClick.AddListener(PerformSynthesis);
+
+        // 3つの合成スロットそれぞれに、クリックイベントを登録する
+        for (int i = 0; i < synthesisSlots.Count; i++)
+        {
+            // ループ変数をローカルにコピー（ラムダ式で正しく使うため）
+            int index = i;
+
+            // ImageにButtonコンポーネントがなければ追加
+            Button button = synthesisSlots[i].GetComponent<Button>();
+            if (button == null)
+            {
+                button = synthesisSlots[i].gameObject.AddComponent<Button>();
+                // ボタンの見た目が変わらないように設定
+                button.transition = Selectable.Transition.None;
+            }
+
+            // ボタンがクリックされたら、HandleSynthesisSlotClickメソッドを「そのインデックス番号」で呼び出す
+            button.onClick.AddListener(() => HandleSynthesisSlotClick(index));
+        }
+
         UpdateSynthesisUI(); // 初期表示を更新
     }
 
@@ -190,12 +210,31 @@ public class SynthesisUIManager : MonoBehaviour
         {
             // そのスロットの臓器データを取得
             OrganData organInSlot = slot.GetAssignedOrgan();
-            
+
             // その臓器が選択中リストに含まれているか、かつスロットが空でないか
             bool isSelected = organInSlot != null && selectedIngredients.Contains(organInSlot);
-            
+
             // スロットに選択状態を伝えて色を変更させる
             slot.SetSelected(isSelected);
+        }
+    }
+    
+    /// <summary>
+    /// 左側の合成スロット（0, 1, 2番目）がクリックされたときに呼ばれる
+    /// 
+    /// </summary>
+    private void HandleSynthesisSlotClick(int index)
+    {
+        // もし、クリックされたスロットにアイテムが設定されていれば
+        if (index < selectedIngredients.Count)
+        {
+            // 選択リストからそのアイテムを削除
+            selectedIngredients.RemoveAt(index);
+            
+            // UIを更新
+            UpdateSynthesisUI();
+            // インベントリの選択色も更新
+            UpdateInventorySelection();
         }
     }
 }

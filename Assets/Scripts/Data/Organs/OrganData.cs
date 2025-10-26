@@ -21,9 +21,10 @@ public class OrganData : ScriptableObject, IDisplayable
     public string description; // 図鑑用の説明文
     public int price; // ショップで購入する時の価格
 
-    public Sprite GetIcon() { return icon; }
-    public string GetName() { return organName; }
-    public int GetCount() 
+    public Sprite GetIcon() => icon;
+    public string GetName() => organName;
+    // PlayerDataインスタンスからデータの数を返すメソッド
+    public int GetCount()
     {
         if (GameManager.Instance != null && GameManager.Instance.PlayerData.ownedOrgans.ContainsKey(this))
         {
