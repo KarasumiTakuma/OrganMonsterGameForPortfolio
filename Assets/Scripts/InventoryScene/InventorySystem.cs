@@ -80,7 +80,7 @@ public class InventorySystem : MonoBehaviour
     }
 
 
-    private void HandleSlotClick(ScriptableObject clickedData) // ← 引数の型を修正
+    private void HandleSlotClick(ScriptableObject clickedData)
     {
         Debug.Log(clickedData);
         if (clickedData == null) return;

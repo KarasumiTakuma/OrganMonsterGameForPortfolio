@@ -22,6 +22,7 @@ public class MonsterData : ScriptableObject, IDisplayable
     public string description; // 図鑑用の説明文
 
     public Sprite icon; // モンスターのイラスト
+    public Sprite shadowIcon;
 
     [Header("このモンスターが提供するカード (10枚)")]
     public List<CardData> cards = new List<CardData>();

@@ -10,6 +10,7 @@ public class ArtifactData : ScriptableObject
     public int artifactID;
     public string artifactName;
     public Sprite icon;
+    public Sprite shadowIcon;
     [TextArea]
     public string description;
 
