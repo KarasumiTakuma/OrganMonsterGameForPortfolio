@@ -66,4 +66,9 @@ public class GameManager : MonoBehaviour
         //this.currentStageIndex = stageIndex;
         SceneManager.LoadScene("BattleScene");
     }
+
+    public void GoToHistory()
+    {
+        SceneManager.LoadScene("HistoryScene");
+    }
 }
