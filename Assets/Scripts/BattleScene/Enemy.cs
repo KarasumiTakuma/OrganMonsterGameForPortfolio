@@ -2,28 +2,49 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 敵1体の情報と挙動を管理するスクリプト
+/// 敵1体の情報とダメージ等の挙動を管理するスクリプト
 /// HP管理、攻撃力、画像などを保持
 /// </summary>
 public class Enemy : MonoBehaviour
 {
+    // 敵モンスターのモンスターID
+    private int monsterID;
+
     // 敵の名前
-    public string enemyName;
+    private string enemyMonsterName;
 
     // 最大HP
-    public int maxHP;
+    private int maxHP;
 
     // 現在のHP
-    public int currentHP;
+    private int currentHP;
 
     // 敵の攻撃力（将来的に攻撃処理に利用）
-    public int attackPower;
+    private int attackPower;
+
+    // 敵キャラクター画像
+    private Sprite enemyMonsterImage;
 
     // HPゲージを操作するコンポーネント
     [SerializeField] private HpGaugeController hpGauge;
 
-    // 敵キャラクター画像
-    [SerializeField] private Image enemyImage;
+    // 敵の初期設定用メソッド
+    public void InitializeSet(EnemyMonsterData enemyMonsterData)
+    {
+        this.monsterID = enemyMonsterData.GetMonsterID();
+        this.enemyMonsterName = enemyMonsterData.GetName();
+        this.maxHP = enemyMonsterData.GetMaxHP();
+        this.currentHP = enemyMonsterData.GetMaxHP();  // 初期はcurrentHPは最大体力
+        this.attackPower = enemyMonsterData.GetAttackPower();
+        this.enemyMonsterImage = enemyMonsterData.GetImage(); // enemyMonsterImageに画像データ(Sprite)として保持する
+
+        //(EnemyPrefabのEnemyCharacterの)ImageコンポーネントにenemyMonsterImageをセットして見た目を更新する
+        Image imageComp = GetComponentInChildren<Image>(); // Enemyオブジェクト(EnemyPrefab)の子以下にあるImageコンポーネントを取得
+        if (imageComp != null)
+            imageComp.sprite = this.enemyMonsterImage;  //imageコンポーネントの表示をenemyMonsterImageに差し替える
+    }
+
+
 
     /// <summary>
     /// 敵がダメージを受けた際に呼ばれるメソッド
@@ -46,4 +67,12 @@ public class Enemy : MonoBehaviour
     /// </summary>
     /// <returns>HPが0より大きければtrue、それ以外はfalse</returns>
     public bool IsAlive() => currentHP > 0;
+
+
+    public int GetMonsterID() => this.monsterID;
+    public string GetMonsterName() => this.enemyMonsterName;
+    public int GetMaxHP() => this.maxHP;
+    public int GetCurrentHP() => this.currentHP;
+    public int GetAttackPower() => this.attackPower;
+    public Sprite GetImage() => this.enemyMonsterImage;
 }
