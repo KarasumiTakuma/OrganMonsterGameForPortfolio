@@ -206,7 +206,7 @@ public class SynthesisUIManager : MonoBehaviour
     private void UpdateInventorySelection()
     {
         // InventoryUIが持つ全スロットのリストを取得
-        foreach (var slot in inventoryUI.SlotUIs)
+        foreach (var slot in inventoryUI.GetSlotUIs())
         {
             // そのスロットの臓器データを取得
             OrganData organInSlot = slot.GetAssignedOrgan();
@@ -221,7 +221,7 @@ public class SynthesisUIManager : MonoBehaviour
     
     /// <summary>
     /// 左側の合成スロット（0, 1, 2番目）がクリックされたときに呼ばれる
-    /// 
+    /// スロットをクリックすると選択を解除する
     /// </summary>
     private void HandleSynthesisSlotClick(int index)
     {

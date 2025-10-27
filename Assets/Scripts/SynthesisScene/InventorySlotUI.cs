@@ -5,7 +5,6 @@ using System;
 
 /// <summary>
 /// インベントリスロット一つ分のUI表示と、クリックイベントの発行を担当するクラス。
-/// このスクリプトはインベントリスロットのプレハブにアタッチする。
 /// </summary>
 public class InventorySlotUI : MonoBehaviour
 {
