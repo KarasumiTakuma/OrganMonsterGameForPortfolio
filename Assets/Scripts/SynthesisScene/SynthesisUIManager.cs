@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 
 public class SynthesisUIManager : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class SynthesisUIManager : MonoBehaviour
     [Header("合成ボタンと結果表示")]
     // 合成ボタンを設定
     public Button synthesisButton;
+    public TextMeshProUGUI synthesisButtonText;
+    private Color buttonTextOriginalColor; // テキストの元の色を記憶
     // 生成するモンスターを表示するイメージを設定
     public Image resultMonsterImage;
 
@@ -27,6 +30,8 @@ public class SynthesisUIManager : MonoBehaviour
     private MonsterData currentRecipeResult;
     // 所持していないモンスターは？を表示する
     public List<Sprite> unknownIconsByRarity;
+    // 範囲外(？を用意していないレアリティ)はデフォルトの？
+    private const int DEFAULT_UNKNOWN_ICON_INDEX = 0;
 
     /// <summary>
     /// このUIが表示状態になったときに呼び出される。
@@ -52,6 +57,8 @@ public class SynthesisUIManager : MonoBehaviour
     {
         // ボタンがクリックされるとPerformSynthesisメソッドを呼び出す予約
         synthesisButton.onClick.AddListener(PerformSynthesis);
+
+        if (synthesisButtonText != null) buttonTextOriginalColor = synthesisButtonText.color;
 
         // 3つの合成スロットそれぞれに、クリックイベントを登録する
         for (int i = 0; i < synthesisSlots.Count; i++)
@@ -119,7 +126,24 @@ public class SynthesisUIManager : MonoBehaviour
         currentRecipeResult = synthesizer.Synthesize(selectedIngredients);
 
         // 3. 合成ボタンの有効/無効を切り替え
-        synthesisButton.interactable = (currentRecipeResult != null);
+        bool isInteractable = (currentRecipeResult != null);
+        synthesisButton.interactable = isInteractable;
+        // 合成ボタンの文字の透明度も変更
+        if (synthesisButtonText != null)
+        {
+            if (isInteractable)
+            {
+                // 押せる時は、元の色に戻す
+                synthesisButtonText.color = buttonTextOriginalColor;
+            }
+            else
+            {
+                // 押せない時は、元の色のアルファ値（透明度）を半分にする
+                Color disabledColor = buttonTextOriginalColor;
+                disabledColor.a = 0.5f; // 0.0 (透明) ～ 1.0 (不透明)
+                synthesisButtonText.color = disabledColor;
+            }
+        }
 
         // 4. 結果表示を更新（プレビュー）
         if (currentRecipeResult != null)
@@ -131,36 +155,19 @@ public class SynthesisUIManager : MonoBehaviour
             }
             else
             {
-                int rarity = currentRecipeResult.rarity;
+                // モンスターのレアリティ（1～5）を、リストのインデックス（0～4）に変換
+                int iconIndex = currentRecipeResult.rarity - 1;
 
-                switch (rarity)
+                // インデックスがリストの範囲内にあるか安全にチェック
+                if (iconIndex >= 0 && iconIndex < unknownIconsByRarity.Count)
                 {
-                    case 5:
-                        // 安全のためリストのサイズチェック
-                        if (unknownIconsByRarity.Count > 4)
-                            resultMonsterImage.sprite = unknownIconsByRarity[4];
-                        break;
-                    case 4:
-                        if (unknownIconsByRarity.Count > 3)
-                            resultMonsterImage.sprite = unknownIconsByRarity[3];
-                        break;
-                    case 3:
-                        if (unknownIconsByRarity.Count > 2)
-                            resultMonsterImage.sprite = unknownIconsByRarity[2];
-                        break;
-                    case 2:
-                        if (unknownIconsByRarity.Count > 1)
-                            resultMonsterImage.sprite = unknownIconsByRarity[1];
-                        break;
-                    case 1:
-                        if (unknownIconsByRarity.Count > 0)
-                            resultMonsterImage.sprite = unknownIconsByRarity[0];
-                        break;
-                    default:
-                        // どのレアリティにも当てはまらない場合（エラー対策）
-                        if (unknownIconsByRarity.Count > 0)
-                            resultMonsterImage.sprite = unknownIconsByRarity[0];
-                        break;
+                    resultMonsterImage.sprite = unknownIconsByRarity[iconIndex];
+                }
+                else
+                {
+                    // 範囲外の場合（またはリストが空）のデフォルト処理
+                    if (unknownIconsByRarity.Count > 0)
+                        resultMonsterImage.sprite = unknownIconsByRarity[DEFAULT_UNKNOWN_ICON_INDEX];
                 }
             }
             
@@ -206,7 +213,7 @@ public class SynthesisUIManager : MonoBehaviour
     private void UpdateInventorySelection()
     {
         // InventoryUIが持つ全スロットのリストを取得
-        foreach (var slot in inventoryUI.GetSlotUIs())
+        foreach (var slot in inventoryUI.SlotUIs)
         {
             // そのスロットの臓器データを取得
             OrganData organInSlot = slot.GetAssignedOrgan();
