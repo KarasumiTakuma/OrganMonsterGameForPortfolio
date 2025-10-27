@@ -3,17 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UI;
 
+/// <summary>
+/// 図鑑シーンのシステムを構成するクラス
+/// </summary>
 public class HistorySystem : MonoBehaviour
 {
     [Header("UI Panels")]
-    [SerializeField] private GameObject HistoryPanel;
-    [SerializeField] private GameObject organPanel;
-    [SerializeField] private GameObject monsterPanel;
-    [SerializeField] private GameObject artifactPanel;
+    //[SerializeField] private GameObject HistoryPanel;
+    [SerializeField] private GameObject organPanel; // 素材配置パネル
+    [SerializeField] private GameObject monsterPanel; // モンスター配置パネル
+    [SerializeField] private GameObject artifactPanel; // アーティファクト配置パネル
 
     [Header("Grid Contents")]
+    // 素材を配置するためのスクロール領域
     [SerializeField] private Transform organGridContent;
+    // モンスターを配置するためのスクロール領域
     [SerializeField] private Transform monsterGridContent;
+    // アーティファクトを配置するためのスクロール領域
     [SerializeField] private Transform artifactGridContent;
 
     [Header("Tab Buttons")]
@@ -22,16 +28,19 @@ public class HistorySystem : MonoBehaviour
     [SerializeField] private Button artifactTabButton;
 
     [Header("Prefabs")]
+    // 配置するスロットプハブ
     [SerializeField] private GameObject genericSlotPrefab;
 
     [Header("Tab Colors")]
+    // 選択中の色
     [SerializeField] private Color selectedColor = Color.yellow;
+    // 非選択中の色
     [SerializeField] private Color deselectedColor = Color.white;
 
     // --- 全アイテムリスト ---
-    private List<OrganData> allOrgansInGame = new List<OrganData>();
-    private List<MonsterData> allMonstersInGame = new List<MonsterData>();
-    private List<ArtifactData> allArtifactsInGame = new List<ArtifactData>();
+    private List<OrganData> allOrgansInGame = new List<OrganData>(); // 素材全種類
+    private List<MonsterData> allMonstersInGame = new List<MonsterData>(); // モンスター全種類
+    private List<ArtifactData> allArtifactsInGame = new List<ArtifactData>();// アーティファクト全種類
 
     // --- 事前生成したスロット ---
     private List<GenericSlotUI> organSlots = new List<GenericSlotUI>();

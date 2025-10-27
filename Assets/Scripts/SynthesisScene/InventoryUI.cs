@@ -14,10 +14,10 @@ public class InventoryUI : MonoBehaviour
     public int maxSlots = 50;             // インベントリの最大スロット数
 
     // 生成した全スロットの参照を保存しておくリスト
-    private List<InventorySlotUI> SlotUIs = new List<InventorySlotUI>();
+    public List<InventorySlotUI> SlotUIs { get; private set; } = new List<InventorySlotUI>();
 
     // スロットの参照を渡すゲッターメソッド
-    public List<InventorySlotUI> GetSlotUIs() => SlotUIs;
+    //public List<InventorySlotUI> GetSlotUIs() => SlotUIs;
 
     private void OnEnable()
     {

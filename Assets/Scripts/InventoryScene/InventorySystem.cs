@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UI;
 
+/// <summary>
+/// インベントリシーンのシステムを構成するクラス
+/// </summary>
 public class InventorySystem : MonoBehaviour
 {
     [Header("UI Panels")]
-    [SerializeField] private GameObject inventoryPanel;
+    //[SerializeField] private GameObject inventoryPanel;
     [SerializeField] private GameObject organPanel;
     [SerializeField] private GameObject monsterPanel;
     [SerializeField] private GameObject artifactPanel;
@@ -34,7 +37,7 @@ public class InventorySystem : MonoBehaviour
     private List<GenericSlotUI> artifactSlots = new List<GenericSlotUI>();
     public int maxSlots;
     // 現在選択されているスロットのデータを保持する
-    private ScriptableObject selectedItem; 
+    private ScriptableObject selectedItem;
 
     void Start()
     {
@@ -152,7 +155,7 @@ public class InventorySystem : MonoBehaviour
         artifactPanel.SetActive(true);
         PopulateArtifactGrid();
         UpdateTabColors();
-    }    
+    }
 
     // 臓器グリッドにデータを表示
     private void PopulateOrganGrid()
@@ -201,7 +204,7 @@ public class InventorySystem : MonoBehaviour
             }
         }
     }
-    
+
     private void PopulateArtifactGrid()
     {
         var ownedArtifacts = GameManager.Instance.PlayerData.ownedArtifacts;
