@@ -10,6 +10,8 @@ public class OrgansEditor : EditorWindow
     private Vector2 scrollPosition;
     // 検索用変数
     private string searchQuery = "";
+    // 折り畳み状態を記憶するための辞書
+    private Dictionary<OrganData, bool> organFoldoutStates = new Dictionary<OrganData, bool>();
     private enum SortType
     {
         // 名前でソート
@@ -67,31 +69,68 @@ public class OrgansEditor : EditorWindow
 
         foreach (var organ in sortedOrgans)
         {
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            EditorGUILayout.LabelField(organ.name, EditorStyles.boldLabel);
-            
-            // 監視を開始
-            EditorGUI.BeginChangeCheck();
-            organ.organID = EditorGUILayout.IntField("臓器ID", organ.organID);
-            organ.rarity = EditorGUILayout.IntSlider("レアリティ", organ.rarity, 1, 5);
-            organ.category = (OrganCategory)EditorGUILayout.EnumPopup("カテゴリー", organ.category);
-            organ.icon = (Sprite)EditorGUILayout.ObjectField("アイコン", organ.icon, typeof(Sprite), false, GUILayout.Height(64));
-            // 変更があった時のみデータを保存
-            if (EditorGUI.EndChangeCheck())
-            {
-                // セットが変更されたことをUnityに通知
-                EditorUtility.SetDirty(organ);
-                AssetDatabase.SaveAssets();
-            }
+            if (organ == null) continue;
 
-            if (GUILayout.Button("この臓器を削除"))
+            // Foldoutの状態を取得（キーがなければfalseで初期化）
+            if (!organFoldoutStates.ContainsKey(organ))
             {
-                organToDelete = organ;
+                organFoldoutStates[organ] = false;
             }
-            EditorGUILayout.EndVertical();
-            EditorGUILayout.Space(5);
+            bool isFoldoutOpen = organFoldoutStates[organ];
+
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            
+            // Foldout（折りたたみヘッダー）を描画
+            isFoldoutOpen = EditorGUILayout.Foldout(isFoldoutOpen, organ.name, true, EditorStyles.foldoutHeader);
+            organFoldoutStates[organ] = isFoldoutOpen; // 新しい状態を保存
+
+            // 「-」削除ボタンを横に配置
+            if (GUILayout.Button("-", GUILayout.Width(20)))
+            {
+                if (EditorUtility.DisplayDialog("臓器の削除", $"本当に '{organ.name}' を削除しますか？", "はい", "いいえ"))
+                {
+                    organToDelete = organ;
+                }
+            }
+            EditorGUILayout.EndHorizontal(); // 横並び終了
+
+            // もしFoldoutが開かれていたら、詳細情報を描画
+            if (isFoldoutOpen)
+            {
+                EditorGUI.indentLevel++; // インデントを一段階深くする
+                
+                EditorGUI.BeginChangeCheck();
+                
+                // --- パラメータ編集 ---
+                organ.organName = EditorGUILayout.TextField("表示名", organ.organName);
+                organ.organID = EditorGUILayout.IntField("臓器ID", organ.organID);
+                organ.rarity = EditorGUILayout.IntSlider("レアリティ", organ.rarity, 1, 5);
+                organ.category = (OrganCategory)EditorGUILayout.EnumPopup("カテゴリー", organ.category);
+                organ.icon = (Sprite)EditorGUILayout.ObjectField("アイコン", organ.icon, typeof(Sprite), false, GUILayout.Height(64));
+                
+                // ★ 説明文を編集可能にする
+                EditorGUILayout.LabelField("説明文");
+                organ.description = EditorGUILayout.TextArea(organ.description, GUILayout.Height(80));
+
+                if (EditorGUI.EndChangeCheck())
+                {
+                    EditorUtility.SetDirty(organ);
+                    AssetDatabase.SaveAssets();
+                }
+                
+                EditorGUI.indentLevel--; // インデントを元に戻す
+                EditorGUILayout.Space(5);
+            }
         }
+        
         EditorGUILayout.EndScrollView();
+
+        if (organToDelete != null)
+        {
+            EditorUtils.DeleteAsset(organToDelete);
+            organFoldoutStates.Remove(organToDelete); // ★ 削除したデータの状態も辞書から消す
+            LoadAllOrgans();
+        }
 
         if (organToDelete != null)
         {
@@ -150,6 +189,7 @@ public class OrgansEditor : EditorWindow
 
         OrganData newOrgan = ScriptableObject.CreateInstance<OrganData>();
         newOrgan.organID = newOrganId;
+        newOrgan.organName = newOrganAssetName;
         newOrgan.rarity = newOrganRarity;
         newOrgan.category = newOrganCategory;
         newOrgan.icon = newOrganIcon;

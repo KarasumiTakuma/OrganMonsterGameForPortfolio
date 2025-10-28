@@ -19,6 +19,7 @@ public class OrganData : ScriptableObject, IDisplayable
     public Sprite shadowIcon;
     [TextArea]
     public string description; // 図鑑用の説明文
+    public string hint; // 未発見の時のヒント
     public int price; // ショップで購入する時の価格
 
     public Sprite GetIcon() => icon;

@@ -20,6 +20,7 @@ public class MonsterData : ScriptableObject, IDisplayable
     [Header("UI表示用")]
     [TextArea]
     public string description; // 図鑑用の説明文
+    public string hint; // 未発見の時のヒント
 
     public Sprite icon; // モンスターのイラスト
     public Sprite shadowIcon;
