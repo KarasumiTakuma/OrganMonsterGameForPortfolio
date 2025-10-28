@@ -83,12 +83,12 @@ public class GenericSlotUI : MonoBehaviour
     /// <summary>
     /// ArtifactDataを受け取って、スロットの見た目を設定する
     /// </summary>
-    public void Setup(ArtifactData data)
+    public void Setup(ArtifactData data, int count)
     {
         assignedData = data;
         icon.enabled = true;
         icon.sprite = data.icon;
-        countText.text = ""; // アーティファクトに個数表示は不要なため
+        countText.text = count.ToString();
     }
 
     /// <summary>
@@ -120,10 +120,14 @@ public class GenericSlotUI : MonoBehaviour
         {
             icon.sprite = organData.shadowIcon;
         }
+        else if (data is OrganData artifactData && artifactData.shadowIcon != null)
+        {
+            icon.sprite = artifactData.shadowIcon;
+        }
         else
         {
             // 共通の「？」画像を使う場合
-            icon.sprite = defaultUnknownIcon; 
+            icon.sprite = defaultUnknownIcon;
             //icon.sprite = null; // または単に非表示
             //icon.enabled = false;
         }

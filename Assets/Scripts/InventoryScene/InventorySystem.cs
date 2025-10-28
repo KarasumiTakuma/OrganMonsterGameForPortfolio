@@ -65,8 +65,8 @@ public class InventorySystem : MonoBehaviour
         monsterTabButton?.onClick.AddListener(ShowMonsterPanel);
         artifactTabButton?.onClick.AddListener(ShowArtifactPanel);
 
-        // 最初は臓器パネルを表示
-        ShowOrganPanel();
+        // 最初はモンスターパネルを表示
+        ShowMonsterPanel();
     }
 
     private void OnEnable()
@@ -208,16 +208,16 @@ public class InventorySystem : MonoBehaviour
     private void PopulateArtifactGrid()
     {
         var ownedArtifacts = GameManager.Instance.PlayerData.ownedArtifacts;
-        List<ArtifactData> sortedArtifacts = ownedArtifacts.OrderBy(k => k.artifactID).ToList();
+        List<ArtifactData> sortedArtifacts = ownedArtifacts.Keys.OrderBy(k => k.artifactID).ToList();
 
         for (int i = 0; i < artifactSlots.Count; i++)
         {
             if (i < sortedArtifacts.Count)
             {
                 ArtifactData artifact = sortedArtifacts[i];
-                //int count = ownedArtifacts[artifact];
+                int count = ownedArtifacts[artifact];
                 artifactSlots[i].gameObject.SetActive(true);
-                artifactSlots[i].Setup(artifact);
+                artifactSlots[i].Setup(artifact, count);
             }
             else
             {
