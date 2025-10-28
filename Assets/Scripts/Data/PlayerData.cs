@@ -5,6 +5,7 @@ using System;
 
 public class PlayerData : MonoBehaviour
 {
+    [Header("プレイヤーの情報")]
     public int researchPoints; // 研究ポイント
 
     // --- データ変更を通知するためのイベント ---
@@ -16,7 +17,12 @@ public class PlayerData : MonoBehaviour
     public Dictionary<MonsterData, int> ownedMonsters = new Dictionary<MonsterData, int>();
     // public List<MonsterData> unlockedMonsters = new List<MonsterData>();
     // 所持しているアーティファクト
-    public List<ArtifactData> ownedArtifacts = new List<ArtifactData>();
+    public Dictionary<ArtifactData, int> ownedArtifacts = new Dictionary<ArtifactData, int>();
+
+    [Header("図鑑用の発見済みリスト")]
+    public List<MonsterData> discoveredMonsters = new List<MonsterData>();
+    public List<OrganData> discoveredOrgans = new List<OrganData>();
+    public List<ArtifactData> discoveredArtifacts = new List<ArtifactData>();
 
     // --- デバック用 ---
     [Header("デバッグ用インベントリ表示")]
@@ -55,13 +61,14 @@ public class PlayerData : MonoBehaviour
         monsterValues = ownedMonsters.Values.ToList();
     }
 
-    // --- データ操作用の関数 (例) ---
+    // --- データ操作用の関数  ---
 
     public void AddPoints(int amount)
     {
         researchPoints += amount;
     }
 
+    // ガチャなどでポイントが足りるか確認して足りると消費、足りないとfalseを返す
     public bool UsePoints(int amount)
     {
         if (researchPoints >= amount)
@@ -82,19 +89,28 @@ public class PlayerData : MonoBehaviour
         {
             ownedOrgans.Add(organ, amount);
         }
+        // もし、まだ発見済みリストになければ追加する
+        if (!discoveredOrgans.Contains(organ))
+        {
+            discoveredOrgans.Add(organ);
+        }
         // イベント発行
         OnInventoryChanged?.Invoke();
     }
     // 臓器を削除するメソッド
     public void RemoveOrgan(OrganData organ)
     {
-        ownedOrgans[organ]--;
-        if (ownedOrgans[organ] <= 0)
+        if (ownedOrgans.ContainsKey(organ))
         {
-            ownedOrgans.Remove(organ);
-        }
-        // イベント発行
-        OnInventoryChanged?.Invoke();
+            ownedOrgans[organ]--;
+            if (ownedOrgans[organ] <= 0)
+            {
+                ownedOrgans.Remove(organ);
+            }
+            // イベント発行
+            OnInventoryChanged?.Invoke();
+        }    
+            
     }
 
     public void AddMonster(MonsterData monster, int amount)
@@ -107,5 +123,45 @@ public class PlayerData : MonoBehaviour
         {
             ownedMonsters.Add(monster, amount);
         }
+        // もし、まだ発見済みリストになければ追加する
+        if (!discoveredMonsters.Contains(monster))
+        {
+            discoveredMonsters.Add(monster);
+        }
+        // イベント発行
+        OnInventoryChanged?.Invoke();
+    }
+
+    public void RemoveMonster(MonsterData monster)
+    {
+        if (ownedMonsters.ContainsKey(monster))
+        {
+            ownedMonsters[monster]--;
+            if (ownedMonsters[monster] <= 0)
+            {
+                ownedMonsters.Remove(monster);
+            }
+            // イベント発行
+            OnInventoryChanged?.Invoke();
+        }
+    }
+
+    public void AddArtifact(ArtifactData artifact, int amount)
+    {
+        if (ownedArtifacts.ContainsKey(artifact))
+        {
+            ownedArtifacts[artifact] += amount;
+        }
+        else
+        {
+            ownedArtifacts.Add(artifact, amount);
+        }
+        // もし、まだ発見済みリストになければ追加する
+        if (!discoveredArtifacts.Contains(artifact))
+        {
+            discoveredArtifacts.Add(artifact);
+        }
+        // イベント発行
+        OnInventoryChanged?.Invoke();
     }
 }

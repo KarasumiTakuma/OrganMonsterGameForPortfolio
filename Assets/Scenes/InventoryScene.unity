@@ -1476,7 +1476,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d39f06538eec498a9316954ce6c68a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventoryPanel: {fileID: 639072323}
   organPanel: {fileID: 1580895805}
   monsterPanel: {fileID: 1537072659}
   artifactPanel: {fileID: 2066416720}
@@ -2533,7 +2532,7 @@ GameObject:
   - component: {fileID: 1134616806}
   - component: {fileID: 1134616807}
   m_Layer: 0
-  m_Name: DetailSystem
+  m_Name: InventoryDetailSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

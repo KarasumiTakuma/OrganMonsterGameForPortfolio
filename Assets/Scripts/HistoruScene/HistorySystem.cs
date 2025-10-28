@@ -9,7 +9,6 @@ using UnityEngine.UI;
 public class HistorySystem : MonoBehaviour
 {
     [Header("UI Panels")]
-    //[SerializeField] private GameObject HistoryPanel;
     [SerializeField] private GameObject organPanel; // 素材配置パネル
     [SerializeField] private GameObject monsterPanel; // モンスター配置パネル
     [SerializeField] private GameObject artifactPanel; // アーティファクト配置パネル
@@ -69,7 +68,7 @@ public class HistorySystem : MonoBehaviour
         monsterTabButton?.onClick.AddListener(ShowMonsterPanel);
         artifactTabButton?.onClick.AddListener(ShowArtifactPanel);
 
-        // 最初はモンスター図鑑を表示 (など、好きな初期タブに)
+        // 最初はモンスター図鑑を表示
         ShowMonsterPanel();
     }
 
@@ -79,6 +78,7 @@ public class HistorySystem : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             GameObject slotGO = Instantiate(genericSlotPrefab, content);
+            // スクリプトをリストに追加
             slotList.Add(slotGO.GetComponent<GenericSlotUI>());
         }
     }
@@ -94,11 +94,10 @@ public class HistorySystem : MonoBehaviour
 
     private void HandleSlotClick(ScriptableObject clickedData)
     {
-        // 未所持アイテムをクリックした場合の処理を追加（例：詳細を表示しない）
-        if (clickedData == null || !IsOwned(clickedData))
+        // 未入手アイテムをクリックした場合の処理を追加
+        if (clickedData == null)
         {
             selectedItem = null; // 未所持なら選択解除
-            // ShowDetail(null); // 詳細パネルも非表示に
         }
         else if (selectedItem == clickedData)
         {
@@ -115,9 +114,9 @@ public class HistorySystem : MonoBehaviour
     // アイテムが所持済みかチェックするヘルパー関数
     private bool IsOwned(ScriptableObject data)
     {
-        if (data is OrganData od) return GameManager.Instance.PlayerData.ownedOrgans.ContainsKey(od);
-        if (data is MonsterData md) return GameManager.Instance.PlayerData.ownedMonsters.ContainsKey(md);
-        if (data is ArtifactData ad) return GameManager.Instance.PlayerData.ownedArtifacts.Contains(ad);
+        if (data is OrganData organData) return GameManager.Instance.PlayerData.ownedOrgans.ContainsKey(organData);
+        if (data is MonsterData monsterData) return GameManager.Instance.PlayerData.ownedMonsters.ContainsKey(monsterData);
+        if (data is ArtifactData artifactData) return GameManager.Instance.PlayerData.ownedArtifacts.ContainsKey(artifactData);
         return false;
     }
 
@@ -165,16 +164,21 @@ public class HistorySystem : MonoBehaviour
 
     private void PopulateOrganGrid()
     {
-        var ownedOrgans = GameManager.Instance.PlayerData.ownedOrgans;
+        // PlayerDataから「発見済み」の臓器リストを取得
+        var discoveredOrgans = GameManager.Instance.PlayerData.discoveredOrgans;
+        //var ownedOrgans = GameManager.Instance.PlayerData.ownedOrgans;
         for (int i = 0; i < organSlots.Count; i++)
         {
             OrganData organ = allOrgansInGame[i];
-            if (ownedOrgans.ContainsKey(organ))
+            if (discoveredOrgans.Contains(organ))
             {
-                organSlots[i].Setup(organ, ownedOrgans[organ]);
+                // 発見済み -> 通常表示 (所持数はPlayerDataから取得)
+                int count = GameManager.Instance.PlayerData.ownedOrgans.ContainsKey(organ) ? GameManager.Instance.PlayerData.ownedOrgans[organ] : 0;
+                organSlots[i].Setup(organ, count);
             }
             else
             {
+                // 未発見 -> 影表示
                 organSlots[i].SetupAsUnknown(organ);
             }
         }
@@ -182,16 +186,22 @@ public class HistorySystem : MonoBehaviour
 
     private void PopulateMonsterGrid()
     {
-        var ownedMonsters = GameManager.Instance.PlayerData.ownedMonsters;
+        // PlayerDataから「発見済み」のモンスターリストを取得
+        var discoveredMonsters = GameManager.Instance.PlayerData.discoveredMonsters;
+        
         for (int i = 0; i < monsterSlots.Count; i++)
         {
-            MonsterData monster = allMonstersInGame[i];
-            if (ownedMonsters.ContainsKey(monster))
+            MonsterData monster = allMonstersInGame[i]; // 全モンスターを順番にチェック
+
+            if (discoveredMonsters.Contains(monster))
             {
-                monsterSlots[i].Setup(monster, ownedMonsters[monster]);
+                // 発見済み -> 通常表示
+                int count = GameManager.Instance.PlayerData.ownedMonsters.ContainsKey(monster) ? GameManager.Instance.PlayerData.ownedMonsters[monster] : 0;
+                monsterSlots[i].Setup(monster, count);
             }
             else
             {
+                // 未発見 -> 影表示
                 monsterSlots[i].SetupAsUnknown(monster);
             }
         }
@@ -199,16 +209,22 @@ public class HistorySystem : MonoBehaviour
 
     private void PopulateArtifactGrid()
     {
-        var ownedArtifacts = GameManager.Instance.PlayerData.ownedArtifacts;
+        // PlayerDataから「発見済み」のモンスターリストを取得
+        var discoveredArtifacts = GameManager.Instance.PlayerData.discoveredArtifacts;
+        
         for (int i = 0; i < artifactSlots.Count; i++)
         {
             ArtifactData artifact = allArtifactsInGame[i];
-            if (ownedArtifacts.Contains(artifact))
+
+            if (discoveredArtifacts.Contains(artifact))
             {
-                artifactSlots[i].Setup(artifact); // Artifact用のSetupをGenericSlotUIに追加
+                // 発見済み -> 通常表示
+                int count = GameManager.Instance.PlayerData.ownedArtifacts.ContainsKey(artifact) ? GameManager.Instance.PlayerData.ownedArtifacts[artifact] : 0;
+                artifactSlots[i].Setup(artifact, count);
             }
             else
             {
+                // 未発見 -> 影表示
                 artifactSlots[i].SetupAsUnknown(artifact);
             }
         }
