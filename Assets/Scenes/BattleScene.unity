@@ -510,8 +510,10 @@ MonoBehaviour:
   - {fileID: 279281388}
   - {fileID: 639659136}
   - {fileID: 767193671}
-  enemyMaxHP: 30
-  canvas: {fileID: 1388838491}
+  enemyDataList:
+  - {fileID: 11400000, guid: cdf25abf5eca4480d9d7020c9b97f6c6, type: 2}
+  - {fileID: 11400000, guid: cdf25abf5eca4480d9d7020c9b97f6c6, type: 2}
+  - {fileID: 11400000, guid: cdf25abf5eca4480d9d7020c9b97f6c6, type: 2}
 --- !u!1 &1381604159
 GameObject:
   m_ObjectHideFlags: 0
