@@ -22,6 +22,7 @@ public class OrganData : ScriptableObject, IDisplayable
     public string hint; // 未発見の時のヒント
     public int price; // ショップで購入する時の価格
 
+    public int GetID() => organID;
     public Sprite GetIcon() => icon;
     public string GetName() => organName;
     // PlayerDataインスタンスからデータの数を返すメソッド

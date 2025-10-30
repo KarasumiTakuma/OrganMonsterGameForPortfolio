@@ -151,12 +151,12 @@ public class SynthesisUIManager : MonoBehaviour
             resultMonsterImage.enabled = true;
             if (GameManager.Instance.PlayerData.ownedMonsters.ContainsKey(currentRecipeResult))
             {
-                resultMonsterImage.sprite = currentRecipeResult.icon;
+                resultMonsterImage.sprite = currentRecipeResult.GetIcon();
             }
             else
             {
                 // モンスターのレアリティ（1～5）を、リストのインデックス（0～4）に変換
-                int iconIndex = currentRecipeResult.rarity - 1;
+                int iconIndex = currentRecipeResult.GetRarity() - 1;
 
                 // インデックスがリストの範囲内にあるか安全にチェック
                 if (iconIndex >= 0 && iconIndex < unknownIconsByRarity.Count)
@@ -203,7 +203,7 @@ public class SynthesisUIManager : MonoBehaviour
         // 3. InventoryUIの表示を更新
         inventoryUI.UpdateDisplay();
 
-        Debug.Log(currentRecipeResult.monsterName + " を生成しました！");
+        Debug.Log(currentRecipeResult.GetName() + " を生成しました！");
 
         // 合成後、選択をクリアしてUIを再更新
         selectedIngredients.Clear();

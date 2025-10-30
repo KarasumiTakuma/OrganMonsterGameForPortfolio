@@ -5,6 +5,7 @@ using UnityEngine; // Spriteを使うために必要
 /// </summary>
 public interface IDisplayable
 {
+    int GetID();
     Sprite GetIcon();
     string GetName();
     int GetCount();

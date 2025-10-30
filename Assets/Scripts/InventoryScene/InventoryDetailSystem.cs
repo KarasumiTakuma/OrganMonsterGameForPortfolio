@@ -84,10 +84,10 @@ public class InventoryDetailSystem : MonoBehaviour
             objectName.text = monsterData.GetName();
             rarityText.text = monsterData.GetRarity().ToString();
             ownedCountText.text = monsterData.GetCount().ToString();
-            descriptionText.text = monsterData.GetDescription;
+            descriptionText.text = monsterData.GetDescription();
 
             // タイプに応じてアイコンを設定
-            int typeIndex = (int)monsterData.type;
+            int typeIndex = (int)monsterData.GetMonsterType();
             if (monsterTypeIcons != null && monsterTypeIcons.Count > typeIndex)
             {
                 typeIcon.enabled = true;

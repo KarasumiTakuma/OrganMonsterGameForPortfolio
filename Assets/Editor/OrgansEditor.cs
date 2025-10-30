@@ -194,7 +194,7 @@ public class OrgansEditor : EditorWindow
         newOrgan.category = newOrganCategory;
         newOrgan.icon = newOrganIcon;
 
-        string folderPath = "Assets/OrgansData"; // 保存先フォルダ
+        string folderPath = "Assets/Resources/Data/Organs"; // 保存先フォルダ
         // フォルダがなければ作成
         if (!AssetDatabase.IsValidFolder(folderPath))
         {

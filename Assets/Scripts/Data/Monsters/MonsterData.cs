@@ -7,31 +7,52 @@ public enum MonsterType { Fire, Water, Grass, Other } //炎、水、草、その
 public class MonsterData : ScriptableObject, IDisplayable
 {
     [Header("基本情報")]
-    public int monsterID;
-    public string monsterName;
+    [SerializeField] private int monsterID;
+    [SerializeField] private string monsterName;
 
     [Header("ゲームロジック用")]
-    public int maxHp;
-    public int attackPower;
+    [SerializeField] private int maxHp;
+    [SerializeField] private int attackPower;
     // public SkillData specialSkill; // スキルなどもデータとして紐付けられる
-    public MonsterType type; //タイプ
-    public int rarity; // 1~5
+    [SerializeField] private MonsterType type; //タイプ
+    [SerializeField] private int rarity; // 1~5
 
     [Header("UI表示用")]
     [TextArea]
-    public string description; // 図鑑用の説明文
-    public string hint; // 未発見の時のヒント
+    [SerializeField] private string description; // 図鑑用の説明文
+    [SerializeField] private string hint; // 未発見の時のヒント
 
-    public Sprite icon; // モンスターのイラスト
-    public Sprite shadowIcon;
+    [SerializeField] private Sprite icon; // モンスターのイラスト
+    [SerializeField] private Sprite shadowIcon;
 
     [Header("このモンスターが提供するカード (10枚)")]
     public List<CardData> cards = new List<CardData>();
 
-    public Sprite GetIcon() => icon;
+
+    // --- ゲッターメソッド ---
+    public int GetID() => monsterID;
     public string GetName() => monsterName;
+    public int GetHP() => maxHp;
+    public int GetAttackPower() => attackPower;
+    public MonsterType GetMonsterType() => type;
     public int GetRarity() => rarity;
-    public string GetDescription => description;
+    public string GetDescription() => description;
+    public string GetHint() => hint;
+    public Sprite GetIcon() => icon;
+    public Sprite GetShadowIcon() => shadowIcon;
+
+    // --- セッターメソッド ---
+    public void SetID(int newID) { monsterID = newID; }
+    public void SetName(string newName) { monsterName = newName; }
+    public void SetHP(int newHP) { maxHp = newHP; }
+    public void SetAttackPower(int newAttack) { attackPower = newAttack; }
+    public void SetMonsterType(MonsterType newType) { type = newType; }
+    public void SetRarity(int newRarity) { rarity = newRarity; }
+    public void SetDescription(string newDesc) { description = newDesc; }
+    public void SetHint(string newHint) { hint = newHint; }
+    public void SetIcon(Sprite newIcon) { icon = newIcon; }
+    public void SetShadowIcon(Sprite newIcon) { shadowIcon = newIcon; }
+
     public int GetCount() 
     {
         if (GameManager.Instance != null && GameManager.Instance.PlayerData.ownedMonsters.ContainsKey(this))

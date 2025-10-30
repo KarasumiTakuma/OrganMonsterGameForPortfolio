@@ -33,7 +33,7 @@ public class DataManager : MonoBehaviour
     {
         // ★★★ Resources.LoadAll を使う ★★★
         AllOrgans = Resources.LoadAll<OrganData>("Data/Organs").OrderBy(o => o.organID).ToList();
-        AllMonsters = Resources.LoadAll<MonsterData>("Data/Monsters").OrderBy(m => m.monsterID).ToList();
-        AllArtifacts = Resources.LoadAll<ArtifactData>("Data/Artifacts").OrderBy(a => a.artifactID).ToList();
+        AllMonsters = Resources.LoadAll<MonsterData>("Data/Monsters").OrderBy(m => m.GetID()).ToList();
+        AllArtifacts = Resources.LoadAll<ArtifactData>("Data/Artifacts").OrderBy(a => a.GetArtifactID()).ToList();
     }
 }

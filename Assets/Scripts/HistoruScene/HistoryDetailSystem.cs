@@ -52,56 +52,83 @@ public class HistoryDetailSystem : MonoBehaviour
             currentSelectedItem = null;
             return;
         }
-        currentSelectedItem = data; // 新しく選択されたアイテムを記憶
+        // 新しく選択されたアイテムを記憶
+        currentSelectedItem = data;
 
         if (detailPanel != null) detailPanel.SetActive(true);
 
         // 受け取ったデータがOrganData型かどうかをチェック
         if (data is OrganData organData)
         {
-            // PlayerDataから「発見済み」の臓器リストを取得
-            var discoveredOrgans = GameManager.Instance.PlayerData.discoveredOrgans;
-            // 素材(臓器)が発見済みの場合、そのまま表示
-            if (discoveredOrgans.Contains(organData))
-            {
-                icon.sprite = organData.icon;
-                objectName.text = organData.organName;
-                rarityText.text = organData.rarity.ToString();
-                ownedCountText.text = organData.GetCount().ToString();
-                descriptionText.text = organData.description;
-                // カテゴリーに応じてアイコンを設定
-                int categoryIndex = (int)organData.category;
-                if (organCategoryIcons != null && organCategoryIcons.Count > categoryIndex)
-                {
-                    typeIcon.enabled = true;
-                    typeIcon.sprite = organCategoryIcons[categoryIndex];
-                }
-                else
-                {
-                    typeIcon.enabled = false;
-                }
-            }
-            else // 未発見の場合
-            {
-                icon.sprite = organData.shadowIcon; // 影のアイコン
-                objectName.text = "？？？？？";
-                rarityText.text = "?";
-                ownedCountText.text = "0";
-                descriptionText.text = organData.hint; // ヒントを表示
-                typeIcon.enabled = false;
-            }
+            DisplayOrganInformation(organData);
         }
         // 受け取ったデータがMonsterData型かどうかをチェック
         else if (data is MonsterData monsterData)
+        {
+            DisplayMonsterInformation(monsterData);
+        }
+        else if (data is ArtifactData artifactData)
+        {
+            DisplayArtifactInformation(artifactData);
+        }
+
+        // アーティファクトの追加と、モンスター、アーティの未発見の場合追加
+    }
+    /// <summary>
+    /// 素材(臓器)の詳細情報を表示する
+    /// </summary>
+    private void DisplayOrganInformation(OrganData organData)
+    {
+        // PlayerDataから「発見済み」の臓器リストを取得
+        var discoveredOrgans = GameManager.Instance.PlayerData.discoveredOrgans;
+        // 素材(臓器)が発見済みの場合、そのまま表示
+        if (discoveredOrgans.Contains(organData))
+        {
+            icon.sprite = organData.icon; // アイコンを表示
+            objectName.text = organData.organName;
+            rarityText.text = organData.rarity.ToString();
+            ownedCountText.text = organData.GetCount().ToString();
+            descriptionText.text = organData.description;
+            // カテゴリーに応じてアイコンを設定
+            int categoryIndex = (int)organData.category;
+            if (organCategoryIcons != null && organCategoryIcons.Count > categoryIndex)
+            {
+                typeIcon.enabled = true;
+                typeIcon.sprite = organCategoryIcons[categoryIndex];
+            }
+            else
+            {
+                typeIcon.enabled = false;
+            }
+        }
+        else // 未発見の場合
+        {
+            icon.sprite = organData.shadowIcon; // 影のアイコン
+            objectName.text = "？？？？？";
+            rarityText.text = "?";
+            ownedCountText.text = "0";
+            descriptionText.text = organData.hint; // ヒントを表示
+            typeIcon.enabled = false;
+        }
+    }
+
+    /// <summary>
+    /// モンスターの詳細情報を表示する
+    /// </summary>
+    private void DisplayMonsterInformation(MonsterData monsterData)
+    {
+        // PlayerDataから「発見済み」の臓器リストを取得
+        var discoveredMonsters = GameManager.Instance.PlayerData.discoveredMonsters;
+        if (discoveredMonsters.Contains(monsterData))
         {
             icon.sprite = monsterData.GetIcon();
             objectName.text = monsterData.GetName();
             rarityText.text = monsterData.GetRarity().ToString();
             ownedCountText.text = monsterData.GetCount().ToString();
-            descriptionText.text = monsterData.GetDescription;
+            descriptionText.text = monsterData.GetDescription();
 
             // タイプに応じてアイコンを設定
-            int typeIndex = (int)monsterData.type;
+            int typeIndex = (int)monsterData.GetMonsterType();
             if (monsterTypeIcons != null && monsterTypeIcons.Count > typeIndex)
             {
                 typeIcon.enabled = true;
@@ -112,7 +139,40 @@ public class HistoryDetailSystem : MonoBehaviour
                 typeIcon.enabled = false;
             }
         }
+        else // 未発見の場合
+        {
+            icon.sprite = monsterData.GetShadowIcon(); // 影のアイコン
+            objectName.text = "？？？？？";
+            rarityText.text = "?";
+            ownedCountText.text = "0";
+            descriptionText.text = monsterData.GetHint(); // ヒントを表示
+            typeIcon.enabled = false;
+        }
+    }
+    
+    private void DisplayArtifactInformation(ArtifactData artifactData)
+    {
+        // PlayerDataから「発見済み」の臓器リストを取得
+        var discoveredArtifacts = GameManager.Instance.PlayerData.discoveredArtifacts;
+        if (discoveredArtifacts.Contains(artifactData))
+        {
+            icon.sprite = artifactData.GetIcon();
+            objectName.text = artifactData.GetArtifactName();
+            rarityText.text = artifactData.GetArtifactRarity().ToString();
+            ownedCountText.text = artifactData.GetCount().ToString();
+            descriptionText.text = artifactData.GetDescription();
 
-        // アーティファクトの追加と、モンスター、アーティの未発見の場合追加
+            // アーティファクトにタイプは存在しないのでタイプアイコンは非表示
+            typeIcon.enabled = false;
+        }
+        else // 未発見の場合
+        {
+            icon.sprite = artifactData.GetShadowIcon(); // 影のアイコン
+            objectName.text = "？？？？？";
+            rarityText.text = "?";
+            ownedCountText.text = "0";
+            descriptionText.text = artifactData.GetHint(); // ヒントを表示
+            typeIcon.enabled = false;
+        }
     }
 }
