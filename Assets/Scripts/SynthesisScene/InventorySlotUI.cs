@@ -63,7 +63,7 @@ public class InventorySlotUI : MonoBehaviour
     {
         assignedOrganData = organ; // 担当データを記憶
         icon.enabled = true;
-        icon.sprite = organ.icon;
+        icon.sprite = organ.GetIcon();
         countText.text = count.ToString();
         // 新しくセットアップされた時は、必ず非選択状態に戻す
         isSelected = false; 

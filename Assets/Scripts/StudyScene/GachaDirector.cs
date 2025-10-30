@@ -79,8 +79,8 @@ public class GachaDirector : MonoBehaviour
         // --- 2. ボタンが押されるたびに、次の結果を表示 ---
         foreach (var organ in results)
         {
-            singleResultIcon.sprite = organ.icon;
-            singleResultName.text = organ.organName;
+            singleResultIcon.sprite = organ.GetIcon();
+            singleResultName.text = organ.GetName();
             countText.text = count.ToString() + "連目";
             count++;
 

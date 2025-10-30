@@ -102,18 +102,32 @@ public class OrgansEditor : EditorWindow
                 EditorGUI.BeginChangeCheck();
                 
                 // --- パラメータ編集 ---
-                organ.organName = EditorGUILayout.TextField("表示名", organ.organName);
-                organ.organID = EditorGUILayout.IntField("臓器ID", organ.organID);
-                organ.rarity = EditorGUILayout.IntSlider("レアリティ", organ.rarity, 1, 5);
-                organ.category = (OrganCategory)EditorGUILayout.EnumPopup("カテゴリー", organ.category);
-                organ.icon = (Sprite)EditorGUILayout.ObjectField("アイコン", organ.icon, typeof(Sprite), false, GUILayout.Height(64));
-                
-                // ★ 説明文を編集可能にする
+                string newName = EditorGUILayout.TextField("表示名", organ.GetName());
+                int newID = EditorGUILayout.IntField("臓器ID", organ.GetID());
+                int newRarity = EditorGUILayout.IntSlider("レアリティ", organ.GetRarity(), 1, 5);
+                OrganCategory newCategory = (OrganCategory)EditorGUILayout.EnumPopup("カテゴリー", organ.GetCategory());
+                Sprite newIcon = (Sprite)EditorGUILayout.ObjectField("アイコン", organ.GetIcon(), typeof(Sprite), false, GUILayout.Height(64));
+                Sprite newShadowIcon = (Sprite)EditorGUILayout.ObjectField("影アイコン", organ.GetShadowIcon(), typeof(Sprite), false, GUILayout.Height(64));
+
+
                 EditorGUILayout.LabelField("説明文");
-                organ.description = EditorGUILayout.TextArea(organ.description, GUILayout.Height(80));
+                string newDescription = EditorGUILayout.TextArea(organ.GetDescription(), GUILayout.Height(40));
+                EditorGUILayout.LabelField("ヒント");
+                string newHint = EditorGUILayout.TextArea(organ.GetHint(), GUILayout.Height(40));
 
                 if (EditorGUI.EndChangeCheck())
                 {
+                    Undo.RecordObject(organ, "素材を変更"); // Undo(元に戻す)機能をサポート
+                    // --- セッターメソッドを使って新しい値を書き込む ---
+                    organ.SetName(newName);
+                    organ.SetID(newID);
+                    organ.SetRarity(newRarity);
+                    organ.SetCategory(newCategory);
+                    organ.SetIcon(newIcon);
+                    organ.SetShadowIcon(newShadowIcon);
+                    organ.SetDescription(newDescription);
+                    organ.SetHint(newHint);
+
                     EditorUtility.SetDirty(organ);
                     AssetDatabase.SaveAssets();
                 }
@@ -129,14 +143,6 @@ public class OrgansEditor : EditorWindow
         {
             EditorUtils.DeleteAsset(organToDelete);
             organFoldoutStates.Remove(organToDelete); // ★ 削除したデータの状態も辞書から消す
-            LoadAllOrgans();
-        }
-
-        if (organToDelete != null)
-        {
-            EditorUtils.DeleteAsset(organToDelete);
-            // 削除されたアセットを参照するEditorUtils.DeleteAssetはnullを返すが、明示的にnullとする
-            organToDelete = null;
             LoadAllOrgans();
         }
 
@@ -165,10 +171,10 @@ public class OrgansEditor : EditorWindow
         {
             case SortType.AssetName_Ascending: return organs.OrderBy(r => r.name).ToList();
             case SortType.AssetName_Descending: return organs.OrderByDescending(r => r.name).ToList();
-            case SortType.OrganID_Ascending: return organs.OrderBy(r => r.organID).ToList();
-            case SortType.OrganID_Descending: return organs.OrderByDescending(r => r.organID).ToList();
-            case SortType.Rarity_Ascending: return organs.OrderBy(r => r.rarity).ToList();
-            case SortType.Rarity_Descending: return organs.OrderByDescending(r => r.rarity).ToList();
+            case SortType.OrganID_Ascending: return organs.OrderBy(r => r.GetID()).ToList();
+            case SortType.OrganID_Descending: return organs.OrderByDescending(r => r.GetID()).ToList();
+            case SortType.Rarity_Ascending: return organs.OrderBy(r => r.GetRarity()).ToList();
+            case SortType.Rarity_Descending: return organs.OrderByDescending(r => r.GetRarity()).ToList();
             default: return organs;
         }
     }
@@ -188,11 +194,13 @@ public class OrgansEditor : EditorWindow
         }
 
         OrganData newOrgan = ScriptableObject.CreateInstance<OrganData>();
-        newOrgan.organID = newOrganId;
-        newOrgan.organName = newOrganAssetName;
-        newOrgan.rarity = newOrganRarity;
-        newOrgan.category = newOrganCategory;
-        newOrgan.icon = newOrganIcon;
+
+        // --- セッターメソッドを使って値を設定 ---
+        newOrgan.SetName(newOrganAssetName);
+        newOrgan.SetID(newOrganId);
+        newOrgan.SetRarity(newOrganRarity);
+        newOrgan.SetCategory(newOrganCategory);
+        newOrgan.SetIcon(newOrganIcon);
 
         string folderPath = "Assets/Resources/Data/Organs"; // 保存先フォルダ
         // フォルダがなければ作成

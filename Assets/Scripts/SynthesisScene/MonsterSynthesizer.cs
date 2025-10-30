@@ -29,8 +29,8 @@ public class MonsterSynthesizer
 
             // 素材が一致するかどうかをチェック
             // レシピと渡された素材をID順にそーそして、比較する
-            var sortedRecipeIngredients = recipe.ingredients.OrderBy(organ => organ.organID).ToList();
-            var sortedInputIngredients = inputIngredients.OrderBy(organ => organ.organID).ToList();
+            var sortedRecipeIngredients = recipe.ingredients.OrderBy(organ => organ.GetID()).ToList();
+            var sortedInputIngredients = inputIngredients.OrderBy(organ => organ.GetID()).ToList();
 
             // 順番を揃えたリストが完全に一致するかどうかを判定
             if (sortedRecipeIngredients.SequenceEqual(sortedInputIngredients))

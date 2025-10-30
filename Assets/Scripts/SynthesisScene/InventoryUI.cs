@@ -55,7 +55,7 @@ public class InventoryUI : MonoBehaviour
         var ownedOrgans = GameManager.Instance.PlayerData.ownedOrgans;
         List<OrganData> ownedOrgansList = ownedOrgans.Keys.ToList();
         // ID順の昇順で並び替える
-        ownedOrgansList = ownedOrgansList.OrderBy(organ => organ.organID).ToList();
+        ownedOrgansList = ownedOrgansList.OrderBy(organ => organ.GetID()).ToList();
 
         // 全スロットをループして、表示を更新する
         for (int i = 0; i < SlotUIs.Count; i++)

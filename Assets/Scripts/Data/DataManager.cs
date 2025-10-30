@@ -32,7 +32,7 @@ public class DataManager : MonoBehaviour
     private void LoadAllGameData()
     {
         // ★★★ Resources.LoadAll を使う ★★★
-        AllOrgans = Resources.LoadAll<OrganData>("Data/Organs").OrderBy(o => o.organID).ToList();
+        AllOrgans = Resources.LoadAll<OrganData>("Data/Organs").OrderBy(o => o.GetID()).ToList();
         AllMonsters = Resources.LoadAll<MonsterData>("Data/Monsters").OrderBy(m => m.GetID()).ToList();
         AllArtifacts = Resources.LoadAll<ArtifactData>("Data/Artifacts").OrderBy(a => a.GetArtifactID()).ToList();
     }

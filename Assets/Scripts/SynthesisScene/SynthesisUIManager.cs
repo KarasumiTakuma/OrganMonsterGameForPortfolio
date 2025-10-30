@@ -114,7 +114,7 @@ public class SynthesisUIManager : MonoBehaviour
             if (i < selectedIngredients.Count)
             {
                 synthesisSlots[i].enabled = true;
-                synthesisSlots[i].sprite = selectedIngredients[i].icon;
+                synthesisSlots[i].sprite = selectedIngredients[i].GetIcon();
             }
             else
             {
