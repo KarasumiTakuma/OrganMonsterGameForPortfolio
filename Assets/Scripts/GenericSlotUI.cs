@@ -76,7 +76,7 @@ public class GenericSlotUI : MonoBehaviour
     {
         assignedData = data;
         icon.enabled = true;
-        icon.sprite = data.icon;
+        icon.sprite = data.GetIcon();
         countText.text = count.ToString();
     }
 
@@ -87,7 +87,7 @@ public class GenericSlotUI : MonoBehaviour
     {
         assignedData = data;
         icon.enabled = true;
-        icon.sprite = data.icon;
+        icon.sprite = data.GetIcon();
         countText.text = count.ToString();
     }
 
@@ -112,9 +112,9 @@ public class GenericSlotUI : MonoBehaviour
         countText.text = ""; // 個数は表示しない
 
         // 影画像を表示するロジック
-        if (data is MonsterData monsterData && monsterData.shadowIcon != null)
+        if (data is MonsterData monsterData && monsterData.GetShadowIcon() != null)
         {
-            icon.sprite = monsterData.shadowIcon;
+            icon.sprite = monsterData.GetShadowIcon();
         }
         else if (data is OrganData organData && organData.shadowIcon != null)
         {

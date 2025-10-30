@@ -186,7 +186,7 @@ public class InventorySystem : MonoBehaviour
     private void PopulateMonsterGrid()
     {
         var ownedMonsters = GameManager.Instance.PlayerData.ownedMonsters;
-        List<MonsterData> sortedMonsterKeys = ownedMonsters.Keys.OrderBy(k => k.monsterID).ToList();
+        List<MonsterData> sortedMonsterKeys = ownedMonsters.Keys.OrderBy(k => k.GetID()).ToList();
 
         for (int i = 0; i < monsterSlots.Count; i++)
         {
@@ -208,7 +208,7 @@ public class InventorySystem : MonoBehaviour
     private void PopulateArtifactGrid()
     {
         var ownedArtifacts = GameManager.Instance.PlayerData.ownedArtifacts;
-        List<ArtifactData> sortedArtifacts = ownedArtifacts.Keys.OrderBy(k => k.artifactID).ToList();
+        List<ArtifactData> sortedArtifacts = ownedArtifacts.Keys.OrderBy(k => k.GetArtifactID()).ToList();
 
         for (int i = 0; i < artifactSlots.Count; i++)
         {

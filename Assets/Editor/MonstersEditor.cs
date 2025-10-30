@@ -71,6 +71,10 @@ public class MonstersEditor : EditorWindow
 
         foreach (var monster in sortedMonsters)
         {
+            if (monster == null)
+            {
+                continue; // もしアセットが削除されて null になっていたら、スキップする
+            }
             // Foldoutを描画し、開閉状態を取得
             bool isFoldoutOpen = GetFoldoutState(monster);
             isFoldoutOpen = EditorGUILayout.Foldout(isFoldoutOpen, monster.name, true, EditorStyles.foldoutHeader);
@@ -82,44 +86,59 @@ public class MonstersEditor : EditorWindow
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                 EditorGUI.indentLevel++;
 
-                EditorGUI.BeginChangeCheck();
+                EditorGUI.BeginChangeCheck(); // 監視を開始
 
-                // --- 既存のパラメータ編集 ---
-                monster.monsterID = EditorGUILayout.IntField("モンスターID", monster.monsterID);
-                monster.rarity = EditorGUILayout.IntSlider("レアリティ", monster.rarity, 1, 5);
-                monster.type = (MonsterType)EditorGUILayout.EnumPopup("タイプ", monster.type);
-                monster.maxHp = EditorGUILayout.IntField("最大HP", monster.maxHp);
-                monster.attackPower = EditorGUILayout.IntField("攻撃力", monster.attackPower);
-                monster.icon = (Sprite)EditorGUILayout.ObjectField("アイコン", monster.icon, typeof(Sprite), false, GUILayout.Height(64));
+                // --- ゲッターで現在の値をUIに表示 ---
+                string newName = EditorGUILayout.TextField("表示名", monster.GetName());
+                int newID = EditorGUILayout.IntField("モンスターID", monster.GetID());
+                int newRarity = EditorGUILayout.IntSlider("レアリティ", monster.GetRarity(), 1, 5);
+                MonsterType newType = (MonsterType)EditorGUILayout.EnumPopup("タイプ", monster.GetMonsterType());
+                int newMaxHP = EditorGUILayout.IntField("最大HP", monster.GetHP());
+                int newAttackPower = EditorGUILayout.IntField("攻撃力", monster.GetAttackPower());
+                Sprite newIcon = (Sprite)EditorGUILayout.ObjectField("アイコン", monster.GetIcon(), typeof(Sprite), false, GUILayout.Height(64));
+                Sprite newShadowIcon = (Sprite)EditorGUILayout.ObjectField("影アイコン", monster.GetShadowIcon(), typeof(Sprite), false, GUILayout.Height(64));
 
-                // --- カードリスト編集機能 ---
+                EditorGUILayout.LabelField("説明文");
+                string newDescription = EditorGUILayout.TextArea(monster.GetDescription(), GUILayout.Height(40));
+                EditorGUILayout.LabelField("ヒント");
+                string newHint = EditorGUILayout.TextArea(monster.GetHint(), GUILayout.Height(40));
 
+                
+
+                // --- カードリスト編集機能  ---
                 EditorGUILayout.Space(10);
                 EditorGUILayout.LabelField("カードリスト", EditorStyles.boldLabel);
-
-                // 現在のカードリストのサイズを表示・編集
                 int newCardCount = EditorGUILayout.IntField("カード枚数", monster.cards.Count);
-                // リストのサイズが変更されたら、それに合わせてリストを調整
                 while (newCardCount != monster.cards.Count)
                 {
-                    if (newCardCount > monster.cards.Count)
-                        monster.cards.Add(null);
-                    else
-                        monster.cards.RemoveAt(monster.cards.Count - 1);
+                    if (newCardCount > monster.cards.Count) monster.cards.Add(null);
+                    else monster.cards.RemoveAt(monster.cards.Count - 1);
                 }
-
-                // 各カードのアセットを設定するスロットを描画
                 for (int i = 0; i < monster.cards.Count; i++)
                 {
                     monster.cards[i] = (CardData)EditorGUILayout.ObjectField($"カード {i + 1}", monster.cards[i], typeof(CardData), false);
                 }
 
-                // --- カードリスト編集ここまで ---
-
+                if (EditorGUI.EndChangeCheck())
+                // 監視を終了し、変更があったか確認
                 if (EditorGUI.EndChangeCheck())
                 {
-                    EditorUtility.SetDirty(monster);
-                    AssetDatabase.SaveAssets();
+                    Undo.RecordObject(monster, "モンスターデータを変更"); // Undo(元に戻す)機能をサポート
+
+                    // --- セッターメソッドを使って新しい値を書き込む ---
+                    monster.SetName(newName);
+                    monster.SetID(newID);
+                    monster.SetRarity(newRarity);
+                    monster.SetMonsterType(newType);
+                    monster.SetHP(newMaxHP);
+                    monster.SetAttackPower(newAttackPower);
+                    monster.SetIcon(newIcon);
+                    monster.SetShadowIcon(newShadowIcon);
+                    monster.SetDescription(newDescription);
+                    monster.SetHint(newHint);
+
+                    EditorUtility.SetDirty(monster); // アセットが変更されたことをUnityに通知
+                    AssetDatabase.SaveAssets();      // (変更を即時保存。任意)
                 }
 
                 if (GUILayout.Button("このモンスターを削除"))
@@ -167,10 +186,10 @@ public class MonstersEditor : EditorWindow
         {
             case SortType.AssetName_Ascending: return monsters.OrderBy(r => r.name).ToList();
             case SortType.AssetName_Descending: return monsters.OrderByDescending(r => r.name).ToList();
-            case SortType.MonsterID_Ascending: return monsters.OrderBy(r => r.monsterID).ToList();
-            case SortType.MonsterID_Descending: return monsters.OrderByDescending(r => r.monsterID).ToList();
-            case SortType.Rarity_Ascending: return monsters.OrderBy(r => r.rarity).ToList();
-            case SortType.Rarity_Descending: return monsters.OrderByDescending(r => r.rarity).ToList();
+            case SortType.MonsterID_Ascending: return monsters.OrderBy(r => r.GetID()).ToList();
+            case SortType.MonsterID_Descending: return monsters.OrderByDescending(r => r.GetID()).ToList();
+            case SortType.Rarity_Ascending: return monsters.OrderBy(r => r.GetRarity()).ToList();
+            case SortType.Rarity_Descending: return monsters.OrderByDescending(r => r.GetRarity()).ToList();
             default: return monsters;
         }
     }
@@ -190,14 +209,17 @@ public class MonstersEditor : EditorWindow
         }
 
         MonsterData newMonster = ScriptableObject.CreateInstance<MonsterData>();
-        newMonster.monsterID = newMonsterId;
-        newMonster.rarity = newMonsterRarity;
-        newMonster.type = newMonsterType;
-        newMonster.maxHp = newMonsterMaxHp;
-        newMonster.attackPower = newMonsterAttackPower;
-        newMonster.icon = newMonsterIcon;
+    
+        // --- セッターメソッドを使って値を設定 ---
+        newMonster.SetName(newMonsterAssetName);
+        newMonster.SetID(newMonsterId);
+        newMonster.SetRarity(newMonsterRarity);
+        newMonster.SetMonsterType(newMonsterType);
+        newMonster.SetHP(newMonsterMaxHp);
+        newMonster.SetAttackPower(newMonsterAttackPower);
+        newMonster.SetIcon(newMonsterIcon);
 
-        string folderPath = "Assets/MonsterData"; // 保存先フォルダ
+        string folderPath = "Assets/Resources/Data/Monsters"; // 保存先フォルダ
         // フォルダがなければ作成
         if (!AssetDatabase.IsValidFolder(folderPath))
         {
