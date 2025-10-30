@@ -59,14 +59,14 @@ public class InventoryDetailSystem : MonoBehaviour
         // 受け取ったデータがOrganData型かどうかをチェック
         if (data is OrganData organData)
         {
-            icon.sprite = organData.icon;
-            objectName.text = organData.organName;
-            rarityText.text = organData.rarity.ToString();
+            icon.sprite = organData.GetIcon();
+            objectName.text = organData.GetName();
+            rarityText.text = organData.GetRarity().ToString();
             ownedCountText.text = organData.GetCount().ToString();
-            descriptionText.text = organData.description;
+            descriptionText.text = organData.GetDescription();
 
             // カテゴリーに応じてアイコンを設定
-            int categoryIndex = (int)organData.category;
+            int categoryIndex = (int)organData.GetCategory();
             if (organCategoryIcons != null && organCategoryIcons.Count > categoryIndex)
             {
                 typeIcon.enabled = true;

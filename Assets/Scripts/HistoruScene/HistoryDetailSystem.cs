@@ -84,13 +84,13 @@ public class HistoryDetailSystem : MonoBehaviour
         // 素材(臓器)が発見済みの場合、そのまま表示
         if (discoveredOrgans.Contains(organData))
         {
-            icon.sprite = organData.icon; // アイコンを表示
-            objectName.text = organData.organName;
-            rarityText.text = organData.rarity.ToString();
+            icon.sprite = organData.GetIcon(); // アイコンを表示
+            objectName.text = organData.GetName();
+            rarityText.text = organData.GetRarity().ToString();
             ownedCountText.text = organData.GetCount().ToString();
-            descriptionText.text = organData.description;
+            descriptionText.text = organData.GetDescription();
             // カテゴリーに応じてアイコンを設定
-            int categoryIndex = (int)organData.category;
+            int categoryIndex = (int)organData.GetCategory();
             if (organCategoryIcons != null && organCategoryIcons.Count > categoryIndex)
             {
                 typeIcon.enabled = true;
@@ -103,11 +103,11 @@ public class HistoryDetailSystem : MonoBehaviour
         }
         else // 未発見の場合
         {
-            icon.sprite = organData.shadowIcon; // 影のアイコン
+            icon.sprite = organData.GetShadowIcon(); // 影のアイコン
             objectName.text = "？？？？？";
             rarityText.text = "?";
             ownedCountText.text = "0";
-            descriptionText.text = organData.hint; // ヒントを表示
+            descriptionText.text = organData.GetHint(); // ヒントを表示
             typeIcon.enabled = false;
         }
     }

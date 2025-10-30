@@ -162,7 +162,7 @@ public class InventorySystem : MonoBehaviour
     {
         // PlayerDataから臓器リストを取得し、ID順でソート
         var ownedOrgans = GameManager.Instance.PlayerData.ownedOrgans;
-        List<OrganData> sortedOrganKeys = ownedOrgans.Keys.OrderBy(k => k.organID).ToList();
+        List<OrganData> sortedOrganKeys = ownedOrgans.Keys.OrderBy(k => k.GetID()).ToList();
 
         // 全スロットをループして、表示を更新
         for (int i = 0; i < organSlots.Count; i++)

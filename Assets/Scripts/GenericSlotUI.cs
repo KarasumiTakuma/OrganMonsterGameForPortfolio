@@ -65,7 +65,7 @@ public class GenericSlotUI : MonoBehaviour
     {
         assignedData = data;
         icon.enabled = true;
-        icon.sprite = data.icon;
+        icon.sprite = data.GetIcon();
         countText.text = count.ToString();
     }
     
@@ -116,13 +116,13 @@ public class GenericSlotUI : MonoBehaviour
         {
             icon.sprite = monsterData.GetShadowIcon();
         }
-        else if (data is OrganData organData && organData.shadowIcon != null)
+        else if (data is OrganData organData && organData.GetShadowIcon() != null)
         {
-            icon.sprite = organData.shadowIcon;
+            icon.sprite = organData.GetIcon();
         }
-        else if (data is OrganData artifactData && artifactData.shadowIcon != null)
+        else if (data is OrganData artifactData && artifactData.GetShadowIcon() != null)
         {
-            icon.sprite = artifactData.shadowIcon;
+            icon.sprite = artifactData.GetShadowIcon();
         }
         else
         {

@@ -71,10 +71,9 @@ public class MonstersEditor : EditorWindow
 
         foreach (var monster in sortedMonsters)
         {
-            if (monster == null)
-            {
-                continue; // もしアセットが削除されて null になっていたら、スキップする
-            }
+            // もしアセットが削除されて null になっていたら、スキップする
+            if (monster == null) continue;
+
             // Foldoutを描画し、開閉状態を取得
             bool isFoldoutOpen = GetFoldoutState(monster);
             isFoldoutOpen = EditorGUILayout.Foldout(isFoldoutOpen, monster.name, true, EditorStyles.foldoutHeader);
@@ -119,7 +118,6 @@ public class MonstersEditor : EditorWindow
                     monster.cards[i] = (CardData)EditorGUILayout.ObjectField($"カード {i + 1}", monster.cards[i], typeof(CardData), false);
                 }
 
-                if (EditorGUI.EndChangeCheck())
                 // 監視を終了し、変更があったか確認
                 if (EditorGUI.EndChangeCheck())
                 {

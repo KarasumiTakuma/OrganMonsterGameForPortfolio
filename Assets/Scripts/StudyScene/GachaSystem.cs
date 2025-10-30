@@ -59,7 +59,7 @@ public class GachaSystem : MonoBehaviour
 
             results.Add(resultOrgan); // 結果をリストに保存
             GameManager.Instance.PlayerData.AddOrgan(resultOrgan, 1);
-            Debug.Log($"結果 {i + 1}: {resultOrgan.organName}");
+            Debug.Log($"結果 {i + 1}: {resultOrgan.GetName()}");
         }
 
         // 3. 演出ディレクターに結果リストを渡して演出を開始させる
