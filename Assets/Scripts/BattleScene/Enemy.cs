@@ -68,7 +68,6 @@ public class Enemy : MonoBehaviour
     /// <returns>HPが0より大きければtrue、それ以外はfalse</returns>
     public bool IsAlive() => currentHP > 0;
 
-
     public int GetMonsterID() => this.monsterID;
     public string GetMonsterName() => this.enemyMonsterName;
     public int GetMaxHP() => this.maxHP;

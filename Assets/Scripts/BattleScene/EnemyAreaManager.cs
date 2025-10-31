@@ -8,7 +8,7 @@ public class EnemyAreaManager : MonoBehaviour
     [SerializeField] private Transform[] spawnPoints;      // 敵出現位置（EnemyAreaの子）
     [SerializeField] private List<EnemyMonsterData> enemyDataList;  // 各スポーンポイントに出現する対応する敵データ
 
-    // 生成済みのEnemyスクリプトのリスト
+    // 生成済みのEnemyスクリプトのリスト。SpawnEnemies()で生成したEnemyたちのオブジェクトを保持
     private List<Enemy> spawnedEnemies = new List<Enemy>();
 
 
@@ -56,10 +56,10 @@ public class EnemyAreaManager : MonoBehaviour
                 // データが存在すれば反映
                 if (dataIndex < enemyDataList.Count && enemyDataList[dataIndex] != null)
                 {
-                    // あらかじめ設定された敵データ(enamyData)をenemyDataListから取得
+                    // あらかじめ設定された敵データをenemyDataListから取得
                     EnemyMonsterData enemyData = enemyDataList[dataIndex];
 
-                    // この敵(enemy)の各種データをセットする(スポーン時はcurrentHPは最大体力)
+                    // この敵(enemy)の各種データ(HPや画像など)をセットする(スポーン時はcurrentHPは最大体力)
                     enemy.InitializeSet(enemyData);
                 }
 
