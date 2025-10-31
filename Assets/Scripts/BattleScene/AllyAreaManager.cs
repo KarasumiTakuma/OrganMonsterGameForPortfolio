@@ -19,7 +19,7 @@ public class AllyAreaManager : MonoBehaviour
     private List<Ally> spawnedAllies = new List<Ally>();
 
     private int sharedMaxHP;      // 3体の最大HP合算
-    private int sharedCurrentHP;  // 現在の共有HP
+    private int sharedCurrentHP;  // 現在の共有HP（ダメージや回復後とかに使う値）
 
     /// <summary>
     /// 味方モンスターをスポーン
