@@ -1,71 +1,49 @@
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
-/// 味方モンスター1体を表すクラス
+/// 味方1体の情報を管理するスクリプト
+/// 画像・名前・攻撃力・最大HPなどを保持
+/// 個別HPは表示用で、実際のHP管理は AllyAreaManager の共有HPで行う
 /// </summary>
-[System.Serializable]
-public class Ally
+public class Ally : MonoBehaviour
 {
-    // 基本情報
-    public string allyName;      // 名前
-    public int maxHP;            // 最大HP
-    public int currentHP;        // 現在HP
-    public Sprite allyImage;     // UIで表示する画像
+    // 味方モンスターのID
+    private int monsterID;
 
-    // この味方のカード山札
-    private List<Card> deck = new List<Card>();
+    // 味方の名前
+    private string allyMonsterName;
 
-    /// <summary>
-    /// コンストラクタ
-    /// </summary>
-    /// <param name="name">味方の名前</param>
-    /// <param name="hp">最大HP</param>
-    /// <param name="image">UI表示用の画像</param>
-    /// <param name="initialDeck">初期カードリスト</param>
-    public Ally(string name, int hp, Sprite image, List<Card> initialDeck)
+    // 最大HP（表示用）
+    private int maxHP;
+
+    // 攻撃力（将来的にカード効果などで利用）
+    private int attackPower;
+
+    // 味方キャラクター画像
+    private Sprite allyMonsterImage;
+
+    // 初期設定用メソッド
+    public void InitializeSet(AllyMonsterData allyMonsterData)
     {
-        allyName = name;
-        maxHP = hp;
-        currentHP = maxHP;
-        allyImage = image;
+        this.monsterID = allyMonsterData.GetMonsterID();
+        this.allyMonsterName = allyMonsterData.GetName();
+        this.maxHP = allyMonsterData.GetMaxHP();
+        this.attackPower = allyMonsterData.GetAttackPower();
+        this.allyMonsterImage = allyMonsterData.GetImage();
 
-        if (initialDeck != null)
+        // AllyPrefab内の Image コンポーネントに画像をセット
+        Image imageComp = GetComponentInChildren<Image>();
+        if (imageComp != null)
         {
-            deck = new List<Card>(initialDeck); // デッキをコピーして保持
+            imageComp.sprite = this.allyMonsterImage;
         }
     }
 
-    /// <summary>
-    /// ダメージを受ける
-    /// </summary>
-    public void TakeDamage(int dmg)
-    {
-        currentHP = Mathf.Max(currentHP - dmg, 0);
-    }
-
-    /// <summary>
-    /// 回復する
-    /// </summary>
-    public void Heal(int amount)
-    {
-        currentHP = Mathf.Min(currentHP + amount, maxHP);
-    }
-
-    /// <summary>
-    /// 生存確認
-    /// </summary>
-    public bool IsAlive() => currentHP > 0;
-
-    /// <summary>
-    /// デッキから1枚ドロー
-    /// </summary>
-    public Card DrawCard()
-    {
-        if (deck.Count == 0) return null;
-
-        Card drawn = deck[0];
-        deck.RemoveAt(0);
-        return drawn;
-    }
+    // 以下は getter メソッド
+    public int GetMonsterID() => monsterID;
+    public string GetMonsterName() => allyMonsterName;
+    public int GetMaxHP() => maxHP;
+    public int GetAttackPower() => attackPower;
+    public Sprite GetImage() => allyMonsterImage;
 }
