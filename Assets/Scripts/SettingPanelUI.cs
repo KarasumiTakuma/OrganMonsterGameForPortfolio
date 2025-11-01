@@ -7,6 +7,7 @@ public class SettingsPanelUI : MonoBehaviour
     [SerializeField] private Slider seSlider;
     [SerializeField] private Button closeButton;
     [SerializeField] private AudioClip clickSE; // InspectorでSEを設定
+    [SerializeField] private Button saveButton;
 
     void Start()
     {
@@ -23,6 +24,12 @@ public class SettingsPanelUI : MonoBehaviour
         {
             AudioManager.Instance.PlaySE(clickSE);
             SettingsManager.Instance.CloseSettingsPanel();
+        });
+    
+        saveButton.onClick.AddListener(() =>
+        {
+            AudioManager.Instance.PlaySE(clickSE);
+            SaveManager.Instance.SaveGame();
         });
     }
 }

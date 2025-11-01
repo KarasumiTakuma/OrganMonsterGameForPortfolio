@@ -120,9 +120,9 @@ public class SettingsManager : MonoBehaviour
     /// <summary>
     /// PlayerPrefsから設定を読み込み、Mixerに適用する
     /// </summary>
-    private void LoadSettings()
+    public void LoadSettings()
     {
-        // PlayerPrefsから値をロード (デフォルトは1.0 = Max)
+        // PlayerPrefsからキーをもとに値をロード (デフォルトは1.0 = Max)
         BgmVolume = PlayerPrefs.GetFloat(BGM_VOLUME_KEY, 1.0f);
         SeVolume = PlayerPrefs.GetFloat(SE_VOLUME_KEY, 1.0f);
     }
