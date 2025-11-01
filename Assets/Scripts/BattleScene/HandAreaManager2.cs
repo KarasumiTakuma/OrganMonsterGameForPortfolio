@@ -3,13 +3,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class HandAreaManager1 : MonoBehaviour
+public class HandAreaManager : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private DeckManager deckManager;
     [SerializeField] private GameObject cardPrefab;
-    [SerializeField] private Transform handArea;
-    [SerializeField] private BattleManager battleManager; // カードプレイ処理に必要
+    [SerializeField] private Transform[] cardSlots; // ← 各スロットを個別に指定
+    [SerializeField] private BattleManager battleManager;
 
     private readonly List<GameObject> spawnedCards = new List<GameObject>();
 
@@ -22,30 +22,27 @@ public class HandAreaManager1 : MonoBehaviour
         }
         spawnedCards.Clear();
 
-        // 2. 新規UI生成
-        foreach (var cardData in deckManager.GetHand())
+        // 2. スロットに応じてカード生成
+        var hand = deckManager.GetHand();
+        for (int i = 0; i < hand.Count && i < cardSlots.Length; i++)
         {
-            GameObject cardObj = Instantiate(cardPrefab, handArea);
+            var cardData = hand[i];
+            Transform slot = cardSlots[i];
 
-            // カード名
-            // ? は null 条件演算子。参照がnullじゃなければアクセスして、nullなら処理をスキップする
-            // TMP_Text型の構造体の.text変数にテキストを代入すると、それをUI表示してくれる
+            GameObject cardObj = Instantiate(cardPrefab, slot);
+
             TMP_Text nameText = cardObj.transform.Find("NameText")?.GetComponent<TMP_Text>();
             if (nameText) nameText.text = cardData.GetName();
 
-            // マナコスト
             TMP_Text manaText = cardObj.transform.Find("ManaCostText")?.GetComponent<TMP_Text>();
-            if (manaText) manaText.text = "Cost：" + cardData.GetManaCost().ToString();
+            if (manaText) manaText.text = "Cost：" + cardData.GetManaCost();
 
-            // 攻撃力
             TMP_Text powerText = cardObj.transform.Find("PowerText")?.GetComponent<TMP_Text>();
-            if (powerText) powerText.text = "Att" + cardData.GetPower().ToString();
+            if (powerText) powerText.text = "Att" + cardData.GetPower();
 
-            // 画像
             Image cardImage = cardObj.transform.Find("CardImage")?.GetComponent<Image>();
             if (cardImage) cardImage.sprite = cardData.GetSprite();
 
-            // CardUI_DragDropをセットアップ
             var dragDrop = cardObj.GetComponent<CardUI_DragDrop>();
             if (dragDrop != null)
             {
