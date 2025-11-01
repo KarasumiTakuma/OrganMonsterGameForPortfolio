@@ -164,4 +164,88 @@ public class PlayerData : MonoBehaviour
         // イベント発行
         OnInventoryChanged?.Invoke();
     }
+
+    /// --- セーブ・ロード用メソッド ---
+    public SaveData CreateSaveData()
+    {
+        SaveData saveData = new SaveData();
+
+        saveData.researchPoints = this.researchPoints;
+        saveData.discoveredMonsters = this.discoveredMonsters;
+        saveData.discoveredOrgans = this.discoveredOrgans;
+        saveData.discoveredArtifacts = this.discoveredArtifacts;
+
+        // DictionaryをList<OrganSaveData>に変換
+        saveData.ownedOrgans = new List<OrganSaveData>();
+        foreach (var entry in ownedOrgans)
+        {
+            saveData.ownedOrgans.Add(new OrganSaveData { organ = entry.Key, count = entry.Value });
+        }
+
+        // DictionaryをList<MonsterSaveData>に変換
+        saveData.ownedMonsters = new List<MonsterSaveData>();
+        foreach (var entry in ownedMonsters)
+        {
+            saveData.ownedMonsters.Add(new MonsterSaveData { monster = entry.Key, count = entry.Value });
+        }
+
+        // DictionaryをList<ArtifactSaveData>に変換
+        saveData.ownedArtifacts = new List<ArtifactSaveData>();
+        foreach (var entry in ownedArtifacts)
+        {
+            saveData.ownedArtifacts.Add(new ArtifactSaveData { artifact = entry.Key, count = entry.Value });
+        }
+
+        return saveData;
+    }
+
+    // ロードしたSaveDataオブジェクトから、自分のデータを復元する
+    public void LoadFromSaveData(SaveData saveData)
+    {
+        this.researchPoints = saveData.researchPoints;
+        this.discoveredOrgans = saveData.discoveredOrgans;
+        this.discoveredMonsters = saveData.discoveredMonsters;
+        this.discoveredArtifacts = saveData.discoveredArtifacts;
+
+        // List<OrganSaveData>をDictionaryに変換
+        ownedOrgans.Clear();
+        foreach (var entry in saveData.ownedOrgans)
+        {
+            ownedOrgans.Add(entry.organ, entry.count);
+        }
+
+        // List<MonsterSaveData>をDictionaryに変換
+        ownedMonsters.Clear();
+        foreach (var entry in saveData.ownedMonsters)
+        {
+            ownedMonsters.Add(entry.monster, entry.count);
+        }
+
+        // List<ArtifactSaveData>をDictionaryに変換
+        ownedArtifacts.Clear();
+        foreach (var entry in saveData.ownedArtifacts)
+        {
+            ownedArtifacts.Add(entry.artifact, entry.count);
+        }
+    }
+    /// <summary>
+    /// 全てのセーブデータを初期状態にリセットする
+    /// </summary>
+    public void ResetData()
+    {
+        researchPoints = 0;
+
+        ownedOrgans.Clear();
+        ownedMonsters.Clear();
+        ownedArtifacts.Clear();
+
+        discoveredMonsters.Clear();
+        discoveredOrgans.Clear();
+        discoveredArtifacts.Clear();
+
+        Debug.Log("プレイヤーデータをリセットしました。");
+
+        // UIにも変更を通知
+        OnInventoryChanged?.Invoke();
+    }
 }
