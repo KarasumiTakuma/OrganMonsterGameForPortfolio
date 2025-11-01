@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// BGMをSEを再生するクラス
+/// </summary>
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance { get; private set; }
@@ -27,7 +30,7 @@ public class AudioManager : MonoBehaviour
         bgmAudioSource.Play(); // 曲を再生する
     }
 
-    // ★★★ SE再生用のメソッドを新しく追加 ★★★
+    // SE再生用のメソッドを新しく追加
     public void PlaySE(AudioClip clip)
     {
         if (clip != null)
