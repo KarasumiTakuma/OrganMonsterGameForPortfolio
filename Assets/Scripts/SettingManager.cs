@@ -6,6 +6,7 @@ using UnityEngine.Audio; // AudioMixerを使うために必要
 /// </summary>
 public class SettingsManager : MonoBehaviour
 {
+    // シングルトンインスタンス
     public static SettingsManager Instance { get; private set; }
     [SerializeField] private AudioMixer mainMixer; // InspectorでAudioMixerアセットを設定
 
@@ -81,12 +82,13 @@ public class SettingsManager : MonoBehaviour
     /// </summary>
     public void SetBgmVolume(float volume_0_to_1)
     {
+        // スライダーから読み込む0~1の値
         BgmVolume = volume_0_to_1;
         
         // スライダーが0（一番左）の時は、-80dB（ほぼ無音）を設定
         float volume_dB = (volume_0_to_1 == 0) ? -80f : Mathf.Log10(volume_0_to_1) * 20;
         
-        // ★ Mixerの "BgmVolume" という名前のパラメータを変更
+        // Mixerの "BgmVolume" という名前のパラメータを変更
         mainMixer.SetFloat("BgmVolume", volume_dB);
     }
 
@@ -123,9 +125,5 @@ public class SettingsManager : MonoBehaviour
         // PlayerPrefsから値をロード (デフォルトは1.0 = Max)
         BgmVolume = PlayerPrefs.GetFloat(BGM_VOLUME_KEY, 1.0f);
         SeVolume = PlayerPrefs.GetFloat(SE_VOLUME_KEY, 1.0f);
-
-        // 読み込んだ値をMixerに即時適用
-        // SetBgmVolume(BgmVolume);
-        // SetSeVolume(SeVolume);
     }
 }

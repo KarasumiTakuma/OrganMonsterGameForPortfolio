@@ -6,6 +6,7 @@ public class SettingsPanelUI : MonoBehaviour
     [SerializeField] private Slider bgmSlider;
     [SerializeField] private Slider seSlider;
     [SerializeField] private Button closeButton;
+    [SerializeField] private AudioClip clickSE; // InspectorでSEを設定
 
     void Start()
     {
@@ -16,8 +17,12 @@ public class SettingsPanelUI : MonoBehaviour
         // スライダーが操作されたら、SettingsManagerの値を更新
         bgmSlider.onValueChanged.AddListener(SettingsManager.Instance.SetBgmVolume);
         seSlider.onValueChanged.AddListener(SettingsManager.Instance.SetSeVolume);
-        
-        // 閉じるボタンが押されたら、SettingsManagerに閉じるよう依頼
-        closeButton.onClick.AddListener(SettingsManager.Instance.CloseSettingsPanel);
+
+        // 閉じるボタンが押されたら、SettingsManagerに閉じるよう依頼、クリック音を鳴らす
+        closeButton.onClick.AddListener(() =>
+        {
+            AudioManager.Instance.PlaySE(clickSE);
+            SettingsManager.Instance.CloseSettingsPanel();
+        });
     }
 }
