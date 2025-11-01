@@ -12,6 +12,9 @@ public class GameManager : MonoBehaviour
     // 現在挑戦中のステージ番号
     public int currentStageIndex { get; private set; }
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip mainBGM; // InspectorでメインBGMを設定
+
     private void Awake()
     {
         // シングルトンパターンの実装
@@ -25,6 +28,14 @@ public class GameManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
         PlayerData = GetComponentInChildren<PlayerData>();
+    }
+    private void Start()
+    {
+        // 起動時にBGMの再生をAudioManagerに依頼
+        if (mainBGM != null)
+        {
+            AudioManager.Instance.PlayBGM(mainBGM);
+        }
     }
 
     // --- シーン切り替え用のメソッド ---

@@ -819,6 +819,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1219920049136154142, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
+      propertyPath: m_PlayOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3838243970845557221, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
+      propertyPath: mainBGM
+      value: 
+      objectReference: {fileID: 8300000, guid: 55281b76781c949b1864cc17ea13f6b3, type: 3}
     - target: {fileID: 5514121258907560936, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
       propertyPath: m_Name
       value: GameManager (1)
