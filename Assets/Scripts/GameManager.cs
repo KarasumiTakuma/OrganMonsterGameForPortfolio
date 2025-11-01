@@ -36,6 +36,7 @@ public class GameManager : MonoBehaviour
         {
             AudioManager.Instance.PlayBGM(mainBGM);
         }
+        SaveManager.Instance.LoadGame();
     }
 
     // --- シーン切り替え用のメソッド ---

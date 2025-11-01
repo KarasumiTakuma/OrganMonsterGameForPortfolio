@@ -20,6 +20,7 @@ public class AudioManager : MonoBehaviour
         }
         else
         {
+            // 2つ目のAudioManagerが見つかった場合は破壊
             Destroy(gameObject);
         }
     }
