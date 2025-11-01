@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class HandAreaManager : MonoBehaviour
+public class HandAreaManager2 : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private DeckManager deckManager;
