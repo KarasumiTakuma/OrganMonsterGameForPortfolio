@@ -50,7 +50,7 @@ public class BattleManager : MonoBehaviour
         // ゲーム開始時の手札5枚ドロー
         deckManager.DrawInitialHand();
 
-        // handAreaManager.UpdateHandUI();
+        handAreaManager.UpdateHandUI();
 
         UpdateHPUI();
 
