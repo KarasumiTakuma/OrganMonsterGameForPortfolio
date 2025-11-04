@@ -14,7 +14,7 @@ public class DebugController : MonoBehaviour
             }
         }
 
-        // 「Delete」キーが押されたら
+        // 「D」キーが押されたら
         if (Input.GetKeyDown(KeyCode.D))
         {
             Debug.LogWarning("--- デバッグ: 全てのセーブデータと設定をリセットします ---");
