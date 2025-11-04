@@ -1,94 +1,55 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyAreaManager : MonoBehaviour
+public class EnemyAreaManager : MonsterAreaManager
 {
     [Header("Enemy Settings")]
-    [SerializeField] private GameObject enemyPrefab;       // 敵プレハブ
-    [SerializeField] private Transform[] spawnPoints;      // 敵出現位置（EnemyAreaの子）
-    [SerializeField] private List<EnemyMonsterData> enemyDataList;  // 各スポーンポイントに出現する対応する敵データ
-
-    // 生成済みのEnemyスクリプトのリスト。SpawnEnemies()で生成したEnemyたちのオブジェクトを保持
-    private List<Enemy> spawnedEnemies = new List<Enemy>();
-
+    [SerializeField] private List<EnemyMonsterData> enemyDataList;  // 各スポーンポイントに出現する敵に対する敵データ
 
     /// <summary>
     /// スポーンポイントに敵を生成
     /// </summary>
     public void SpawnEnemies()
     {
-        // 既存の敵がいたら削除
-        ClearEnemies();
-
-        int dataIndex = 0; // enemyDataList 参照用カウンタ
-
-        // 各スポーンポイントに敵を生成
-        foreach (var point in spawnPoints)
-        {
-
-            // enemyObjはそのスポーン位置(point)を親とする
-            GameObject enemyObj = Instantiate(enemyPrefab, point);
-
-            // enemyオブジェとそのスポーンポイント(point)のRectTransformを取得
-            RectTransform enemyRect = enemyObj.GetComponent<RectTransform>();
-            RectTransform pointRect = point.GetComponent<RectTransform>();
-
-            if (enemyRect != null && pointRect != null) //RectTransformが空値でないかを確認
-            {
-                //Inspector上で各オブジェクトのサイズ設定を誤っても正しいサイズにするため
-
-                // enemyオブジェクトのサイズをspawnPointに合わせる
-                enemyRect.sizeDelta = pointRect.sizeDelta;
-
-                // 各敵オブジェクトの位置をそれぞれの親であるpointのpivot位置(中心)にする
-                enemyRect.anchoredPosition = Vector2.zero;
-
-                // enemyのサイズは1に固定
-                enemyRect.localScale = Vector3.one;
-            }
-
-            // enemyObjのEnemyPrefabからEnemyスクリプト(敵データ)を取得
-            Enemy enemy = enemyObj.GetComponent<Enemy>();
-
-            // 敵データ
-            if (enemy != null) // enemyObjのenemyPrefabにEnemyスクリプトがアタッチされてるか?
-            {
-                // データが存在すれば反映
-                if (dataIndex < enemyDataList.Count && enemyDataList[dataIndex] != null)
-                {
-                    // あらかじめ設定された敵データをenemyDataListから取得
-                    EnemyMonsterData enemyData = enemyDataList[dataIndex];
-
-                    // この敵(enemy)の各種データ(HPや画像など)をセットする(スポーン時はcurrentHPは最大体力)
-                    enemy.InitializeSet(enemyData);
-                }
-
-                spawnedEnemies.Add(enemy);
-            }
-            dataIndex++;
-        }
+        // MonsterAreaManager(親クラス)のSpawnMonsters()を利用して各スポーンポイントに敵を生成
+        // enemyDataListにある敵データEnemyMonsterData型のものなので、ConvertAllでリストの全要素を
+        // MonsterDataBattleScene型に変換してから親クラスのメソッドSpawnMonsters()を呼び出す
+        List<MonsterDataBattleScene> baseDataList = enemyDataList.ConvertAll(data => (MonsterDataBattleScene)data);
+        base.SpawnMonsters(baseDataList);
     }
 
 
-    /// <summary>
-    /// 指定の敵にダメージ
-    /// </summary>
+    // indexで指定した敵モンスターがdamege量の攻撃を受けた際にMonsterAreaManagerクラス(親)のApplyDamageメソッドを呼び出して
+    // その敵モンスターへのダメージ処理を行うメソッド
+    // ↑コメント変更予定
+
+    protected override void ApplyDamage(int index, int damage)
+    {
+        if (index < 0 || index >= spawnedMonsters.Count) return;  // 生成した敵モンスターリストの範囲外にアクセスした場合は何も返さない
+
+        Enemy enemy = spawnedMonsters[index] as Enemy;
+        if (enemy != null)
+        {
+            enemy.TakeDamagePublic(damage);  // TakeDamageメソッドを呼び出してダメージ処理
+        }
+    }
+
     public void DamageEnemy(int index, int damage)
     {
-        if (index < 0 || index >= spawnedEnemies.Count) return;
-        spawnedEnemies[index].TakeDamage(damage);
+        foreach (var monster in spawnedMonsters) // 生成した各モンスターに対して
+        {
+            if (monster is Enemy enemy) // 生成したモンスタが敵モンスターである場合
+            {
+                enemy.TakeDamagePublic(damage);  // TakeDamageメソッドでダメージを与える
+            }
+        }
     }
 
-
-    /// <summary>
-    /// 全敵にダメージ
-    /// </summary>
+    // 生成した各敵モンスターの各々に対してMonsterAreaManagerクラス(親)のTakeDamageメソッドを呼び出して、
+    // 全体攻撃によるダメージ処理をそれぞれの敵モンスターに適用するメソッド
     public void DamageAllEnemies(int damage)
     {
-        foreach (var enemy in spawnedEnemies)
-        {
-            enemy.TakeDamage(damage);
-        }
+        base.ApplyDamageToAll(damage);
     }
 
     /// <summary>
@@ -96,32 +57,11 @@ public class EnemyAreaManager : MonoBehaviour
     /// </summary>
     public int GetEnemyCurrentHP(int index)
     {
-        if (index < 0 || index >= spawnedEnemies.Count) return 0;
-        return spawnedEnemies[index].GetCurrentHP();
+        return base.GetCurrentHP(index);
     }
 
-    /// <summary>
-    /// 敵の生存確認
-    /// </summary>
-    public bool IsEnemyAlive(int index)
-    {
-        if (index < 0 || index >= spawnedEnemies.Count) return false;
-        return spawnedEnemies[index].IsAlive();
-    }
+    // isAlive処理を追加予定
 
-
-    public int GetEnemyCount() => spawnedEnemies.Count;
-
-
-    /// <summary>
-    /// 既存の敵を削除
-    /// </summary>
-    public void ClearEnemies()
-    {
-        foreach (var enemy in spawnedEnemies)
-        {
-            if (enemy != null) Destroy(enemy.gameObject);
-        }
-        spawnedEnemies.Clear();
-    }
+    // 現在の敵の数を取得。MonsterAreaManagerクラス(親)のGetMonsterCount()メソッドを呼び出す
+    public int GetEnemyCount() => base.GetMonsterCount();
 }
