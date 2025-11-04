@@ -32,6 +32,10 @@ public class SynthesisUIManager : MonoBehaviour
     public List<Sprite> unknownIconsByRarity;
     // 範囲外(？を用意していないレアリティ)はデフォルトの？
     private const int DEFAULT_UNKNOWN_ICON_INDEX = 0;
+    
+    [Header("演出UIへの参照")]
+    // InspectorでPerformanceManagerを持つオブジェクトを設定
+    public PerformanceManager performanceManager;
 
     /// <summary>
     /// このUIが表示状態になったときに呼び出される。
@@ -200,12 +204,22 @@ public class SynthesisUIManager : MonoBehaviour
         // 2. PlayerDataにcurrentRecipeResultを追加
         GameManager.Instance.PlayerData.AddMonster(currentRecipeResult, 1);
 
-        // 3. InventoryUIの表示を更新
+        // 3. 合成演出UUIを呼びだす
+        if (performanceManager != null)
+        {
+            performanceManager.ShowPerformance(currentRecipeResult);
+        }
+        else
+        {
+            Debug.LogWarning("PerformanceManagerが設定されていません。");
+        }
+
+        // 4. InventoryUIの表示を更新
         inventoryUI.UpdateDisplay();
 
         Debug.Log(currentRecipeResult.GetName() + " を生成しました！");
 
-        // 合成後、選択をクリアしてUIを再更新
+        // 5. 合成後、選択をクリアしてUIを再更新
         selectedIngredients.Clear();
         UpdateSynthesisUI();
         //UpdateInventorySelection();
