@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public enum MonsterType { Fire, Water, Grass, Other } //炎、水、草、その他 これらは仮
 // この行を追加することで、Unityのメニューからデータアセットを作成できるようになる
-[CreateAssetMenu(fileName = "NewMonsterData", menuName = "Data/Monster Data")]
+[CreateAssetMenu(fileName = "NewMonsterData", menuName = "Data/MonsterData")]
 public class MonsterData : ScriptableObject, IDisplayable
 {
     [Header("基本情報")]
