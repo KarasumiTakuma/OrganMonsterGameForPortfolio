@@ -20,6 +20,7 @@ public class Ally : Monster
             allyMonsterData.GetAttackPower(),
             allyMonsterData.GetImage()
         );
+        //
 
     }
 
