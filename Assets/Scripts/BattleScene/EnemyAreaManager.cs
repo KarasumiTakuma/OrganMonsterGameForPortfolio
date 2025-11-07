@@ -34,33 +34,52 @@ public class EnemyAreaManager : MonsterAreaManager
         }
     }
 
-    public void DamageEnemy(int index, int damage)
+    public void TakeDamage(int damage)  // ←今のところ、indexなしでやる後に変更以下も同じような理由
+    {
+        this.TakeDamageToAll(damage);  // ←今のところこっちにする
+        // this.ApplyDamage(index, damage);  ←後の変更でこっちにする
+    }
+
+    // 生成した各敵モンスターの各々に対してMonsterAreaManagerクラス(親)のTakeDamageメソッドを呼び出して、
+    // 全体攻撃によるダメージ処理をそれぞれの敵モンスターに適用するメソッド
+
+    protected override void ApplyDamageToAll(int damage)
     {
         foreach (var monster in spawnedMonsters) // 生成した各モンスターに対して
         {
             if (monster is Enemy enemy) // 生成したモンスタが敵モンスターである場合
             {
-                enemy.TakeDamagePublic(damage);  // TakeDamageメソッドでダメージを与える
+                enemy.TakeDamagePublic(damage);  // TakeDamagePublicメソッドでダメージを与える
             }
         }
     }
 
-    // 生成した各敵モンスターの各々に対してMonsterAreaManagerクラス(親)のTakeDamageメソッドを呼び出して、
-    // 全体攻撃によるダメージ処理をそれぞれの敵モンスターに適用するメソッド
-    public void DamageAllEnemies(int damage)
+    public void TakeDamageToAll(int damage)
     {
-        base.ApplyDamageToAll(damage);
+        this.ApplyDamageToAll(damage);
     }
 
     /// <summary>
     /// 指定の敵の現在HPを取得
     /// </summary>
-    public int GetEnemyCurrentHP(int index)
+    public int GetCurrentHP(int index)
     {
-        return base.GetCurrentHP(index);
+        if (index < 0 || index >= spawnedMonsters.Count) return 0;
+        return spawnedMonsters[index].GetCurrentHP();
     }
 
-    // isAlive処理を追加予定
+    public int GetIsAliveMonsterCount()
+    {
+        int count = 0;
+        foreach (var enemyMonster in spawnedMonsters)
+        {
+            if (enemyMonster.GetCurrentHP() > 0)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
 
     // 現在の敵の数を取得。MonsterAreaManagerクラス(親)のGetMonsterCount()メソッドを呼び出す
     public int GetEnemyCount() => base.GetMonsterCount();
