@@ -309,7 +309,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5795010441645611535}
-  - component: {fileID: 8276220176070676171}
+  - component: {fileID: 8476010839705192334}
   m_Layer: 5
   m_Name: EnemyPrefab
   m_TagString: Untagged
@@ -338,7 +338,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &8276220176070676171
+--- !u!114 &8476010839705192334
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

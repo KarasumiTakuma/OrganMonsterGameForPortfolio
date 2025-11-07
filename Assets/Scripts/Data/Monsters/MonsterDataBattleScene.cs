@@ -17,7 +17,7 @@ public class MonsterDataBattleScene : ScriptableObject
 
     [Header("UI表示用")]
     [TextArea]
-
+    
     [SerializeField] private Sprite monsterImage;      // このモンスターの画像
 
 

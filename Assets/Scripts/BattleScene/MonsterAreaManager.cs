@@ -84,12 +84,6 @@ public class MonsterAreaManager : MonoBehaviour
         
     }
 
-    // 現在のHPを取得するメソッド。
-    protected virtual int GetCurrentHP(int index)
-    {
-        if (index < 0 || index >= spawnedMonsters.Count) return 0;
-        return spawnedMonsters[index].GetCurrentHP();
-    }
 
     // isAliveメソッドを追加予定
 

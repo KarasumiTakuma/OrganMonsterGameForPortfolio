@@ -48,13 +48,10 @@ public class HpGaugeController : MonoBehaviour
     /// <summary>
     /// 現在HPを返す
     /// </summary>
-    public int GetCurrentHP()
-    {
-        return currentHP;
-    }
+    public int GetCurrentHP() => currentHP;
 
 
-    // ダメージを受けた際に呼ばれるメソッド
+    // ダメージを受けた際に呼ばれるメソッド(ダメージ処理)
     public void BeInjured(int attack)
     {
         // 攻撃分のダメージを現在のHPから減算(この時HPがマイナスにならないようにする)
@@ -103,5 +100,46 @@ public class HpGaugeController : MonoBehaviour
         // 指定秒数だけ待機してから裏ゲージを追いつかせる
         yield return new WaitForSeconds(waitingTimeAfterFrontGauge);
         graceGaugeRect.sizeDelta = targetSize; // 裏ゲージ幅をダメージ後のゲージ幅とする
+    }
+
+    // 回復した際に呼ばれるメソッド(回復処理)
+    public void BeHealed(int healAmount)
+    {
+        int oldHP = currentHP;
+        currentHP = Mathf.Min(currentHP + healAmount, maxHP);
+
+        float oldWidth = perHP * oldHP;
+        float newWidth = perHP * currentHP;
+
+        // 表ゲージ → 即時反映
+        Vector2 gaugeSize = gaugeRect.sizeDelta;
+        gaugeSize.x = newWidth;
+        gaugeRect.sizeDelta = gaugeSize;
+
+        // 裏ゲージ → 遅れて追いつく（回復演出）
+        StartCoroutine(HealAnimation(oldWidth, newWidth));
+    }
+
+    // 体力ゲージを増やすコルーチン(アニメーション)
+    IEnumerator HealAnimation(float fromWidth, float toWidth)
+    {
+        yield return new WaitForSeconds(waitingTimeAfterFrontGauge);
+
+        Vector2 currentSize = graceGaugeRect.sizeDelta;
+        Vector2 targetSize = currentSize;
+        targetSize.x = toWidth;
+
+        float elapsed = 0f;
+        float duration = 0.3f;
+
+        while (elapsed < duration)
+        {
+            currentSize.x = Mathf.Lerp(currentSize.x, targetSize.x, elapsed / duration);
+            graceGaugeRect.sizeDelta = currentSize;
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        graceGaugeRect.sizeDelta = targetSize;
     }
 }
