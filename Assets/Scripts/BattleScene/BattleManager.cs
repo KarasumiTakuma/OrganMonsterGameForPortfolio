@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -26,7 +27,7 @@ public class BattleManager : MonoBehaviour
         {
             CardData cardData = ScriptableObject.CreateInstance<CardData>();
             cardData.cardName = "攻撃カード";
-            cardData.manaCost = 2;
+            cardData.manaCost = 0;
             cardData.cardType = CardType.Attack;
             cardData.power = 5;
             cardData.cardImage = defaultCardSprite;
@@ -45,7 +46,14 @@ public class BattleManager : MonoBehaviour
 
         // ゲーム開始時の手札5枚ドロー
         deckManager.DrawInitialHand();
-        handAreaManager.UpdateHandUI();
+        List<Card> handCardsData = deckManager.GetHand(); // deckManagerによってセットされた手札5枚を入手
+        // 5枚の手札データをhandAreaManagerにセット(後にこのデータを付与した手札カードオブジェクトを生成)
+        handAreaManager.setHandCardData(handCardsData);  
+
+        // handAreaManagerにドローした手札5枚のオブジェクトを生成して表示するよう指示する。
+        // UpdateHandUIで手札オブジェクトを生成する際に、プレイヤーがカードを使用した時に
+        // 発生するイベントPlayCard()メソッド(メソッドへのポインタ)を渡す。
+        handAreaManager.UpdateHandUI(PlayCard);  
 
         UpdateHPUI();
 
@@ -69,7 +77,7 @@ public class BattleManager : MonoBehaviour
         deckManager.DrawCard();
 
         // 手札UIを更新
-        handAreaManager.UpdateHandUI();
+        handAreaManager.UpdateHandUI(PlayCard);
 
         Log("プレイヤーのターン開始！");
     }
@@ -99,7 +107,7 @@ public class BattleManager : MonoBehaviour
 
             UpdateHPUI();
             deckManager.DiscardCard(card);  // 使用したカードは墓地へ
-            handAreaManager.UpdateHandUI(); // 手札UIを更新
+            handAreaManager.UpdateHandUI(PlayCard); // 手札UIを更新
 
 
             // 敵全滅チェック
