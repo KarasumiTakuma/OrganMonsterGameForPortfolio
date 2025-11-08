@@ -16,8 +16,6 @@ public class MonsterDataBattleScene : ScriptableObject
     [SerializeField] private int attackPower;        // このモンスターの攻撃力
 
     [Header("UI表示用")]
-    [TextArea]
-    
     [SerializeField] private Sprite monsterImage;      // このモンスターの画像
 
 
