@@ -505,7 +505,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b859bba816fb44861964a76fee01d073, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAreaManager
-  enemyPrefab: {fileID: 5166132461711059645, guid: 546fb8891ef874664a252f87578aaa96, type: 3}
+  monsterPrefab: {fileID: 5166132461711059645, guid: 546fb8891ef874664a252f87578aaa96, type: 3}
   spawnPoints:
   - {fileID: 279281388}
   - {fileID: 639659136}
@@ -830,12 +830,11 @@ MonoBehaviour:
   manaManager: {fileID: 93932253}
   handAreaManager: {fileID: 1381604163}
   enemyAreaManager: {fileID: 995359341}
+  allyAreaManager: {fileID: 0}
   defaultCardSprite: {fileID: 4755728945844721729, guid: 3a36a0ce6b0fe4d90a070ac2de83f667, type: 3}
-  playerHP: 30
-  enemyHP: 30
+  logText: {fileID: 0}
   playerHPText: {fileID: 0}
   enemyHPText: {fileID: 0}
-  logText: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

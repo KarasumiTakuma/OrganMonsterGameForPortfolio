@@ -8,19 +8,14 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private ManaManager manaManager;
     [SerializeField] private HandAreaManager handAreaManager; // HandAreaManagerの参照
     [SerializeField] private EnemyAreaManager enemyAreaManager;
+    [SerializeField] private AllyAreaManager allyAreaManager;
     [SerializeField] private Sprite defaultCardSprite; // カード画像表示用(一時的)
-
-
-    [Header("Player & Enemy HP")]
-    [SerializeField] private int playerHP = 30;
-    [SerializeField] private int enemyHP = 30;
-    [SerializeField] private TMP_Text playerHPText;
-    [SerializeField] private TMP_Text enemyHPText;
-
 
 
     [Header("UI")]
     [SerializeField] private TMP_Text logText; // 戦闘ログ
+    [SerializeField] private TMP_Text playerHPText;
+    [SerializeField] private TMP_Text enemyHPText;
 
     private bool playerTurn = true;
 
@@ -46,10 +41,10 @@ public class BattleManager : MonoBehaviour
     {
         // 敵を生成
         enemyAreaManager.SpawnEnemies();
+        allyAreaManager.SpawnAllies();
 
         // ゲーム開始時の手札5枚ドロー
         deckManager.DrawInitialHand();
-
         handAreaManager.UpdateHandUI();
 
         UpdateHPUI();
@@ -93,27 +88,27 @@ public class BattleManager : MonoBehaviour
             switch (card.GetCardType())
             {
                 case CardType.Attack:
-                    enemyHP -= card.GetPower();
+                    enemyAreaManager.TakeDamage(card.GetPower()); // 敵全体にダメージ
                     Log($"敵に{card.GetPower()}ダメージ！");
                     break;
                 case CardType.Heal:
-                    playerHP += card.GetPower();
-                    Log($"プレイヤーが{card.GetPower()}回復！");
+                    allyAreaManager.HealSharedHP(card.GetPower()); // 味方全体回復
+                    Log($"味方全体が{card.GetPower()}回復！");
                     break;
-                    // 他のカードタイプも追加可能
-                    //
-                    //
             }
 
             UpdateHPUI();
             deckManager.DiscardCard(card);  // 使用したカードは墓地へ
             handAreaManager.UpdateHandUI(); // 手札UIを更新
 
-            // 敵が倒れたら勝利
-            if (enemyHP <= 0)
+
+            // 敵全滅チェック
+            if (enemyAreaManager.GetIsAliveMonsterCount() == 0)
             {
-                Log("敵を倒した！");
+                Log("敵は全滅した！");
+                return;
             }
+
         }
         else
         {
@@ -140,14 +135,14 @@ public class BattleManager : MonoBehaviour
     {
         // シンプルに敵が固定ダメージ
         int damage = 5;
-        playerHP -= damage;
+        allyAreaManager.TakeDamage(damage); // 味方側の共有HPにダメージ
         Log($"敵の攻撃！ プレイヤーに{damage}ダメージ！");
         UpdateHPUI();
 
         // プレイヤーが倒れたら敗北
-        if (playerHP <= 0)
+        if (!allyAreaManager.GetIsAliveMonster())
         {
-            Log("プレイヤーは倒れた…");
+            Log("味方は全滅した…");
             return;
         }
 
@@ -160,8 +155,10 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     private void UpdateHPUI()
     {
-        if (playerHPText) playerHPText.text = $"HP: {playerHP}";
-        if (enemyHPText) enemyHPText.text = $"HP: {enemyHP}";
+        if (playerHPText)
+            playerHPText.text = $"HP: {allyAreaManager.GetSharedCurrentHP()}";
+        if (enemyHPText)
+            enemyHPText.text = $"HP: ";
     }
 
     /// <summary>

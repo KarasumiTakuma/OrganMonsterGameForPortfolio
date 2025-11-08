@@ -6,17 +6,13 @@ using UnityEngine;
 /// EnemyAreaManager と同様の構造
 /// さらに3体のHPを合算して共有HPとして管理
 /// </summary>
-public class AllyAreaManager : MonoBehaviour
+public class AllyAreaManager : MonsterAreaManager
 {
     [Header("Ally Settings")]
-    [SerializeField] private GameObject allyPrefab;           // 味方プレハブ
-    [SerializeField] private Transform[] spawnPoints;         // 味方出現位置（Canvas内）
     [SerializeField] private List<AllyMonsterData> allyDataList; // 3体の味方データ
 
     [Header("UI")]
     [SerializeField] private HpGaugeController sharedHpGauge; // 共有HPゲージ
-
-    private List<Ally> spawnedAllies = new List<Ally>();
 
     private int sharedMaxHP;      // 3体の最大HP合算
     private int sharedCurrentHP;  // 現在の共有HP（ダメージや回復後とかに使う値）
@@ -26,38 +22,9 @@ public class AllyAreaManager : MonoBehaviour
     /// </summary>
     public void SpawnAllies()
     {
-        ClearAllies();
-
-        int dataIndex = 0;
-
-        foreach (var point in spawnPoints)
-        {
-            GameObject allyObj = Instantiate(allyPrefab, point);
-
-            RectTransform allyRect = allyObj.GetComponent<RectTransform>();
-            RectTransform pointRect = point.GetComponent<RectTransform>();
-
-            if (allyRect != null && pointRect != null)
-            {
-                allyRect.sizeDelta = pointRect.sizeDelta;
-                allyRect.anchoredPosition = Vector2.zero;
-                allyRect.localScale = Vector3.one;
-            }
-
-            Ally ally = allyObj.GetComponent<Ally>();
-
-            if (ally != null && dataIndex < allyDataList.Count && allyDataList[dataIndex] != null)
-            {
-                AllyMonsterData allyData = allyDataList[dataIndex];
-                ally.InitializeSet(allyData);
-
-                spawnedAllies.Add(ally);
-            }
-
-            dataIndex++;
-        }
-
-        InitializeSharedHP();
+        List<MonsterDataBattleScene> baseDataList = allyDataList.ConvertAll(data => (MonsterDataBattleScene)data);
+        base.SpawnMonsters(baseDataList);
+        InitializeSharedHP(); // スポーン直後に共有HPを初期化
     }
 
     /// <summary>
@@ -66,7 +33,7 @@ public class AllyAreaManager : MonoBehaviour
     private void InitializeSharedHP()
     {
         sharedMaxHP = 0;
-        foreach (var ally in spawnedAllies)
+        foreach (var ally in spawnedMonsters)
         {
             sharedMaxHP += ally.GetMaxHP(); // 各味方の最大HPを合算
         }
@@ -81,46 +48,71 @@ public class AllyAreaManager : MonoBehaviour
     /// <summary>
     /// 共有HPにダメージ
     /// </summary>
-    public void TakeDamage(int amount)
+    protected override void ApplyDamage(int index, int damage)
     {
-        sharedCurrentHP = Mathf.Max(sharedCurrentHP - amount, 0);
-
+        sharedCurrentHP = Mathf.Max(sharedCurrentHP - damage, 0);
         if (sharedHpGauge != null)
-        {
-            sharedHpGauge.BeInjured(amount);
-        }
+            sharedHpGauge.BeInjured(damage);
     }
+    protected override void ApplyDamageToAll(int damage)
+    {
+        sharedCurrentHP = Mathf.Max(sharedCurrentHP - damage, 0);
+        if (sharedHpGauge != null)
+            sharedHpGauge.BeInjured(damage);
+    }
+    public void TakeDamage(int damage)
+    {
+        this.ApplyDamage(0, damage);
+    }
+
+    public void TakeDamageToAll(int damage)
+    {
+        this.ApplyDamageToAll(damage);
+    }
+
+    public int GetCurrentHP(int index)
+    {
+        return sharedCurrentHP;
+    }
+
 
     /// <summary>
     /// 共有HPを回復
     /// </summary>
-    public void Heal(int amount)
+    public void HealSharedHP(int amount)
     {
+        int previousHP = sharedCurrentHP;
         sharedCurrentHP = Mathf.Min(sharedCurrentHP + amount, sharedMaxHP);
 
         if (sharedHpGauge != null)
         {
             // 回復分をゲージに反映
-            // BeInjured はダメージ用なので、回復用に別メソッドを作るのもあり
-            sharedHpGauge.SetMaxHP(sharedMaxHP); // ゲージを更新（簡易対応）
+            int healedAmount = sharedCurrentHP - previousHP;
+            if (healedAmount > 0)
+                sharedHpGauge.BeHealed(healedAmount);// ゲージを更新(ゲージの回復処理)
         }
+    }
+
+    public bool GetIsAliveMonster()
+    {
+        return sharedCurrentHP > 0 ? true : false; // 共有HPなので、falseなら全滅扱い
     }
 
     public int GetSharedCurrentHP() => sharedCurrentHP;
     public int GetSharedMaxHP() => sharedMaxHP;
 
-    public List<Ally> GetAllies() => spawnedAllies;
-    public int GetAllyCount() => spawnedAllies.Count;
+    public List<Monster> GetAllies() => spawnedMonsters;
+    public int GetAllyCount() => spawnedMonsters.Count;
 
     /// <summary>
     /// 既存の味方を削除
     /// </summary>
     public void ClearAllies()
     {
-        foreach (var ally in spawnedAllies)
+        foreach (var ally in spawnedMonsters)
         {
             if (ally != null) Destroy(ally.gameObject);
         }
-        spawnedAllies.Clear();
+        spawnedMonsters.Clear();
     }
 }
