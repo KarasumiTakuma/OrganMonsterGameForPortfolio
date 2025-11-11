@@ -785,7 +785,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 285197548}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 427261a296b8a48ec8089f2276f4d988, type: 3}
+  m_Script: {fileID: 11500000, guid: 8a5150bf5fb38432292d45e42856bc26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HistoryManager
   backButton: {fileID: 188874463}
@@ -2101,7 +2101,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 828630428}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5df14a569ca4e4ed89bceda93a2c6b88, type: 3}
+  m_Script: {fileID: 11500000, guid: bf0b0942e4109465d884268cc55850cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HistoryDetailSystem
   detailPanel: {fileID: 1424213862}
@@ -2118,9 +2118,9 @@ MonoBehaviour:
   - {fileID: 21300006, guid: ecd359c045351424082d2ba03ec132df, type: 3}
   monsterTypeIcons:
   - {fileID: 21300020, guid: addd2af175d074643a3b1f29f6c23041, type: 3}
-  - {fileID: 21300022, guid: addd2af175d074643a3b1f29f6c23041, type: 3}
   - {fileID: 21300024, guid: addd2af175d074643a3b1f29f6c23041, type: 3}
   - {fileID: 21300026, guid: addd2af175d074643a3b1f29f6c23041, type: 3}
+  - {fileID: 21300028, guid: addd2af175d074643a3b1f29f6c23041, type: 3}
 --- !u!1 &860137378
 GameObject:
   m_ObjectHideFlags: 0
@@ -4620,7 +4620,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1957223068}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b283909962fd4997874fc570f492fa3, type: 3}
+  m_Script: {fileID: 11500000, guid: b91430070a0184f548b54c71b656aa67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HistorySystem
   organPanel: {fileID: 1727475524}
