@@ -1,7 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-// シーン内の「設定ボタン」にアタッチする
+/// <summary>
+/// 設定ボタンにアタッチして設定パネルを開く
+/// </summary>
 [RequireComponent(typeof(Button))]
 public class SettingsButtonLink : MonoBehaviour
 {

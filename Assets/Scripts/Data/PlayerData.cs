@@ -211,14 +211,20 @@ public class PlayerData : MonoBehaviour
         ownedOrgans.Clear();
         foreach (var entry in saveData.ownedOrgans)
         {
-            ownedOrgans.Add(entry.organ, entry.count);
+            if (entry.organ != null)
+            {
+                ownedOrgans.Add(entry.organ, entry.count);
+            }
         }
 
         // List<MonsterSaveData>をDictionaryに変換
         ownedMonsters.Clear();
         foreach (var entry in saveData.ownedMonsters)
         {
-            ownedMonsters.Add(entry.monster, entry.count);
+            if (entry.monster != null)
+            {
+                ownedMonsters.Add(entry.monster, entry.count);
+            }
         }
 
         // List<ArtifactSaveData>をDictionaryに変換
