@@ -6,51 +6,17 @@ using UnityEngine.UI;
 /// <summary>
 /// 図鑑シーンのシステムを構成するクラス
 /// </summary>
-public class HistorySystem : MonoBehaviour
+public class HistorySystem : BaseTabbedGridSystem
 {
-    [Header("UI Panels")]
-    [SerializeField] private GameObject organPanel; // 素材配置パネル
-    [SerializeField] private GameObject monsterPanel; // モンスター配置パネル
-    [SerializeField] private GameObject artifactPanel; // アーティファクト配置パネル
-
-    [Header("Grid Contents")]
-    // 素材を配置するためのスクロール領域
-    [SerializeField] private Transform organGridContent;
-    // モンスターを配置するためのスクロール領域
-    [SerializeField] private Transform monsterGridContent;
-    // アーティファクトを配置するためのスクロール領域
-    [SerializeField] private Transform artifactGridContent;
-
-    [Header("Tab Buttons")]
-    [SerializeField] private Button organTabButton;
-    [SerializeField] private Button monsterTabButton;
-    [SerializeField] private Button artifactTabButton;
-
-    [Header("Prefabs")]
-    // 配置するスロットプハブ
-    [SerializeField] private GameObject genericSlotPrefab;
-
-    [Header("Tab Colors")]
-    // 選択中の色
-    [SerializeField] private Color selectedColor = Color.yellow;
-    // 非選択中の色
-    [SerializeField] private Color deselectedColor = Color.white;
-
     // --- 全アイテムリスト ---
     private List<OrganData> allOrgansInGame = new List<OrganData>(); // 素材全種類
     private List<MonsterData> allMonstersInGame = new List<MonsterData>(); // モンスター全種類
     private List<ArtifactData> allArtifactsInGame = new List<ArtifactData>();// アーティファクト全種類
 
-    // --- 事前生成したスロット ---
-    private List<GenericSlotUI> organSlots = new List<GenericSlotUI>();
-    private List<GenericSlotUI> monsterSlots = new List<GenericSlotUI>();
-    private List<GenericSlotUI> artifactSlots = new List<GenericSlotUI>();
-
-    // 現在選択されているアイテム
-    private ScriptableObject selectedItem;
-
-    void Start()
+    protected override void Start()
     {
+        base.Start();
+
         // --- ゲーム内の全アイテムデータをロード ---
         // --- DataManagerからロード済みのリストを取得 ---
         allOrgansInGame = DataManager.Instance.AllOrgans;
@@ -61,54 +27,9 @@ public class HistorySystem : MonoBehaviour
         GenerateSlots(allOrgansInGame.Count, organGridContent, organSlots);
         GenerateSlots(allMonstersInGame.Count, monsterGridContent, monsterSlots);
         GenerateSlots(allArtifactsInGame.Count, artifactGridContent, artifactSlots);
-        //GenerateSlots(100, artifactGridContent, artifactSlots);
-
-        // --- タブボタンの設定 ---
-        organTabButton?.onClick.AddListener(ShowOrganPanel);
-        monsterTabButton?.onClick.AddListener(ShowMonsterPanel);
-        artifactTabButton?.onClick.AddListener(ShowArtifactPanel);
 
         // 最初はモンスター図鑑を表示
         ShowMonsterPanel();
-    }
-
-    // スロット生成を共通化
-    private void GenerateSlots(int count, Transform content, List<GenericSlotUI> slotList)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            GameObject slotGO = Instantiate(genericSlotPrefab, content);
-            // スクリプトをリストに追加
-            slotList.Add(slotGO.GetComponent<GenericSlotUI>());
-        }
-    }
-
-    private void OnEnable()
-    {
-        GenericSlotUI.OnSlotClicked += HandleSlotClick;
-    }
-    private void OnDisable()
-    {
-        GenericSlotUI.OnSlotClicked -= HandleSlotClick;
-    }
-
-    private void HandleSlotClick(ScriptableObject clickedData)
-    {
-        // 未入手アイテムをクリックした場合の処理を追加
-        if (clickedData == null)
-        {
-            selectedItem = null; // 未所持なら選択解除
-        }
-        else if (selectedItem == clickedData)
-        {
-            selectedItem = null;
-        }
-        else
-        {
-            selectedItem = clickedData;
-            // ShowDetail(selectedItem);
-        }
-        UpdateAllSlotColors();
     }
 
     // アイテムが所持済みかチェックするヘルパー関数
@@ -120,49 +41,7 @@ public class HistorySystem : MonoBehaviour
         return false;
     }
 
-    private void UpdateAllSlotColors()
-    {
-        foreach (var slot in organSlots.Concat(monsterSlots).Concat(artifactSlots))
-        {
-            var dataInSlot = slot.GetAssignedData();
-            bool isSelected = dataInSlot != null && dataInSlot == selectedItem;
-            slot.SetSelected(isSelected);
-        }
-    }
-
-    private void UpdateTabColors()
-    {
-        organTabButton.GetComponent<Image>().color = organPanel.activeSelf ? selectedColor : deselectedColor;
-        monsterTabButton.GetComponent<Image>().color = monsterPanel.activeSelf ? selectedColor : deselectedColor;
-        artifactTabButton.GetComponent<Image>().color = artifactPanel.activeSelf ? selectedColor : deselectedColor;
-    }
-
-    public void ShowOrganPanel()
-    {
-        organPanel.SetActive(true);
-        monsterPanel.SetActive(false);
-        artifactPanel.SetActive(false);
-        PopulateOrganGrid();
-        UpdateTabColors();
-    }
-    public void ShowMonsterPanel()
-    {
-        organPanel.SetActive(false);
-        monsterPanel.SetActive(true);
-        artifactPanel.SetActive(false);
-        PopulateMonsterGrid();
-        UpdateTabColors();
-    }
-    public void ShowArtifactPanel()
-    {
-        organPanel.SetActive(false);
-        monsterPanel.SetActive(false);
-        artifactPanel.SetActive(true);
-        PopulateArtifactGrid();
-        UpdateTabColors();
-    }
-
-    private void PopulateOrganGrid()
+    protected override void PopulateOrganGrid()
     {
         // PlayerDataから「発見済み」の臓器リストを取得
         var discoveredOrgans = GameManager.Instance.PlayerData.discoveredOrgans;
@@ -184,7 +63,7 @@ public class HistorySystem : MonoBehaviour
         }
     }
 
-    private void PopulateMonsterGrid()
+    protected override void PopulateMonsterGrid()
     {
         // PlayerDataから「発見済み」のモンスターリストを取得
         var discoveredMonsters = GameManager.Instance.PlayerData.discoveredMonsters;
@@ -207,7 +86,7 @@ public class HistorySystem : MonoBehaviour
         }
     }
 
-    private void PopulateArtifactGrid()
+    protected override void PopulateArtifactGrid()
     {
         // PlayerDataから「発見済み」のモンスターリストを取得
         var discoveredArtifacts = GameManager.Instance.PlayerData.discoveredArtifacts;
