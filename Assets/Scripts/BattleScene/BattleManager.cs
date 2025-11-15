@@ -29,7 +29,7 @@ public class BattleManager : MonoBehaviour
             cardData.cardName = "攻撃カード";
             cardData.manaCost = 0;
             cardData.cardType = CardType.AttackToSelected;
-            cardData.power = 5;
+            cardData.power = 20;
             cardData.cardImage = defaultCardSprite;
 
             deckManager.AddCardToDeck(new Card(cardData)); // 本来なら、deckManager.drowInitialHand()
