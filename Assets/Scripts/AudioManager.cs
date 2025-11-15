@@ -28,6 +28,7 @@ public class AudioManager : MonoBehaviour
     public void PlayBGM(AudioClip clip)
     {
         bgmAudioSource.clip = clip; // BGMプレイヤーに曲をセット
+        bgmAudioSource.loop = true; // BGMをループ
         bgmAudioSource.Play(); // 曲を再生する
     }
 
