@@ -11,6 +11,8 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private EnemyAreaManager enemyAreaManager;
     [SerializeField] private AllyAreaManager allyAreaManager;
     [SerializeField] private Sprite defaultCardSprite; // カード画像表示用(一時的)
+    [SerializeField] private GameObject endTurnButton;  // プレイヤーターンの終了用ボタン
+
 
 
     [Header("UI")]
@@ -79,6 +81,8 @@ public class BattleManager : MonoBehaviour
         // 手札UIを更新
         handAreaManager.UpdateHandUI(PlayCard);
 
+        endTurnButton.SetActive(true);  // プレイヤーターン終了ボタンを表示
+
         Log("プレイヤーのターン開始！");
     }
 
@@ -136,6 +140,8 @@ public class BattleManager : MonoBehaviour
         if (!playerTurn) return;
 
         playerTurn = false;
+        endTurnButton.SetActive(true);  // プレイヤーターン終了ボタンを非表示
+
         Log("プレイヤーのターン終了！");
         EnemyTurn();
     }
