@@ -16,6 +16,9 @@ public class Enemy : Monster
             enemyMonsterData.GetAttackPower(),
             enemyMonsterData.GetImage()
         );
+        // この敵のHpGaugeController側にも最大HPを設定する
+        if (hpGauge != null)
+        hpGauge.SetMaxHP(enemyMonsterData.GetMaxHP());
     }
 
     // ダメージ処理（HPゲージ更新込み）
