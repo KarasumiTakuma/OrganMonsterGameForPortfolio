@@ -27,6 +27,14 @@ public class AudioManager : MonoBehaviour
 
     public void PlayBGM(AudioClip clip)
     {
+        if (clip == null) return; // 再生するクリップがないなら何もしない
+        
+        // もし、再生したいBGMが既に再生中なら、何もしない
+        if (bgmAudioSource.clip == clip && bgmAudioSource.isPlaying)
+        {
+            return;
+        }
+
         bgmAudioSource.clip = clip; // BGMプレイヤーに曲をセット
         bgmAudioSource.loop = true; // BGMをループ
         bgmAudioSource.Play(); // 曲を再生する
