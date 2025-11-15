@@ -6,6 +6,7 @@ using System.Linq;
 public class MonstersEditor : EditorWindow
 {
     // --- 変数定義 ---
+    // 全てのモンスターの参照
     private List<MonsterData> allMonsters = new List<MonsterData>();
     private Vector2 scrollPosition;
     // 検索用変数
@@ -14,9 +15,9 @@ public class MonstersEditor : EditorWindow
     private Dictionary<MonsterData, bool> monsterFoldoutStates = new Dictionary<MonsterData, bool>();
     private enum SortType
     {
-        // 名前でソート
-        AssetName_Ascending, // 昇順
-        AssetName_Descending, // 降順
+        // 名前でソート(アセット名であなくモンスター名)
+        Name_Ascending, // 昇順
+        Name_Descending, // 降順
         // モンスターIDでソート
         MonsterID_Ascending,
         MonsterID_Descending,
@@ -54,7 +55,8 @@ public class MonstersEditor : EditorWindow
         {
             LoadAllMonsters();
         }
-        searchQuery = EditorGUILayout.TextField("アセット名で検索", searchQuery);
+        // 検索欄
+        searchQuery = EditorGUILayout.TextField("モンスター名で検索", searchQuery);
         currentSortType = (SortType)EditorGUILayout.EnumPopup("並び替え", currentSortType);
 
         EditorGUILayout.Space(10);
@@ -63,7 +65,10 @@ public class MonstersEditor : EditorWindow
         // スクロールを管理
         scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
         // 検索してリストを絞る
-        var filteredMonsters = string.IsNullOrEmpty(searchQuery) ? allMonsters : allMonsters.Where(r => r.name.ToLower().Contains(searchQuery.ToLower())).ToList();
+        var filteredMonsters = string.IsNullOrEmpty(searchQuery) 
+        ? allMonsters
+        // LINQのWhereでフィルタリングする
+        : allMonsters.Where(monster => monster.GetName().ToLower().Contains(searchQuery.ToLower())).ToList();
         // ソートしたリスト
         var sortedMonsters = SortMonsters(filteredMonsters);
         // 削除するアセットを保持
@@ -74,10 +79,28 @@ public class MonstersEditor : EditorWindow
             // もしアセットが削除されて null になっていたら、スキップする
             if (monster == null) continue;
 
-            // Foldoutを描画し、開閉状態を取得
+            // 横に描画開始
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            // 開閉状態を取得
             bool isFoldoutOpen = GetFoldoutState(monster);
-            isFoldoutOpen = EditorGUILayout.Foldout(isFoldoutOpen, monster.name, true, EditorStyles.foldoutHeader);
+            // 文字列補間($)を使い、モンスター名とアセット名を組み合わせる
+            string displayName = $"{monster.GetName()} ({monster.name})";
+            // Foldout(折りたたみヘッダー)を描画
+            isFoldoutOpen = EditorGUILayout.Foldout(isFoldoutOpen, displayName, true, EditorStyles.foldoutHeader);
+            // 辞書に開閉の状態(true or false)を記憶
             SetFoldoutState(monster, isFoldoutOpen);
+
+
+
+            // 「-」削除ボタンを横に配置
+            if (GUILayout.Button("-", GUILayout.Width(20)))
+            {
+                if (EditorUtility.DisplayDialog("モンスターの削除", $"本当に '{monster.GetName()}' を削除しますか？", "はい", "いいえ"))
+                {
+                    monsterToDelete = monster;
+                }
+            }
+            EditorGUILayout.EndHorizontal(); // 横並び終了
 
             // もしFoldoutが開かれていたら、詳細情報を描画
             if (isFoldoutOpen)
@@ -88,7 +111,8 @@ public class MonstersEditor : EditorWindow
                 EditorGUI.BeginChangeCheck(); // 監視を開始
 
                 // --- ゲッターで現在の値をUIに表示 ---
-                string newName = EditorGUILayout.TextField("表示名", monster.GetName());
+                // DelayedTextFieldはEnterかフォーカスを外した時に値の変更を確定させる->入力流にEndChangeCheck()が実行されるのを防ぐ
+                string newName = EditorGUILayout.DelayedTextField("表示名", monster.GetName());
                 int newID = EditorGUILayout.IntField("モンスターID", monster.GetID());
                 int newRarity = EditorGUILayout.IntSlider("レアリティ", monster.GetRarity(), 1, 5);
                 MonsterType newType = (MonsterType)EditorGUILayout.EnumPopup("タイプ", monster.GetMonsterType());
@@ -139,11 +163,6 @@ public class MonstersEditor : EditorWindow
                     AssetDatabase.SaveAssets();      // (変更を即時保存。任意)
                 }
 
-                if (GUILayout.Button("このモンスターを削除"))
-                {
-                    monsterToDelete = monster;
-                }
-
                 EditorGUI.indentLevel--;
                 EditorGUILayout.EndVertical();
                 EditorGUILayout.Space(5);
@@ -182,8 +201,8 @@ public class MonstersEditor : EditorWindow
     {
         switch (currentSortType)
         {
-            case SortType.AssetName_Ascending: return monsters.OrderBy(r => r.name).ToList();
-            case SortType.AssetName_Descending: return monsters.OrderByDescending(r => r.name).ToList();
+            case SortType.Name_Ascending: return monsters.OrderBy(r => r.GetName()).ToList();
+            case SortType.Name_Descending: return monsters.OrderByDescending(r => r.GetName()).ToList();
             case SortType.MonsterID_Ascending: return monsters.OrderBy(r => r.GetID()).ToList();
             case SortType.MonsterID_Descending: return monsters.OrderByDescending(r => r.GetID()).ToList();
             case SortType.Rarity_Ascending: return monsters.OrderBy(r => r.GetRarity()).ToList();
