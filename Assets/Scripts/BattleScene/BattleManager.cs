@@ -28,7 +28,7 @@ public class BattleManager : MonoBehaviour
             CardData cardData = ScriptableObject.CreateInstance<CardData>();
             cardData.cardName = "攻撃カード";
             cardData.manaCost = 0;
-            cardData.cardType = CardType.Attack;
+            cardData.cardType = CardType.AttackToSelected;
             cardData.power = 5;
             cardData.cardImage = defaultCardSprite;
 
@@ -48,12 +48,12 @@ public class BattleManager : MonoBehaviour
         deckManager.DrawInitialHand();
         List<Card> handCardsData = deckManager.GetHand(); // deckManagerによってセットされた手札5枚を入手
         // 5枚の手札データをhandAreaManagerにセット(後にこのデータを付与した手札カードオブジェクトを生成)
-        handAreaManager.setHandCardData(handCardsData);  
+        handAreaManager.setHandCardData(handCardsData);
 
         // handAreaManagerにドローした手札5枚のオブジェクトを生成して表示するよう指示する。
         // UpdateHandUIで手札オブジェクトを生成する際に、プレイヤーがカードを使用した時に
         // 発生するイベントPlayCard()メソッド(メソッドへのポインタ)を渡す。
-        handAreaManager.UpdateHandUI(PlayCard);  
+        handAreaManager.UpdateHandUI(PlayCard);
 
         UpdateHPUI();
 
@@ -95,10 +95,14 @@ public class BattleManager : MonoBehaviour
             // カード効果を適用
             switch (card.GetCardType())
             {
-                case CardType.Attack:
-                    enemyAreaManager.TakeDamage(card.GetPower()); // 敵全体にダメージ
-                    Log($"敵に{card.GetPower()}ダメージ！");
+                case CardType.AttackToSelected:
+                    enemyAreaManager.TakeDamageToSelectedEnemy(card.GetPower());
+                    Log($"敵単体に{card.GetPower()}ダメージ！");
                     break;
+                // case  CardType.AttackToAll:     // CardType.AttackToAllをCradDataに追加予定。全体攻撃タイプのカードを使用した際に。
+                //     enemyAreaManager.TakeDamageToAll(card.GetPower());
+                //     Log($"敵全体に{card.GetPower()}ダメージ！");
+                //     break;
                 case CardType.Heal:
                     allyAreaManager.HealSharedHP(card.GetPower()); // 味方全体回復
                     Log($"味方全体が{card.GetPower()}回復！");
@@ -167,6 +171,12 @@ public class BattleManager : MonoBehaviour
             playerHPText.text = $"HP: {allyAreaManager.GetSharedCurrentHP()}";
         if (enemyHPText)
             enemyHPText.text = $"HP: ";
+    }
+
+    // 各敵のスポーン位置(EnemyArea/SpawnPoint{1,2,3})をクリックした際に呼ばれるメソッド。
+    public void SelectEnemy(int index)
+    {
+        enemyAreaManager.SetSelectedEnemy(index);
     }
 
     /// <summary>
