@@ -141,6 +141,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainBGM: {fileID: 8300000, guid: 55281b76781c949b1864cc17ea13f6b3, type: 3}
+  battleBGM: {fileID: 8300000, guid: 4d5738c01a84744dc886456e71cd9e60, type: 3}
 --- !u!114 &-8954011613452523152
 MonoBehaviour:
   m_ObjectHideFlags: 0
