@@ -43,6 +43,13 @@ public class GachaDirector : MonoBehaviour
     private bool nextButtonPressed = false; // ボタンが押されたかを記録する旗
     private bool skipCurrentAnimation = false; // 演出スキップフラグ
 
+    [Header("効果音")]
+    [SerializeField] private AudioClip GOGOGO; // ノーマル演出効果音
+    [SerializeField] private AudioClip DODODODO;  // レア演出効果音
+    [SerializeField] private AudioClip BAKYUN;  // スーパーレア演出効果音
+    // バキュン音を鳴らすかどうかのフラグ
+    private bool BakyunPlay = false;
+
     private void Start()
     {
         // 戻るボタンが押されたら、パネルを非表示にする
@@ -108,14 +115,20 @@ public class GachaDirector : MonoBehaviour
         effectAnimator.gameObject.SetActive(true);
         if (maxRarity >= 5)
         {
+            AudioManager.Instance.PlayLoopSE1(DODODODO);
+            // バキュンを鳴らすフラグ
+            BakyunPlay = true;
             effectAnimator.Play("SuperRareEffect");
         }
         else if (maxRarity >= 4)
         {
+            AudioManager.Instance.PlayLoopSE1(DODODODO);
             effectAnimator.Play("RareEffect");
         }
         else
         {
+            // 途中で停止可能なAudio Sourceで流す
+            AudioManager.Instance.PlayLoopSE1(GOGOGO);
             effectAnimator.Play("NormalEffect");
         }
 
@@ -124,11 +137,20 @@ public class GachaDirector : MonoBehaviour
         while(timer < 2.0f && !skipCurrentAnimation)
         {
             timer += Time.deltaTime;
+            // バキュンを鳴らすフラグがtrueの場合、鳴らす
+            if (timer >= 1.0f && BakyunPlay)
+            {
+                AudioManager.Instance.PlayLoopSE2(BAKYUN);
+                BakyunPlay = false;
+            }
+
             yield return null;
         }
         
         // 演出が終わったらAnimatorを非表示にする
         effectAnimator.gameObject.SetActive(false);
+        // 効果音をストップする
+        AudioManager.Instance.StopAllLoopSE();
 
         // --- 3. 演出パネルを非表示にし、結果表示パネルに切り替え ---
         effectPanel.SetActive(false);
