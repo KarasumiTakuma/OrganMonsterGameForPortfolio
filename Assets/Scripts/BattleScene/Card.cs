@@ -1,23 +1,28 @@
 using UnityEngine;
-
+// ゲーム内で扱うカードの情報をまとめたモデル。このクラスから成るインスタンスは、そのカードインスタンスが持つ情報をやり取りする
+// 具体的には、カード名、マナコスト、カードタイプ、攻撃力や回復量、カード画像などを保持する
+// ゲーム内では、このCardオブジェクトを使って手札、デッキ、墓地、場に出たカードの状態を管理する
+// CardDataから生成され、UI表示やカード使用時の処理と連携することで、ゲームロジックと表示を統一的に扱える
 public class Card
 {
-    private CardData data;       // 元データへの参照
-    public bool isUsed = false; // 使用済みかどうか等の状態
+    private string cardName;
+    private int manaCost;
+    private CardType cardType;
+    private int power;
+    private Sprite cardImage;
 
-    // コンストラクタ
     public Card(CardData cardData)
     {
-        data = cardData;
+        cardName = cardData.GetCardName();
+        manaCost = cardData.GetManaCost();
+        cardType = cardData.GetCardType();
+        power = cardData.GetPower();
+        cardImage = cardData.GetCardImage();
     }
 
-    // CardDataに格納されている情報を取り出すためのゲッターメソッド
-    public string GetName() => data.cardName;
-    public int GetManaCost() => data.manaCost;
-    public int GetPower() => data.power;
-    public Sprite GetSprite() => data.cardImage;
-    public CardType GetCardType() => data.cardType;
-    public string GetDescription() => data.description;
-
-
+    public string GetName() => cardName;
+    public int GetManaCost() => manaCost;
+    public CardType GetCardType() => cardType;
+    public int GetPower() => power;
+    public Sprite GetSprite() => cardImage;
 }
