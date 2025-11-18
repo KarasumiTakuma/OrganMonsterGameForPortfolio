@@ -11,6 +11,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private EnemyAreaManager enemyAreaManager;
     [SerializeField] private AllyAreaManager allyAreaManager;
     [SerializeField] private Sprite defaultCardSprite; // カード画像表示用(一時的)
+    [SerializeField] private List<CardData> cardDataList;
     [SerializeField] private GameObject endTurnButton;  // プレイヤーターンの終了用ボタン
 
 
@@ -22,21 +23,16 @@ public class BattleManager : MonoBehaviour
 
     private bool playerTurn = true;
 
-    // Awake()は、今のところカードUI表示テストのために設定してある(おそらく後に消す)
+    // Awake()には、他シーンからバトルシーンに移動した時に、手持ちデータとしてセットした3体モンスターデータから
+    // 30枚のカードデッキ情報を読み出して、deckManagerを用いて山札にセットする処理を行う予定
     void Awake()
     {
-        for (int i = 0; i < 10; i++)
+        
+        foreach (var cardData in cardDataList)
         {
-            CardData cardData = ScriptableObject.CreateInstance<CardData>();
-            cardData.cardName = "攻撃カード";
-            cardData.manaCost = 0;
-            cardData.cardType = CardType.AttackToSelected;
-            cardData.power = 20;
-            cardData.cardImage = defaultCardSprite;
-
-            deckManager.AddCardToDeck(new Card(cardData)); // 本来なら、deckManager.drowInitialHand()
+            Card card = new Card(cardData);
+            deckManager.AddCardToDeck(card);
         }
-
         deckManager.ShuffleDeck();
     }
 
@@ -140,7 +136,7 @@ public class BattleManager : MonoBehaviour
         if (!playerTurn) return;
 
         playerTurn = false;
-        endTurnButton.SetActive(true);  // プレイヤーターン終了ボタンを非表示
+        endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
 
         Log("プレイヤーのターン終了！");
         EnemyTurn();

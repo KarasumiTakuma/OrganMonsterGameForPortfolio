@@ -60,17 +60,12 @@ public class HandAreaManager : MonoBehaviour
 
             Card cardData = handCardData[dataIndex];
 
-            TMP_Text nameText = cardObj.transform.Find("NameText")?.GetComponent<TMP_Text>();
-            if (nameText) nameText.text = cardData.GetName();
-
-            TMP_Text manaText = cardObj.transform.Find("ManaCostText")?.GetComponent<TMP_Text>();
-            if (manaText) manaText.text = "Cost：" + cardData.GetManaCost();
-
-            TMP_Text powerText = cardObj.transform.Find("PowerText")?.GetComponent<TMP_Text>();
-            if (powerText) powerText.text = "Att" + cardData.GetPower();
-
-            Image cardImage = cardObj.transform.Find("CardImage")?.GetComponent<Image>();
-            if (cardImage) cardImage.sprite = cardData.GetSprite();
+            // カードデータをCardViewにセット
+            CardView cardView = cardObj.GetComponent<CardView>();
+            if (cardView != null)
+            {
+                cardView.SetCard(cardData);
+            }
 
             var dragDrop = cardObj.GetComponent<CardUI_DragDrop>();
             if (dragDrop != null && onCardPlayed != null)
