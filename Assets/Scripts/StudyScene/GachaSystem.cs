@@ -9,7 +9,10 @@ public class GachaSystem : MonoBehaviour
     public Button normalGachaButton;    // 通常ガチャ（1回）
     public Button normalGachaButton10;  // 通常ガチャ（10回）
     public Button premiumGachaButton;   // プレミアムガチャ（1回）
-    [SerializeField] private TextMeshProUGUI myPointsText;
+    [SerializeField] private TextMeshProUGUI myPointsText; // 所持ポイント表示テキスト
+    [SerializeField] private TextMeshProUGUI normalCostText; // ノーマルガチャ価格テキスト
+    [SerializeField] private TextMeshProUGUI normalCost10Text; // ノーマル10連ガチャ価格テキスト
+    [SerializeField] private TextMeshProUGUI premiumCostText; // プレミアムガチャ価格テキスト
 
     [Header("Normal Gacha Settings")]
     [Tooltip("通常ガチャのプールを確率の高い順に設定")]
@@ -30,7 +33,12 @@ public class GachaSystem : MonoBehaviour
         normalGachaButton?.onClick.AddListener(() => ExecuteGacha(normalGachaPools, normalGachaCost, 1));
         normalGachaButton10?.onClick.AddListener(() => ExecuteGacha(normalGachaPools, normalGachaCost * 10, 10));
         premiumGachaButton?.onClick.AddListener(() => ExecuteGacha(premiumGachaPools, premiumGachaCost, 1));
+        // 現在の所持ポイントを表示
         myPointsText.text = GameManager.Instance.PlayerData.GetPoints().ToString() + "pt";
+        // 各ガチャの価格を表示
+        normalCostText.text = normalGachaCost.ToString() + "pt";
+        normalCost10Text.text = (normalGachaCost*10).ToString() + "pt";
+        premiumCostText.text = premiumGachaCost.ToString() + "pt";
     }
 
     /// <summary>
