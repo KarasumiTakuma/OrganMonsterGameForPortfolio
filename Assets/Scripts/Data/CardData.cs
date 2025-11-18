@@ -1,23 +1,29 @@
 using UnityEngine;
 
 /// カード1枚のデータをアセットとして管理するクラス
-[CreateAssetMenu(fileName = "NewCardData", menuName = "Card Game/Card Data")]
+[CreateAssetMenu(fileName = "NewCardData", menuName = "Card Resource/Card Data")]
 public class CardData : ScriptableObject
 {
     [Header("基本情報")]
-    public string cardName;          // カード名
-    public int manaCost;             // 消費マナ
-    public CardType cardType;        // カードの種類（攻撃・回復など）
+    [SerializeField] private string cardName;          // カード名
+    [SerializeField] private int manaCost;             // 消費マナ
+    [SerializeField] private CardType cardType;        // カードの種類（攻撃・回復など）
 
     [Header("効果設定")]
-    public int power;                // 効果量（攻撃力や回復量など）
+    [SerializeField] private int power;                // 効果量（攻撃力や回復量など）
 
     [Header("UI用情報")]
     [TextArea]
-    public string description;       // 説明文（UI表示用）
+    [SerializeField] private string description;       // 説明文（UI表示用）
 
     [Header("カード画像")]
-    public Sprite cardImage;         // カードの絵
+    [SerializeField] private Sprite cardImage;         // カードの絵
+
+    public string GetCardName() => cardName;
+    public int GetManaCost() => manaCost;
+    public CardType GetCardType() => cardType;
+    public int GetPower() => power;
+    public Sprite GetCardImage() => cardImage;
 }
 
 public enum CardType
