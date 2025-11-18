@@ -63,6 +63,8 @@ public class PlayerData : MonoBehaviour
 
     // --- データ操作用の関数  ---
 
+    public int GetPoints() => researchPoints;
+
     public void AddPoints(int amount)
     {
         researchPoints += amount;
