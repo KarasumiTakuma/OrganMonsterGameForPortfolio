@@ -1,3 +1,6 @@
+// CardView.csは、HandAreaManager.csからスポーンした手札カードの情報を受け取って、
+// 手札カードの見た目(UI：消費マナや攻撃量やカード名のテキスト、画像)を更新する役割を担う。
+
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
