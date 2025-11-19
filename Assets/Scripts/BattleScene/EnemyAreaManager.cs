@@ -7,7 +7,10 @@ public class EnemyAreaManager : MonsterAreaManager
     [SerializeField] private List<EnemyMonsterData> enemyDataList;  // 各スポーンポイントに出現する敵に対する敵データ
 
     public const int NoSelection = -1;   // 敵が選択されていない状態を表す定数
-    private int selectedEnemyIndex = NoSelection;  // 敵が選択(クリック)された時に、その敵モンスターがspawnedMonsters(生成した敵モンスターリスト)のいずれであるかを示すインデックス
+
+    // 敵が選択(クリック)された時に、その敵モンスターがspawnedMonsters(生成した敵モンスターリスト)のいずれであるかを示すインデックス
+    // どの敵を選択している状態かを示すインデックス情報を保持する変数
+    private int selectedEnemyIndex = NoSelection;
 
     /// <summary>
     /// スポーンポイントに敵を生成
@@ -27,13 +30,13 @@ public class EnemyAreaManager : MonsterAreaManager
     {
         if (index >= 0 && index < spawnedMonsters.Count) // インデックスが生成した敵モンスターリスト範囲外にアクセスしていないかをチェック
         {
-            selectedEnemyIndex = index; // クリックした敵のインデックス情報を保持。
+            selectedEnemyIndex = index; // クリックした敵の選択インデックス情報を保持。
             Debug.Log(spawnedMonsters[selectedEnemyIndex].GetMonsterName() + " を選択");
         }
         else
         {
             Debug.Log(spawnedMonsters[selectedEnemyIndex].GetMonsterName() + "の選択を解除");  // 元々選択されていた敵の選択解除を報告してから
-            selectedEnemyIndex = index; // 敵のインデックス情報を更新
+            selectedEnemyIndex = index; // 敵の選択インデックス情報を更新
         }
     }
 
