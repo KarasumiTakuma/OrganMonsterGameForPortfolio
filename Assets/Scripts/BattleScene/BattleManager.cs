@@ -177,7 +177,9 @@ public class BattleManager : MonoBehaviour
     }
 
     // 各敵のスポーン位置(EnemyArea/SpawnPoint{1,2,3})をクリックした際に呼ばれるメソッド。
-    public void ClickedEnemy(int index)    // プレイヤーが敵をクリックしたとき
+    // プレイヤーが敵をクリックしたときに呼ばれるメソッド。
+    // クリックした敵が現在選択されているかどうかで、選択or解除を設定するメソッド
+    public void ClickedEnemy(int index) 
     {
         // 現在選択されている敵のインデックスを取得
         int currentSelectedIndex = enemyAreaManager.GetSelectedEnemyIndex();
