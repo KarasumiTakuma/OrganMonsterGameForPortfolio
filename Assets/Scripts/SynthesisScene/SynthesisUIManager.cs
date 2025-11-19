@@ -107,6 +107,7 @@ public class SynthesisUIManager : MonoBehaviour
 
         UpdateSynthesisUI();
         UpdateInventorySelection();
+        UpdateInventoryInteractability();
     }
 
     // 合成UI全体の表示を更新する
@@ -256,6 +257,41 @@ public class SynthesisUIManager : MonoBehaviour
             UpdateSynthesisUI();
             // インベントリの選択色も更新
             UpdateInventorySelection();
+        }
+    }
+    // インベントリの選択制限を更新する
+    private void UpdateInventoryInteractability()
+    {
+        // 1. 次に追加可能な素材のリストを取得
+        // (selectedIngredientsは List<OrganData> なので、キャストが必要な場合があります)
+        List<ScriptableObject> currentList = selectedIngredients.Cast<ScriptableObject>().ToList();
+        List<ScriptableObject> validIngredients = synthesizer.GetCompletableIngredients(currentList);
+
+        // 2. インベントリの全スロットをループして制御
+        // (InventoryUIの SlotUIs プロパティが public である必要があります)
+        foreach (var slot in inventoryUI.SlotUIs)
+        {
+            OrganData organ = slot.GetAssignedOrgan();
+            
+            // 空スロットなら無視
+            if (organ == null) continue;
+
+            // 既に選択されているスロットは、解除できるように常に有効
+            if (selectedIngredients.Contains(organ))
+            {
+                slot.SetInteractable(true);
+                continue;
+            }
+
+            // 候補リストに含まれているなら有効、それ以外は無効
+            if (validIngredients == null || validIngredients.Contains(organ))
+            {
+                slot.SetInteractable(true);
+            }
+            else
+            {
+                slot.SetInteractable(false);
+            }
         }
     }
 }
