@@ -79,5 +79,25 @@ public class InventorySlotUI : MonoBehaviour
         isSelected = false;
         SetSelected(false);
     }
+    
+    /// <summary>
+    /// スロットの有効/無効を切り替える
+    /// </summary>
+    public void SetInteractable(bool interactable)
+    {
+        // ボタンのクリックを有効/無効化
+        if (button != null)
+        {
+            button.interactable = interactable;
+        }
+
+        // 見た目を半透明にして「選べない」ことを伝える
+        if (icon != null)
+        {
+            Color c = icon.color;
+            c.a = interactable ? 1.0f : 0.3f; // 無効なら透明度を30%にする
+            icon.color = c;
+        }
+    }
 
 }

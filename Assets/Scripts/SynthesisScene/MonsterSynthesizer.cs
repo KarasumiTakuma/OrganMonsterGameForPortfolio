@@ -43,4 +43,54 @@ public class MonsterSynthesizer
         // 一致するレシピがなければ、nullを返す
         return null;
     }
+
+    /// <summary>
+    /// 現在の素材リストから、次に追加可能な素材の候補リストを返す
+    /// </summary>
+    public List<ScriptableObject> GetCompletableIngredients(List<ScriptableObject> currentIngredients)
+    {
+        // 何も選択されていない場合は、全ての素材が候補になる（またはnullを返して全開放を示す）
+        if (currentIngredients == null || currentIngredients.Count == 0)
+        {
+            return null; // "制限なし" を意味する
+        }
+
+        HashSet<ScriptableObject> potentialIngredients = new HashSet<ScriptableObject>();
+
+        foreach (var recipe in allRecipes)
+        {
+            // このレシピが、現在の素材リストを「部分的に」満たしているかチェック
+            List<ScriptableObject> remainingRecipeIngredients = new List<ScriptableObject>(recipe.ingredients);
+            bool isMatch = true;
+
+            foreach (var inputItem in currentIngredients)
+            {
+                // レシピの中に、入力された素材があるか？
+                // (厳密な一致を見るため、IDだけでなく参照や型でチェックが必要だが、ここではListのRemoveを利用)
+                // ※ScriptableObjectの比較は参照比較になる
+                if (remainingRecipeIngredients.Contains(inputItem))
+                {
+                    remainingRecipeIngredients.Remove(inputItem);
+                }
+                else
+                {
+                    // このレシピには含まれていない素材が入力されている -> 候補外
+                    isMatch = false;
+                    break;
+                }
+            }
+
+            // 現在の入力がレシピの一部であり、かつまだ足りない素材がある場合
+            if (isMatch && remainingRecipeIngredients.Count > 0)
+            {
+                // 残っている素材を候補として追加
+                foreach (var remaining in remainingRecipeIngredients)
+                {
+                    potentialIngredients.Add(remaining);
+                }
+            }
+        }
+
+        return potentialIngredients.ToList();
+    }
 }
