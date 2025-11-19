@@ -21,13 +21,14 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private TMP_Text playerHPText;
     [SerializeField] private TMP_Text enemyHPText;
 
-    private bool playerTurn = true;
+    private bool playerTurn = true;  // プレイヤーターンであるかのフラグ。
+
 
     // Awake()には、他シーンからバトルシーンに移動した時に、手持ちデータとしてセットした3体モンスターデータから
     // 30枚のカードデッキ情報を読み出して、deckManagerを用いて山札にセットする処理を行う予定
     void Awake()
     {
-        
+
         foreach (var cardData in cardDataList)
         {
             Card card = new Card(cardData);
@@ -176,9 +177,22 @@ public class BattleManager : MonoBehaviour
     }
 
     // 各敵のスポーン位置(EnemyArea/SpawnPoint{1,2,3})をクリックした際に呼ばれるメソッド。
-    public void SelectEnemy(int index)
+    public void ClickedEnemy(int index)    // プレイヤーが敵をクリックしたとき
     {
-        enemyAreaManager.SetSelectedEnemy(index);
+        // 現在選択されている敵のインデックスを取得
+        int currentSelectedIndex = enemyAreaManager.GetSelectedEnemyIndex();
+
+        if (currentSelectedIndex == index)  // 現在選択されている敵をプレイヤーがクリックしたなら
+        {
+            //　選択を解除する処理を行う
+            //　EnemyAreaManager.NoSelectionは、選択していない状態を表す定数
+            enemyAreaManager.UpdateSelectedEnemy(EnemyAreaManager.NoSelection);
+        }
+        else
+        {
+            // 別の敵をクリックした場合、その敵を新しく選択する
+            enemyAreaManager.UpdateSelectedEnemy(index);
+        }
     }
 
     /// <summary>
