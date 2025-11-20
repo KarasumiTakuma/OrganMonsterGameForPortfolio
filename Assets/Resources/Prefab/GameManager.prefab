@@ -276,7 +276,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   bgmAudioSource: {fileID: 5430507840368517239}
   seAudioSource: {fileID: 1219920049136154142}
-  loopSeAudioSource1: {fileID: 8664545467130491118}
+  loopSeSource1: {fileID: 5430507840368517239}
   loopSeSource2: {fileID: 2398859062489600426}
 --- !u!82 &5430507840368517239
 AudioSource:
