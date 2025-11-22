@@ -6,7 +6,7 @@ using System;
 public class PlayerData : MonoBehaviour
 {
     [Header("プレイヤーの情報")]
-    public int researchPoints; // 研究ポイント
+    [SerializeField] private int researchPoints; // 研究ポイント
 
     // --- データ変更を通知するためのイベント ---
     public static event Action OnInventoryChanged;
@@ -18,6 +18,10 @@ public class PlayerData : MonoBehaviour
     // public List<MonsterData> unlockedMonsters = new List<MonsterData>();
     // 所持しているアーティファクト
     public Dictionary<ArtifactData, int> ownedArtifacts = new Dictionary<ArtifactData, int>();
+    // 現在編成中のパーティ（最大3体）
+    private List<MonsterData> currentParty = new List<MonsterData>();
+    // 読み取り専用のプロパティ（外からは見れるけど書き換えられない）
+    public IReadOnlyList<MonsterData> CurrentParty => currentParty;
 
     [Header("図鑑用の発見済みリスト")]
     public List<MonsterData> discoveredMonsters = new List<MonsterData>();
@@ -165,6 +169,29 @@ public class PlayerData : MonoBehaviour
         }
         // イベント発行
         OnInventoryChanged?.Invoke();
+    }
+
+    // 編成画面から呼び出される、パーティ編成を設定するメソッド
+    public void SetParty(List<MonsterData> newParty)
+    {
+        // nullチェック
+        if (newParty == null)
+        {
+            Debug.LogError("パーティにnullを設定しようとしました！");
+            return;
+        }
+
+        // 人数制限チェック
+        if (newParty.Count > 3)
+        {
+            Debug.LogError("パーティは最大3体までです！");
+            // 先頭3体だけ採用する、などの処理も書ける
+            currentParty = newParty.GetRange(0, 3);
+            return;
+        }
+
+        // 問題なければセット
+        currentParty = newParty;
     }
 
     /// --- セーブ・ロード用メソッド ---
