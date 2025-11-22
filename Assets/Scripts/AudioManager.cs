@@ -6,7 +6,7 @@ using UnityEngine;
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance { get; private set; }
-
+    
     [SerializeField] private AudioSource bgmAudioSource; // BGM再生プレイヤー
     [SerializeField] private AudioSource seAudioSource;  // SE再生プレイヤー
     [SerializeField] private AudioSource loopSeSource1; // 途中で停止できるSE
