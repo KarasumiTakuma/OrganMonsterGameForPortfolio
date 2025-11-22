@@ -7,7 +7,7 @@ public class HandAreaManager : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameObject cardPrefab;
-    [SerializeField] private Transform[] cardSlots; // ← 各スロット(5枚のカードを配置する場所)を個別に指定
+    [SerializeField] private Transform[] cardSlots; // 各スロット(5枚のカードを配置する場所)を個別に指定
 
     private readonly List<GameObject> spawnedCards = new List<GameObject>();
     private List<Card> handCardData;
