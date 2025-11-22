@@ -21,7 +21,7 @@ public class HandAreaManager : MonoBehaviour
     // 引数 onCardPlayed は「カードがプレイされたときに呼ばれる処理をするメソッド」を格納するデリゲート。
     // onCardPlayedに登録されるメソッドは、第一引数をCard型、
     // 第二引数をAction<bool>型(bool型を引数とする、返り値void)のメソッド
-    // とするメソッドである。
+    // とする、返り値voidのメソッドである。
     public void UpdateHandUI(System.Action<Card, System.Action<bool>> onCardPlayed)
     {
         // 1. 既存UI削除

@@ -76,7 +76,7 @@ public class BattleManager : MonoBehaviour
 
     /// プレイヤーがカードを出したときに、そのカードの効果を使用する処理。マナが足りない場合は、効果を適用しない。
     /// System.Action は C# 標準のデリゲート型。Action自体は引数なしのメソッド型。<T>のは引数Tがという意味。
-    /// isSuccessCallbackは、カードを使用できたかどうかをboolで通知し、それに応じた処理を行うメソッド。
+    /// isSuccessCallbackは、カードを使用できたかどうかをboolで通知し、それに応じた処理を行うメソッドを登録するデリゲート。
     /// 成功なら true、失敗なら false。
     /// CardUI_DragDrop側でカード削除や元の位置に戻す処理が記載されている(第二引数isSuccessCallbackの処理内容)
     public void PlayCard(Card card, System.Action<bool> isSuccessCallback) 
@@ -111,7 +111,7 @@ public class BattleManager : MonoBehaviour
             UpdateHPUI();
             deckManager.DiscardCard(card);  // 使用したカードは墓地へ
             RefreshHandUI(); // カード使用後に、残った手札カード情報で手札UIを更新する
-            isSuccessCallback?.Invoke(true);  // カードを使用できたことを通知して、その時の処理を行う。
+            isSuccessCallback?.Invoke(true);  // カードを使用できたことを(isSuccessCallbackに登録しているメソッドに)通知して、その時の処理を行う。
 
             // 敵全滅チェック
             if (enemyAreaManager.GetIsAliveMonsterCount() == 0)
