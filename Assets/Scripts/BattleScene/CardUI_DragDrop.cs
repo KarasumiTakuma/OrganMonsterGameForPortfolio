@@ -14,7 +14,7 @@ public class CardUI_DragDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     // CardPlayedHandlerカードプレイを通知するイベント
     // デリゲートとして扱う。
-    // 第一引数としてCard型を受け取理、
+    // 第一引数としてCard型を受け取り、
     // 第二引数としてAction<bool>(bool型を引数とする返り値voidのメソッド)を受けとり、
     // そして、voidを返すメソッド(イベント群)を格納するデリゲート。
     // メソッドを変数のように扱える型がdelegate
