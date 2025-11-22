@@ -12,7 +12,7 @@ public class DeckManager : MonoBehaviour
     [SerializeField] private int initialHandSize = 5; // ゲーム開始時の手札枚数
 
     /// <summary>
-    /// デッキにカードを追加（これは、カードUIを表示するテスト用に作ったものであり、本来は、DrawIH()関数を使うこと）
+    /// デッキにカードを追加
     /// </summary>
     public void AddCardToDeck(Card card)
     {
@@ -90,4 +90,5 @@ public class DeckManager : MonoBehaviour
 
     // 手札リスト取得のためのゲッター
     public List<Card> GetHand() => hand;
+    public int GetHandCount() => hand.Count;
 }

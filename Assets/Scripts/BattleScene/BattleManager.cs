@@ -22,6 +22,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private TMP_Text enemyHPText;
 
     private bool playerTurn = true;  // プレイヤーターンであるかのフラグ。
+    private bool isFirstTurn = true; // 最初のターンであるかどうかのフラグ。
 
 
     // Awake()には、他シーンからバトルシーンに移動した時に、手持ちデータとしてセットした3体モンスターデータから
@@ -43,16 +44,8 @@ public class BattleManager : MonoBehaviour
         enemyAreaManager.SpawnEnemies();
         allyAreaManager.SpawnAllies();
 
-        // ゲーム開始時の手札5枚ドロー
+        // ゲーム開始時の手札5枚ドロー。ゲーム開始時の手札は5枚。
         deckManager.DrawInitialHand();
-        List<Card> handCardsData = deckManager.GetHand(); // deckManagerによってセットされた手札5枚を入手
-        // 5枚の手札データをhandAreaManagerにセット(後にこのデータを付与した手札カードオブジェクトを生成)
-        handAreaManager.setHandCardData(handCardsData);
-
-        // handAreaManagerにドローした手札5枚のオブジェクトを生成して表示するよう指示する。
-        // UpdateHandUIで手札オブジェクトを生成する際に、プレイヤーがカードを使用した時に
-        // 発生するイベントPlayCard()メソッド(メソッドへのポインタ)を渡す。
-        handAreaManager.UpdateHandUI(PlayCard);
 
         UpdateHPUI();
 
@@ -71,12 +64,10 @@ public class BattleManager : MonoBehaviour
 
         // マナ回復（ターン数に応じて使用可能マナ増加）
         manaManager.StartTurn();
+        DrawCardAtTurnStart(); // ターン開始時にカードをドローする(但し、手札が4枚以下の場合のみ)
+        isFirstTurn = false;  // 1ターン目が終了すると、それ以降はフラグがfalseに。
 
-        // ターン開始時に1枚だけドロー
-        deckManager.DrawCard();
-
-        // 手札UIを更新
-        handAreaManager.UpdateHandUI(PlayCard);
+        RefreshHandUI();  // 手札データを入手して、それを元に手札UIを表示。
 
         endTurnButton.SetActive(true);  // プレイヤーターン終了ボタンを表示
 
@@ -112,7 +103,7 @@ public class BattleManager : MonoBehaviour
 
             UpdateHPUI();
             deckManager.DiscardCard(card);  // 使用したカードは墓地へ
-            handAreaManager.UpdateHandUI(PlayCard); // 手札UIを更新
+            RefreshHandUI(); // カード使用後に、残った手札カード情報で手札UIを更新する
 
 
             // 敵全滅チェック
@@ -178,8 +169,7 @@ public class BattleManager : MonoBehaviour
 
     // 各敵のスポーン位置(EnemyArea/SpawnPoint{1,2,3})をクリックした際に呼ばれるメソッド。
     // プレイヤーが敵をクリックしたときに呼ばれるメソッド。
-    // クリックした敵が現在選択されているかどうかで、選択or解除を設定するメソッド
-    public void ClickedEnemy(int index) 
+    public void ClickedEnemy(int index)
     {
         // 現在選択されている敵のインデックスを取得
         int currentSelectedIndex = enemyAreaManager.GetSelectedEnemyIndex();
@@ -196,6 +186,32 @@ public class BattleManager : MonoBehaviour
             enemyAreaManager.UpdateSelectedEnemy(index);
         }
     }
+
+
+
+    // 手札カードデータを入手して、手札UIを更新するメソッド
+    private void RefreshHandUI()
+    {
+        // deckManagerによってセットされた手札データを入手(ゲット)して、
+        // そのデータをhandAreaManagerにセット
+        handAreaManager.setHandCardData(deckManager.GetHand());
+        // セットした手札データを元に手札カードオブジェクトを生成し、UI表示。
+        // そのとき、プレイヤーがカードを使用した時に発生するイベントPlayCard()メソッド(メソッドへのポインタ)を渡す。
+        handAreaManager.UpdateHandUI(PlayCard);
+    }
+
+    // ターン開始時にカードを1枚ドローするメソッド。但し、1ターン目の場合や手札が5枚以上ある場合はドローしない(手札は常に5枚以下)
+    private void DrawCardAtTurnStart()
+    {
+        if (!isFirstTurn && deckManager.GetHandCount() < 5)  // 2ターン目以降で、手札カードが4枚以下なら
+        {
+            deckManager.DrawCard();  // カードを1枚ドローする(1ターン目は手札は5枚で、以降のターンは開始時に1枚ドロー)
+        }
+    }
+
+
+
+
 
     /// <summary>
     /// 戦闘ログにメッセージを追加
