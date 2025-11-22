@@ -1,6 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+
+/// <summary>
+/// 設定パネルのプレハブにアタッチし、UI操作を管理するクラス
+/// </summary>
 public class SettingsPanelUI : MonoBehaviour
 {
     [SerializeField] private Slider bgmSlider;
