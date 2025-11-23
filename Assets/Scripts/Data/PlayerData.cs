@@ -175,26 +175,9 @@ public class PlayerData : MonoBehaviour
     /// 編成画面から呼び出される、パーティ編成を設定するメソッド
     /// </summary>
     /// <param name="newParty"></param>
-    public void SetParty(List<MonsterData> newParty)
+    public void SetPartyMember(int slotIndex, MonsterData newMonster)
     {
-        // nullチェック
-        if (newParty == null)
-        {
-            Debug.LogError("パーティにnullを設定しようとしました！");
-            return;
-        }
-
-        // 人数制限チェック
-        if (newParty.Count > 3)
-        {
-            Debug.LogError("パーティは最大3体までです！");
-            // 先頭3体だけ採用する、などの処理も書ける
-            currentParty = newParty.GetRange(0, 3);
-            return;
-        }
-
-        // 問題なければセット
-        currentParty = newParty;
+        currentParty[slotIndex] = newMonster;
     }
 
     /// --- セーブ・ロード用メソッド ---

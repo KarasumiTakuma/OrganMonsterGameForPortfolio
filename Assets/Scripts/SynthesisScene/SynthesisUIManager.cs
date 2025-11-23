@@ -205,7 +205,7 @@ public class SynthesisUIManager : MonoBehaviour
         // 2. PlayerDataにcurrentRecipeResultを追加
         GameManager.Instance.PlayerData.AddMonster(currentRecipeResult, 1);
 
-        // 3. 合成演出UUIを呼びだす
+        // 3. 合成演出UIを呼びだす
         if (performanceManager != null)
         {
             performanceManager.ShowPerformance(currentRecipeResult);
@@ -223,7 +223,9 @@ public class SynthesisUIManager : MonoBehaviour
         // 5. 合成後、選択をクリアしてUIを再更新
         selectedIngredients.Clear();
         UpdateSynthesisUI();
-        //UpdateInventorySelection();
+        UpdateInventorySelection();
+
+        ResetInventoryInteractability();
     }
     private void UpdateInventorySelection()
     {
@@ -292,6 +294,16 @@ public class SynthesisUIManager : MonoBehaviour
             {
                 slot.SetInteractable(false);
             }
+        }
+    }
+
+    // インベントリの全スロットを選択可能な状態に戻す
+    private void ResetInventoryInteractability()
+    {
+        foreach (var slot in inventoryUI.SlotUIs)
+        {
+            // 全てのスロットを有効（選択可能）にする
+            slot.SetInteractable(true);
         }
     }
 }
