@@ -171,7 +171,10 @@ public class PlayerData : MonoBehaviour
         OnInventoryChanged?.Invoke();
     }
 
-    // 編成画面から呼び出される、パーティ編成を設定するメソッド
+    /// <summary>
+    /// 編成画面から呼び出される、パーティ編成を設定するメソッド
+    /// </summary>
+    /// <param name="newParty"></param>
     public void SetParty(List<MonsterData> newParty)
     {
         // nullチェック
