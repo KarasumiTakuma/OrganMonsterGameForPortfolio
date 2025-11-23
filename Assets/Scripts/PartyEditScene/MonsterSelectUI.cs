@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 /// <summary>
 ///　モンスター選択UIの管理クラス（viewの管理）
@@ -46,7 +47,7 @@ public class MonsterSelectUI : MonoBehaviour
     // --- Controllerから呼ばれるメソッド ---
 
     // 1. 現在のパーティを表示更新する
-    public void RefreshPartyView(List<MonsterData> currentParty)
+    public void RefreshPartyView(IReadOnlyList<MonsterData> currentParty)
     {
         for (int i = 0; i < partySlots.Count; i++)
         {
@@ -59,7 +60,7 @@ public class MonsterSelectUI : MonoBehaviour
     }
 
     // 2. 選択用リストを表示する
-    public void OpenMonsterList(List<MonsterData> allMonsters, List<MonsterData> currentParty)
+    public void OpenMonsterList(List<MonsterData> allMonsters, IReadOnlyList<MonsterData> currentParty)
     {
         memberListPanel.SetActive(true);
 
