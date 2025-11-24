@@ -14,11 +14,11 @@ public class Ally : Monster
     public void InitializeSet(AllyMonsterData allyMonsterData)
     {
         InitializeBase(
-            allyMonsterData.GetMonsterID(),
+            allyMonsterData.GetID(),
             allyMonsterData.GetName(),
-            allyMonsterData.GetMaxHP(),
+            allyMonsterData.GetHP(),
             allyMonsterData.GetAttackPower(),
-            allyMonsterData.GetImage()
+            allyMonsterData.GetIcon()
         );
         
 
