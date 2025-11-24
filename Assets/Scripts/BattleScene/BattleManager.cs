@@ -149,7 +149,7 @@ public class BattleManager : MonoBehaviour
     {
         // シンプルに敵が固定ダメージ
         int damage = 5;
-        allyAreaManager.TakeDamage(damage); // 味方側の共有HPにダメージ
+        allyAreaManager.TakeDamageToSharedHP(damage); // 味方側の共有HPにダメージ
         Log($"敵の攻撃！ プレイヤーに{damage}ダメージ！");
         UpdateHPUI();
 
