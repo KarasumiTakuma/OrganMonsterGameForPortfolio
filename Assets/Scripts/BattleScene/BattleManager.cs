@@ -147,9 +147,10 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     private void EnemyTurn()
     {
-        enemyAreaManager.EnemyRundomPowers();
-        
-        AttackToAllySharedHP();  // 各敵の攻撃力(power)分のダメージを味方の共有HPに与える。
+        // 各敵の攻撃力(attackPower)を元に、味方の共有HPに与えるダメージ量を[power-3, power+3]の範囲でランダムに決定
+        enemyAreaManager.EnemyRundomPowers(); 
+
+        AttackToAllySharedHP();  // 決定したダメージ量(敵3体分)を味方共有HPに与える
         UpdateHPUI();
 
         // プレイヤーが倒れたら敗北
