@@ -27,9 +27,7 @@ public class AllyAreaManager : MonsterAreaManager
         InitializeSharedHP(); // スポーン直後に共有HPを初期化
     }
 
-    /// <summary>
     /// 共有HPを初期化
-    /// </summary>
     private void InitializeSharedHP()
     {
         sharedMaxHP = 0;
@@ -45,32 +43,22 @@ public class AllyAreaManager : MonsterAreaManager
         }
     }
 
-    /// <summary>
+
     /// 共有HPにダメージ
-    /// </summary>
     protected override void ApplyDamage(int index, int damage)
     {
         sharedCurrentHP = Mathf.Max(sharedCurrentHP - damage, 0);
         if (sharedHpGauge != null)
             sharedHpGauge.BeInjured(damage);
     }
-    protected override void ApplyDamageToAll(int damage)
-    {
-        sharedCurrentHP = Mathf.Max(sharedCurrentHP - damage, 0);
-        if (sharedHpGauge != null)
-            sharedHpGauge.BeInjured(damage);
-    }
+
     public void TakeDamage(int damage)
     {
         this.ApplyDamage(0, damage);
     }
 
-    public void TakeDamageToAll(int damage)
-    {
-        this.ApplyDamageToAll(damage);
-    }
 
-    public int GetCurrentHP(int index)
+    public int GetSharedCurrentHP(int index)
     {
         return sharedCurrentHP;
     }
