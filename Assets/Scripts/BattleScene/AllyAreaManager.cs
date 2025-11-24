@@ -43,22 +43,19 @@ public class AllyAreaManager : MonsterAreaManager
         }
     }
 
-
     /// 共有HPにダメージ
-    protected override void ApplyDamage(int index, int damage)
+    protected override void ApplyDamageToAll(int damage) // 親クラスのApplyDamageToAllをオーバーライド(引数はdamegeの1つのみ)
     {
         sharedCurrentHP = Mathf.Max(sharedCurrentHP - damage, 0);
         if (sharedHpGauge != null)
             sharedHpGauge.BeInjured(damage);
     }
-
-    public void TakeDamage(int damage)
+    public void TakeDamageToSharedHP(int damage)
     {
-        this.ApplyDamage(0, damage);
+        this.ApplyDamageToAll(damage);
     }
 
-
-    public int GetSharedCurrentHP(int index)
+    public int GetCurrentHP(int index)
     {
         return sharedCurrentHP;
     }
