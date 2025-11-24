@@ -65,6 +65,19 @@ public class PlayerData : MonoBehaviour
         monsterValues = ownedMonsters.Values.ToList();
     }
 
+    private void Awake()
+    {
+        // パーティメンバーリストの初期化
+        if (currentParty.Count < 3)
+        {
+            // 必要な数になるまでnullを追加
+            while (currentParty.Count < 3)
+            {
+                currentParty.Add(null);
+            }
+        }
+    }
+
     // --- データ操作用の関数  ---
 
     public int GetPoints() => researchPoints;
@@ -177,7 +190,7 @@ public class PlayerData : MonoBehaviour
     /// <param name="newParty"></param>
     public void SetPartyMember(int slotIndex, MonsterData newMonster)
     {
-        currentParty[slotIndex] = newMonster;
+        currentParty[slotIndex - 1] = newMonster;
     }
 
     /// --- セーブ・ロード用メソッド ---

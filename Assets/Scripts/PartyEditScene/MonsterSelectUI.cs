@@ -29,6 +29,7 @@ public class MonsterSelectUI : MonoBehaviour
     public event Action<int> OnPartySlotClicked; // どのスロットの枠を変えるか
     public event Action<MonsterData> OnMonsterSelected;  // 「こいつに変える」
     public event Action OnBackButtonClicked;             // 「戻る」
+    public event Action OnCloseClicked;
 
     void Start()
     {
@@ -38,7 +39,7 @@ public class MonsterSelectUI : MonoBehaviour
             slot.OnClick += index => OnPartySlotClicked?.Invoke(index);
         }
 
-        closeListButton.onClick.AddListener(CloseList);
+        closeListButton.onClick.AddListener(() => OnCloseClicked?.Invoke());
         goBackLabButton.onClick.AddListener(() => OnBackButtonClicked?.Invoke());
 
         memberListPanel.SetActive(false);
@@ -46,7 +47,7 @@ public class MonsterSelectUI : MonoBehaviour
 
     // --- Controllerから呼ばれるメソッド ---
 
-    // 1. 現在のパーティを表示更新する
+    // 現在のパーティを表示更新する
     public void RefreshPartyView(IReadOnlyList<MonsterData> currentParty)
     {
         for (int i = 0; i < partySlots.Count; i++)
@@ -59,25 +60,29 @@ public class MonsterSelectUI : MonoBehaviour
         }
     }
 
-    // 2. 選択用リストを表示する
-    public void OpenMonsterList(List<MonsterData> allMonsters, IReadOnlyList<MonsterData> currentParty)
+    /// <summary>
+    /// モンスターリストを開く
+    /// </summary>
+    /// <param name="monsterStates">モンスターデータとパーティにいるかの辞書</param>
+    public void OpenMonsterList(Dictionary<MonsterData, bool> monsterStates)
     {
         memberListPanel.SetActive(true);
 
         // 既存の中身をクリア
         foreach (Transform child in listContent) Destroy(child.gameObject);
+        var sortedList = monsterStates.OrderBy(entry => entry.Key.GetID()).ToList();
 
         // リストを生成
-        foreach (var monster in allMonsters)
+        foreach (var entory in sortedList)
         {
+            MonsterData monster = entory.Key;
+            bool isAlreadyInParty = entory.Value;
+
             // プレハブを生成し、gridContentの子にする
             GameObject obj = Instantiate(listSlotPrefab, listContent);
             // スロットのスクリプトを取得
             MonsterSelectSlotUI slot = obj.GetComponent<MonsterSelectSlotUI>();
-
-            // 既にパーティにいるかチェック
-            bool isAlreadyInParty = currentParty.Contains(monster);
-            // スロットにモンスターをセットアップ(isAlreadyInPartyで有効化、無効化をMonsterSelectSlotUIが決定)
+            // スロットをセットアップ
             slot.Setup(monster, isAlreadyInParty);
 
             // クリックされたらイベントを通知
@@ -92,5 +97,23 @@ public class MonsterSelectUI : MonoBehaviour
     public void CloseList()
     {
         memberListPanel.SetActive(false);
+    }
+
+    public void RefreshListSelection(IReadOnlyList<MonsterData> currentParty)
+    {
+        // リスト内の各スロットを確認し、選択状態を更新する
+        foreach (Transform child in listContent)
+        {
+            MonsterSelectSlotUI slot = child.GetComponent<MonsterSelectSlotUI>();
+            if (slot != null)
+            {
+                // スロットが持っているモンスターデータを取得
+                MonsterData data = slot.GetMonsterData();
+                // そのモンスターが現在のパーティに含まれているか確認
+                bool isInParty = currentParty.Contains(data);
+                // スロットの表示を更新
+                slot.Setup(data, isInParty);
+            }
+        }
     }
 }
