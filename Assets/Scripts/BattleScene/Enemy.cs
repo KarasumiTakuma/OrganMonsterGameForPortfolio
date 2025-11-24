@@ -10,15 +10,15 @@ public class Enemy : Monster
     {
         // 親クラス(Monster)のモンスターデータ初期化を使用
         InitializeBase(
-            enemyMonsterData.GetMonsterID(),
+            enemyMonsterData.GetID(),
             enemyMonsterData.GetName(),
-            enemyMonsterData.GetMaxHP(),
+            enemyMonsterData.GetHP(),
             enemyMonsterData.GetAttackPower(),
-            enemyMonsterData.GetImage()
+            enemyMonsterData.GetIcon()
         );
         // この敵のHpGaugeController側にも最大HPを設定する
         if (hpGauge != null)
-        hpGauge.SetMaxHP(enemyMonsterData.GetMaxHP());
+        hpGauge.SetMaxHP(enemyMonsterData.GetHP());
     }
 
     // ダメージ処理（HPゲージ更新込み）

@@ -44,7 +44,7 @@ public class Monster : MonoBehaviour
     // ゲッター（必要な情報だけ外部に公開）
     public int GetMonsterID() => monsterID;
     public string GetMonsterName() => monsterName;
-    public int GetMaxHP() => maxHP;
+    public int GetHP() => maxHP;
     public int GetCurrentHP() => currentHP;
     public int GetAttackPower() => attackPower;
     public Sprite GetImage() => monsterImage;

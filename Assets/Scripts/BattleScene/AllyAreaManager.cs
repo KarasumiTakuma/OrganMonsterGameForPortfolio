@@ -22,7 +22,7 @@ public class AllyAreaManager : MonsterAreaManager
     /// </summary>
     public void SpawnAllies()
     {
-        List<MonsterDataBattleScene> baseDataList = allyDataList.ConvertAll(data => (MonsterDataBattleScene)data);
+        List<MonsterData> baseDataList = allyDataList.ConvertAll(data => (MonsterData)data);
         base.SpawnMonsters(baseDataList);
         InitializeSharedHP(); // スポーン直後に共有HPを初期化
     }
@@ -35,7 +35,7 @@ public class AllyAreaManager : MonsterAreaManager
         sharedMaxHP = 0;
         foreach (var ally in spawnedMonsters)
         {
-            sharedMaxHP += ally.GetMaxHP(); // 各味方の最大HPを合算
+            sharedMaxHP += ally.GetHP(); // 各味方の最大HPを合算
         }
         sharedCurrentHP = sharedMaxHP;
 

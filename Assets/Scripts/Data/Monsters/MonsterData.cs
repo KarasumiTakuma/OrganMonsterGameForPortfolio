@@ -7,12 +7,13 @@ public enum MonsterType { Fire, Water, Grass, Other } //炎、水、草、その
 public class MonsterData : ScriptableObject, IDisplayable
 {
     [Header("基本情報")]
-    [SerializeField] private int monsterID;
-    [SerializeField] private string monsterName;
+    [SerializeField] private int monsterID;  // このモンスターのID(図鑑に登録される時のものと同一)
+    [SerializeField] private string monsterName;  // このモンスターの名前
 
     [Header("ゲームロジック用")]
-    [SerializeField] private int maxHp;
-    [SerializeField] private int attackPower;
+    [SerializeField] private int maxHp;  // このモンスターの最大HP
+    [SerializeField] private int attackPower;  // このモンスターの攻撃力
+
     // public SkillData specialSkill; // スキルなどもデータとして紐付けられる
     [SerializeField] private MonsterType type; //タイプ
     [SerializeField] private int rarity; // 1~5
@@ -22,7 +23,7 @@ public class MonsterData : ScriptableObject, IDisplayable
     [SerializeField] private string description; // 図鑑用の説明文
     [SerializeField] private string hint; // 未発見の時のヒント
 
-    [SerializeField] private Sprite icon; // モンスターのイラスト
+    [SerializeField] private Sprite icon; // このモンスターの画像(MonsterDataBattleScene.csでのmonsterImage)
     [SerializeField] private Sprite shadowIcon;
 
     [Header("このモンスターが提供するカード (10枚)")]
@@ -38,7 +39,7 @@ public class MonsterData : ScriptableObject, IDisplayable
     public int GetRarity() => rarity;
     public string GetDescription() => description;
     public string GetHint() => hint;
-    public Sprite GetIcon() => icon;
+    public Sprite GetIcon() => icon;  // MDBattleSceneでのGetImage()メソッド
     public Sprite GetShadowIcon() => shadowIcon;
 
     // --- セッターメソッド ---
