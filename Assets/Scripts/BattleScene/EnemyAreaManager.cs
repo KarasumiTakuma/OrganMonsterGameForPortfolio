@@ -19,8 +19,8 @@ public class EnemyAreaManager : MonsterAreaManager
     {
         // MonsterAreaManager(親クラス)のSpawnMonsters()を利用して各スポーンポイントに敵を生成
         // enemyDataListにある敵データEnemyMonsterData型のものなので、ConvertAllでリストの全要素を
-        // MonsterDataBattleScene型に変換してから親クラスのメソッドSpawnMonsters()を呼び出す
-        List<MonsterDataBattleScene> baseDataList = enemyDataList.ConvertAll(data => (MonsterDataBattleScene)data);
+        // MonsterData型に変換してから親クラスのメソッドSpawnMonsters()を呼び出す
+        List<MonsterData> baseDataList = enemyDataList.ConvertAll(data => (MonsterData)data);
         base.SpawnMonsters(baseDataList);
     }
 

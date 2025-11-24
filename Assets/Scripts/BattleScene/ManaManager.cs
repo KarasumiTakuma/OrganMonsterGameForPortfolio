@@ -37,7 +37,6 @@ public class ManaManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("マナが足りません！");
             return false;
         }
     }
