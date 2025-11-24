@@ -79,7 +79,7 @@ public class BattleManager : MonoBehaviour
     /// isSuccessCallbackは、カードを使用できたかどうかをboolで通知し、それに応じた処理を行うメソッドを登録するデリゲート。
     /// 成功なら true、失敗なら false。
     /// CardUI_DragDrop側でカード削除や元の位置に戻す処理が記載されている(第二引数isSuccessCallbackの処理内容)
-    public void PlayCard(Card card, System.Action<bool> isSuccessCallback) 
+    public void PlayCard(Card card, System.Action<bool> isSuccessCallback)
     {
         if (!playerTurn) // プレイヤーターンでない場合、
         {
@@ -147,10 +147,9 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     private void EnemyTurn()
     {
-        // シンプルに敵が固定ダメージ
-        int damage = 5;
-        allyAreaManager.TakeDamageToSharedHP(damage); // 味方側の共有HPにダメージ
-        Log($"敵の攻撃！ プレイヤーに{damage}ダメージ！");
+        enemyAreaManager.EnemyRundomPowers();
+        
+        AttackToAllySharedHP();  // 各敵の攻撃力(power)分のダメージを味方の共有HPに与える。
         UpdateHPUI();
 
         // プレイヤーが倒れたら敗北
@@ -214,6 +213,16 @@ public class BattleManager : MonoBehaviour
         if (!isFirstTurn && deckManager.GetHandCount() < 5)  // 2ターン目以降で、手札カードが4枚以下なら
         {
             deckManager.DrawCard();  // カードを1枚ドローする(1ターン目は手札は5枚で、以降のターンは開始時に1枚ドロー)
+        }
+    }
+
+    private void AttackToAllySharedHP()
+    {
+        List<int> enemyPowersList = enemyAreaManager.GetEnemyPowersList();
+        foreach (int power in enemyPowersList)
+        {
+            allyAreaManager.TakeDamageToSharedHP(power); // 味方側の共有HPにpower分のダメージ
+            Log($"敵の攻撃！ プレイヤーに{power}ダメージ！");
         }
     }
 
