@@ -12,6 +12,8 @@ public class EnemyAreaManager : MonsterAreaManager
     // どの敵を選択している状態かを示すインデックス情報を保持する変数
     private int selectedEnemyIndex = NoSelection;
 
+    private List<int> enemyPowersList;
+
     /// <summary>
     /// スポーンポイントに敵を生成
     /// </summary>
@@ -43,12 +45,14 @@ public class EnemyAreaManager : MonsterAreaManager
     // 敵モンスター単体に対する攻撃処理用メソッド
     public void TakeDamageToSelectedEnemy(int damage)
     {
+        if (spawnedMonsters.Count == 0) return;
+        
         int targetIndex = selectedEnemyIndex;
 
         // プレイヤーが敵を選択していなければ
         if (targetIndex < 0 || targetIndex >= spawnedMonsters.Count)
         {   
-            targetIndex = Random.Range(0, spawnedMonsters.Count);  // ランダムで1体を選択
+            targetIndex = UnityEngine.Random.Range(0, spawnedMonsters.Count);  // ランダムで1体を選択
         }
 
         // 選択された敵1体に対するダメージ処理
@@ -109,8 +113,23 @@ public class EnemyAreaManager : MonsterAreaManager
         return count;
     }
 
+    public void EnemyRundomPowers()
+    {
+        enemyPowersList = new List<int>();
+        foreach(var enemyMonster in spawnedMonsters)
+        {
+            // Enemy型の敵データにセットされている攻撃力attackPowerを入手し、
+            // [attackPower-3, attackPoewr+3]の範囲でランダムに「味方HPに与えるダメージ量(attackPowerAmount)」を決める。
+            int baseAttackPower = enemyMonster.GetAttackPower();  
+            int attackPowerAmount = UnityEngine.Random.Range(baseAttackPower-3, baseAttackPower+4);
+            enemyPowersList.Add(attackPowerAmount);
+        }
+    }
+
     // 現在の敵の数を取得。MonsterAreaManagerクラス(親)のGetMonsterCount()メソッドを呼び出す
     public int GetEnemyCount() => base.GetMonsterCount();
+
+    public List<int> GetEnemyPowersList() => enemyPowersList;
 
     public int GetSelectedEnemyIndex() => this.selectedEnemyIndex;
 }
