@@ -39,5 +39,10 @@ public class MonsterSelectSlotUI : MonoBehaviour
             if (selectedCover) selectedCover.SetActive(false);
         }
     }
+    // 自分が持っているデータを返す
+    public MonsterData GetMonsterData()
+    {
+        return monsterData;
+    }
 }
 
