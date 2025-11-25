@@ -18,6 +18,8 @@ public class SaveData
     public List<OrganData> discoveredOrgans;
     public List<MonsterData> discoveredMonsters;
     public List<ArtifactData> discoveredArtifacts;
+
+    public List<MonsterData> currentParty;
 }
 
 // 臓器辞書を保存するためのヘルパークラス
