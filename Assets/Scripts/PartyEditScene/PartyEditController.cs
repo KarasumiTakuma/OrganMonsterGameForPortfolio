@@ -20,6 +20,7 @@ public class PartyEditController : MonoBehaviour
         view.OnPartySlotClicked += HandleSlotClick;
         view.OnMonsterSelected += HandleMonsterChange;
         view.OnCloseClicked += HandleCloseClicked;
+        view.OnBackButtonClicked += GameManager.Instance.GoToLab;
     }
 
     void HandleSlotClick(int slotIndex)

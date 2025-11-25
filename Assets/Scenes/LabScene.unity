@@ -785,7 +785,7 @@ PrefabInstance:
       objectReference: {fileID: 8300000, guid: 55281b76781c949b1864cc17ea13f6b3, type: 3}
     - target: {fileID: 5514121258907560936, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
       propertyPath: m_Name
-      value: GameManager (1)
+      value: GameManager
       objectReference: {fileID: 0}
     - target: {fileID: 6620292555135181104, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1803,6 +1803,7 @@ MonoBehaviour:
   goToShop: {fileID: 109293871}
   goToInventry: {fileID: 1888778662}
   goToHistory: {fileID: 1837479156}
+  goToPartyEdit: {fileID: 1896021920}
 --- !u!4 &1125176584
 Transform:
   m_ObjectHideFlags: 0
@@ -2545,7 +2546,7 @@ GameObject:
   - component: {fileID: 1896021921}
   - component: {fileID: 1896021920}
   m_Layer: 5
-  m_Name: Button
+  m_Name: GoToEdit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

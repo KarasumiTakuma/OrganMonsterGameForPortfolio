@@ -202,6 +202,7 @@ public class PlayerData : MonoBehaviour
         saveData.discoveredMonsters = this.discoveredMonsters;
         saveData.discoveredOrgans = this.discoveredOrgans;
         saveData.discoveredArtifacts = this.discoveredArtifacts;
+        saveData.currentParty = this.currentParty;
 
         // DictionaryをList<OrganSaveData>に変換
         saveData.ownedOrgans = new List<OrganSaveData>();
@@ -234,6 +235,22 @@ public class PlayerData : MonoBehaviour
         this.discoveredOrgans = saveData.discoveredOrgans;
         this.discoveredMonsters = saveData.discoveredMonsters;
         this.discoveredArtifacts = saveData.discoveredArtifacts;
+        // パーティ情報の復元（もしSaveDataにpartyがあれば）
+        if (saveData.currentParty != null)
+        {
+            this.currentParty = saveData.currentParty;
+        }
+        else
+        {
+            // セーブデータにパーティがない（初回など）場合は新しいリストにする
+            this.currentParty = new List<MonsterData>();
+        }
+
+        // ロード後に必ず3枠確保する
+        while (this.currentParty.Count < 3)
+        {
+            this.currentParty.Add(null);
+        }
 
         // List<OrganSaveData>をDictionaryに変換
         ownedOrgans.Clear();
