@@ -13,6 +13,7 @@ public class LabManager : MonoBehaviour
     public Button goToShop;
     public Button goToInventry;
     public Button goToHistory;
+    public Button goToPartyEdit;
 
     void Start()
     {
@@ -22,6 +23,7 @@ public class LabManager : MonoBehaviour
         goToStudy.onClick.AddListener(GameManager.Instance.GoToStudy);
         goToInventry.onClick.AddListener(GameManager.Instance.GoToInventory);
         goToHistory.onClick.AddListener(GameManager.Instance.GoToHistory);
+        goToPartyEdit.onClick.AddListener(GameManager.Instance.GoToPartyEdit);
     }
 
     // Update is called once per frame

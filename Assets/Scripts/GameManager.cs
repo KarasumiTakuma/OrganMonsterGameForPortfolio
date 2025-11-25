@@ -124,4 +124,8 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene("HistoryScene");
     }
+    public void GoToPartyEdit()
+    {
+        SceneManager.LoadScene("PartyEditScene");
+    }
 }
