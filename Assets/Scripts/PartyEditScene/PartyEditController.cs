@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// パーティ編成画面のControllerクラス
+/// </summary>
 public class PartyEditController : MonoBehaviour
 {
     [SerializeField] private MonsterSelectUI view;
