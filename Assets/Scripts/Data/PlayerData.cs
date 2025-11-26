@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 
+/// <summary>
+/// プレイヤーのデータを管理するクラス
+/// </summary>
 public class PlayerData : MonoBehaviour
 {
     [Header("プレイヤーの情報")]
