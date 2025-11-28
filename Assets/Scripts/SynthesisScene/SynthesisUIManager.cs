@@ -259,6 +259,8 @@ public class SynthesisUIManager : MonoBehaviour
             UpdateSynthesisUI();
             // インベントリの選択色も更新
             UpdateInventorySelection();
+            // インベントリの選択制限も更新
+            UpdateInventoryInteractability();
         }
     }
     // インベントリの選択制限を更新する
