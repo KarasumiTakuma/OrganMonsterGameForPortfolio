@@ -8,8 +8,10 @@ public class DeckManager : MonoBehaviour
     public List<Card> hand = new List<Card>();        // 手札
     public List<Card> discardPile = new List<Card>(); // 墓地
 
+    private const int FullHandSize = 5;
+
     [Header("Start Game Hand Setting")]
-    [SerializeField] private int initialHandSize = 5; // ゲーム開始時の手札枚数
+    private int initialHandSize = FullHandSize; // ゲーム開始時の手札枚数(最大の5枚にする)
 
     /// <summary>
     /// デッキにカードを追加
@@ -30,10 +32,17 @@ public class DeckManager : MonoBehaviour
         }
     }
 
-    /// <summary>
+    public void DrawCardFull()
+    {
+        while (hand.Count < FullHandSize)
+        {
+            Card card = DrawCard();
+            if (card == null) break;
+        }
+    }
+
     /// デッキから1枚ドロー
-    /// </summary>
-    public Card DrawCard()
+    private Card DrawCard()
     {
         if (deck.Count == 0)
         {
