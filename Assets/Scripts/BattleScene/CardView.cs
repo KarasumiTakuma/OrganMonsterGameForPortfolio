@@ -30,14 +30,17 @@ public class CardView : MonoBehaviour
         // マナコストを「Cost：」付きで表示
         manaText.text = $"Cost：{card.GetManaCost()}";
 
-        // 効果量をカードタイプに応じて表示（攻撃ならAtt、回復ならHealなど）
+        // 効果量をカードタイプに応じて表示（攻撃ならAck、回復ならHealなど）
         switch (card.GetCardType())
         {
             case CardType.AttackToSelected:
-                powerText.text = $"Att {card.GetPower()}";
+                powerText.text = $"攻撃 {card.GetPower()}";
+                break;
+            case CardType.AttackToAll:
+                powerText.text = $"全攻 {card.GetPower()}";
                 break;
             case CardType.Heal:
-                powerText.text = $"Heal {card.GetPower()}";
+                powerText.text = $"回復 {card.GetPower()}";
                 break;
             default:
                 powerText.text = card.GetPower().ToString();

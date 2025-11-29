@@ -98,10 +98,10 @@ public class BattleManager : MonoBehaviour
                     enemyAreaManager.TakeDamageToSelectedEnemy(card.GetPower());
                     Log($"敵単体に{card.GetPower()}ダメージ！");
                     break;
-                // case  CardType.AttackToAll:     // CardType.AttackToAllをCradDataに追加予定。全体攻撃タイプのカードを使用した際に。
-                //     enemyAreaManager.TakeDamageToAll(card.GetPower());
-                //     Log($"敵全体に{card.GetPower()}ダメージ！");
-                //     break;
+                case  CardType.AttackToAll:     // CardType.AttackToAllをCradDataに追加予定。全体攻撃タイプのカードを使用した際に。
+                    enemyAreaManager.TakeDamageToAll(card.GetPower());
+                    Log($"敵全体に{card.GetPower()}ダメージ！");
+                    break;
                 case CardType.Heal:
                     allyAreaManager.HealSharedHP(card.GetPower()); // 味方全体回復
                     Log($"味方全体が{card.GetPower()}回復！");

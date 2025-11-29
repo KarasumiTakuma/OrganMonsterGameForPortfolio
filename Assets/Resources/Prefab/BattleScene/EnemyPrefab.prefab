@@ -427,6 +427,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   hpGauge: {fileID: 1817984341830021171}
+  damageEffectTime: 0.1
+  damageImage: {fileID: 0}
 --- !u!1 &5971670239935007125
 GameObject:
   m_ObjectHideFlags: 0

@@ -47,6 +47,17 @@ public class AllyAreaManager : MonsterAreaManager
     protected override void ApplyDamageToAll(int damage) // 親クラスのApplyDamageToAllをオーバーライド(引数はdamegeの1つのみ)
     {
         sharedCurrentHP = Mathf.Max(sharedCurrentHP - damage, 0);
+
+        foreach (var monster in spawnedMonsters)// 各味方モンスターオブジェクトに対して
+        {
+            // Monster型オブジェクトmonsterをAlly型のallyとしてキャストできる場合のみ
+            if (monster != null && monster is Ally ally)
+            {
+                // ダメージエフェクトを再生
+                ally.AllyPlayDamageEffect();
+            }
+        }
+
         if (sharedHpGauge != null)
             sharedHpGauge.BeInjured(damage);
     }
