@@ -9,7 +9,7 @@ public class EnemyAreaManager : MonsterAreaManager
     public const int NoSelection = -1;   // 敵が選択されていない状態を表す定数
 
     // 敵が選択(クリック)された時に、その敵モンスターがspawnedMonsters(生成した敵モンスターリスト)のいずれであるかを示すインデックス
-    // どの敵を選択している状態かを示すインデックス情報を保持する変数
+    // どの敵を選択している状態かを示すインデックス情報。初期値は敵が選択されていない状態(-1)に。
     private int selectedEnemyIndex = NoSelection;
 
     private List<int> enemyPowersList;
@@ -49,10 +49,28 @@ public class EnemyAreaManager : MonsterAreaManager
         
         int targetIndex = selectedEnemyIndex;
 
-        // プレイヤーが敵を選択していなければ
-        if (targetIndex < 0 || targetIndex >= spawnedMonsters.Count)
-        {   
-            targetIndex = UnityEngine.Random.Range(0, spawnedMonsters.Count);  // ランダムで1体を選択
+        // プレイヤーが敵を選択していない、またはプレイヤーが選択している敵がすでに死亡していたら
+        if (targetIndex < 0 || targetIndex >= spawnedMonsters.Count || spawnedMonsters[targetIndex].GetIsDead())
+        {
+            // 敵を選択していない状態に
+            selectedEnemyIndex = NoSelection;
+            targetIndex = NoSelection;
+        }
+
+        if(targetIndex == NoSelection)
+        {
+            int monstersIndex = 0;
+            var enemyAliveList = new List<int>();
+            foreach(var monster in spawnedMonsters)
+            {
+                if (!monster.GetIsDead())
+                {
+                    enemyAliveList.Add(monstersIndex);
+                }
+                monstersIndex++;
+            }
+            if (enemyAliveList.Count == 0) return; // 敵が全滅していたときは処理を終了
+            targetIndex = enemyAliveList[Random.Range(0, enemyAliveList.Count)];  // 生きている敵の中からランダムで1体を選択するように
         }
 
         // 選択された敵1体に対するダメージ処理
@@ -79,7 +97,7 @@ public class EnemyAreaManager : MonsterAreaManager
     {
         foreach (var monster in spawnedMonsters) // 生成した各モンスターに対して
         {
-            if (monster is Enemy enemy) // 生成したモンスタが敵モンスターである場合
+            if (monster is Enemy enemy && !enemy.GetIsDead()) // 生成したモンスタが敵モンスターで、そのモンスターが死んでいない場合
             {
                 enemy.TakeDamagePublic(damage);  // TakeDamagePublicメソッドでダメージを与える
             }
@@ -118,6 +136,10 @@ public class EnemyAreaManager : MonsterAreaManager
         enemyPowersList = new List<int>();
         foreach(var enemyMonster in spawnedMonsters)
         {
+            if (enemyMonster.GetIsDead())
+            {
+                continue;
+            }
             // Enemy型の敵データにセットされている攻撃力attackPowerを入手し、
             // [attackPower-3, attackPoewr+3]の範囲でランダムに「味方HPに与えるダメージ量(attackPowerAmount)」を決める。
             int baseAttackPower = enemyMonster.GetAttackPower();  
