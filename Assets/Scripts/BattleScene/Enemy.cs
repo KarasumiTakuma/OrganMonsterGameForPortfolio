@@ -4,7 +4,8 @@ using System.Collections;
 
 public class Enemy : Monster
 {
-    [SerializeField] private HpGaugeController hpGauge;
+    [SerializeField, Header("HPゲージのコントローラ")] private HpGaugeController hpGauge;
+    private Image characterImage;
 
     // Enemyデータの初期化(敵スポーン時の初期化)
     public void InitializeSet(EnemyMonsterData enemyMonsterData)
@@ -17,6 +18,7 @@ public class Enemy : Monster
             enemyMonsterData.GetAttackPower(),
             enemyMonsterData.GetIcon()
         );
+        
         // この敵のHpGaugeController側にも最大HPを設定する
         if (hpGauge != null)
             hpGauge.SetMaxHP(enemyMonsterData.GetHP());
