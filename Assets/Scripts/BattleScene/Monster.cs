@@ -9,6 +9,7 @@ public class Monster : MonoBehaviour
     protected int currentHP;  // モンスターの現在のHP(戦闘時のHP)
     protected int attackPower;  // モンスターの攻撃力
     protected Sprite monsterImage;  // モンスターのキャラ画像
+    protected bool isDead = false;  // 死亡判定。trueならこのモンスターは死んでいる(小クラスEnemyで利用)
 
     // 共通のUI更新
     protected void UpdateImage()
@@ -36,10 +37,20 @@ public class Monster : MonoBehaviour
     protected virtual void TakeDamage(int amount)   // Enemyクラスで参照する
     {
         currentHP = Mathf.Max(currentHP - amount, 0);
+
+        if (currentHP <= 0)
+        {
+            isDead = true;
+            OnDeath();
+        }
     }
 
-    // 生存判定
-    protected bool IsAlive() => currentHP > 0;
+    protected virtual void OnDeath()
+    {
+        
+    }
+
+
 
     // ゲッター（必要な情報だけ外部に公開）
     public int GetMonsterID() => monsterID;
@@ -48,4 +59,6 @@ public class Monster : MonoBehaviour
     public int GetCurrentHP() => currentHP;
     public int GetAttackPower() => attackPower;
     public Sprite GetImage() => monsterImage;
+    // 死亡判定のゲッター
+    public bool GetIsDead() => isDead;
 }
