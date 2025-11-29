@@ -20,8 +20,13 @@ public class Ally : Monster
             allyMonsterData.GetAttackPower(),
             allyMonsterData.GetIcon()
         );
-        
 
+
+    }
+
+    public void AllyPlayDamageEffect()
+    {
+        PlayDamageEffect();  // 画像を赤くする
     }
 
 }

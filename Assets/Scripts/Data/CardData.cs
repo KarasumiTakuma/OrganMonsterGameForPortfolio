@@ -29,6 +29,7 @@ public class CardData : ScriptableObject
 public enum CardType
 {
     AttackToSelected,  // 単体攻撃用のカードタイプ。選択した敵に対する攻撃
+    AttackToAll,
     Heal,
     Magic,
     Buff,
