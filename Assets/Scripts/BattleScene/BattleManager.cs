@@ -64,7 +64,7 @@ public class BattleManager : MonoBehaviour
 
         // マナ回復（ターン数に応じて使用可能マナ増加）
         manaManager.StartTurn();
-        DrawCardAtTurnStart(); // ターン開始時にカードをドローする(但し、手札が4枚以下の場合のみ)
+        DrawCardAtTurnStart(); // ターン開始時に手札が5枚になるまでカードをドローする(但し、手札が4枚以下の場合のみ)
         isFirstTurn = false;  // 1ターン目が終了すると、それ以降はフラグがfalseに。
 
         RefreshHandUI();  // 手札データを入手して、それを元に手札UIを表示。
@@ -213,7 +213,7 @@ public class BattleManager : MonoBehaviour
     {
         if (!isFirstTurn && deckManager.GetHandCount() < 5)  // 2ターン目以降で、手札カードが4枚以下なら
         {
-            deckManager.DrawCard();  // カードを1枚ドローする(1ターン目は手札は5枚で、以降のターンは開始時に1枚ドロー)
+            deckManager.DrawCardFull();  // カードを1枚ドローする(1ターン目は手札は5枚で、以降のターンは開始時に手札が5枚になるまでドロー)
         }
     }
 

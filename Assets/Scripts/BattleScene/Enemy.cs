@@ -5,7 +5,6 @@ using System.Collections;
 public class Enemy : Monster
 {
     [SerializeField, Header("HPゲージのコントローラ")] private HpGaugeController hpGauge;
-    private Image characterImage;
 
     // Enemyデータの初期化(敵スポーン時の初期化)
     public void InitializeSet(EnemyMonsterData enemyMonsterData)
