@@ -66,10 +66,6 @@ public class AllyAreaManager : MonsterAreaManager
         this.ApplyDamageToAll(damage);
     }
 
-    public int GetCurrentHP(int index)
-    {
-        return sharedCurrentHP;
-    }
 
 
     /// <summary>
@@ -87,6 +83,10 @@ public class AllyAreaManager : MonsterAreaManager
             if (healedAmount > 0)
                 sharedHpGauge.BeHealed(healedAmount);// ゲージを更新(ゲージの回復処理)
         }
+
+        // シーン内に存在するScreenHealEffectコンポーネントを持つオブジェクトを探して、そのコンポーネントを取得し、
+        ScreenHealEffect healEffect = Object.FindAnyObjectByType<ScreenHealEffect>();
+        healEffect?.PlayHealEffect();  // コンポーネントが正しく取得できた場合は回復エフェクトのアニメーションを実行
     }
 
     public bool GetIsAliveMonster()
