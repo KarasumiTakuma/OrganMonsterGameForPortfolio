@@ -13,6 +13,8 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private Sprite defaultCardSprite; // カード画像表示用(一時的)
     [SerializeField] private List<CardData> cardDataList;
     [SerializeField] private GameObject endTurnButton;  // プレイヤーターンの終了用ボタン
+    [SerializeField] private FireballManager fireballManager;
+
 
 
 
@@ -98,7 +100,7 @@ public class BattleManager : MonoBehaviour
                     enemyAreaManager.TakeDamageToSelectedEnemy(card.GetPower());
                     Log($"敵単体に{card.GetPower()}ダメージ！");
                     break;
-                case  CardType.AttackToAll:     // CardType.AttackToAllをCradDataに追加予定。全体攻撃タイプのカードを使用した際に。
+                case CardType.AttackToAll:     // CardType.AttackToAllをCradDataに追加予定。全体攻撃タイプのカードを使用した際に。
                     enemyAreaManager.TakeDamageToAll(card.GetPower());
                     Log($"敵全体に{card.GetPower()}ダメージ！");
                     break;
@@ -148,10 +150,16 @@ public class BattleManager : MonoBehaviour
     private void EnemyTurn()
     {
         // 各敵の攻撃力(attackPower)を元に、味方の共有HPに与えるダメージ量を[power-3, power+3]の範囲でランダムに決定
-        enemyAreaManager.EnemyRundomPowers(); 
+        enemyAreaManager.EnemyRundomPowers();
 
         AttackToAllySharedHP();  // 決定したダメージ量(敵3体分)を味方共有HPに与える
         UpdateHPUI();
+
+        // ランダムで火の玉を出す
+        if (Random.value < 0.3f) // 30%の確率
+        {
+            fireballManager.TrySpawnFireball();
+        }
 
         // プレイヤーが倒れたら敗北
         if (!allyAreaManager.GetIsAliveMonster())
