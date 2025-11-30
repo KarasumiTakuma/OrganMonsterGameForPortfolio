@@ -58,8 +58,8 @@ public class Fireball : MonoBehaviour
         // 直線的に移動した時の位置と上下左右に揺れ動いたときの位置を合成し、火の玉の新たな位置とする
         transform.position = basePosition + new Vector3(offsetX, offsetY, 0);
 
-        // オブジェクトの位置(transform.position)が目的地(targetPosition)に近づいたら(距離が0.1以下なら) 
-        if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
+        // オブジェクトの位置(transform.position)が目的地(targetPosition)よりも低い位置に来たら
+        if (transform.position.y <= targetPosition.y)
         {
             Destroy(gameObject); // オブジェクトを破壊(火の玉を消す) 
         }
