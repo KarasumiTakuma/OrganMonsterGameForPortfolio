@@ -89,8 +89,9 @@ public class HpGaugeController : MonoBehaviour
         while (elapsed < duration)
         {
             // 現在のゲージ幅から目標のゲージ幅に向かって徐々に減らす処理
-
             // 現在ゲージサイズから目標ゲージサイズまで、(elapsed / duration)の割合でゲージを減らしていく
+            // currentSize.x = currentSize.x + (targetSize.x - currentSize.x) * (elapsed / duration)
+
             currentSize.x = Mathf.Lerp(currentSize.x, targetSize.x, elapsed / duration);
             gaugeRect.sizeDelta = currentSize;  // 表ゲージのサイズを更新
             // 前フレームからの経過時間を加算(60FPSなら0.0166s)(FPSが異なっていても、
