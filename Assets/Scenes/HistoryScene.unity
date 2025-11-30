@@ -378,6 +378,7 @@ GameObject:
   - component: {fileID: 139867618}
   - component: {fileID: 139867617}
   - component: {fileID: 139867619}
+  - component: {fileID: 139867620}
   m_Layer: 5
   m_Name: MonsterTab
   m_TagString: Untagged
@@ -487,6 +488,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &139867620
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 139867615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeeb1998f93a12d43b39158f2a9b4e28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundButton
+  clickSound: {fileID: 8300000, guid: 24d73765699ce3e46bb23cabc3a46494, type: 3}
 --- !u!1 &188874461
 GameObject:
   m_ObjectHideFlags: 0
@@ -499,6 +513,7 @@ GameObject:
   - component: {fileID: 188874465}
   - component: {fileID: 188874464}
   - component: {fileID: 188874463}
+  - component: {fileID: 188874466}
   m_Layer: 5
   m_Name: GoToLab
   m_TagString: Untagged
@@ -608,6 +623,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 188874461}
   m_CullTransparentMesh: 1
+--- !u!114 &188874466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 188874461}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeeb1998f93a12d43b39158f2a9b4e28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundButton
+  clickSound: {fileID: 8300000, guid: 24d73765699ce3e46bb23cabc3a46494, type: 3}
 --- !u!1 &260201567
 GameObject:
   m_ObjectHideFlags: 0
@@ -3561,6 +3589,7 @@ GameObject:
   - component: {fileID: 1418440681}
   - component: {fileID: 1418440680}
   - component: {fileID: 1418440679}
+  - component: {fileID: 1418440683}
   m_Layer: 5
   m_Name: ArtifactTab
   m_TagString: Untagged
@@ -3670,6 +3699,19 @@ RectTransform:
   m_AnchoredPosition: {x: 246.95015, y: 202.4}
   m_SizeDelta: {x: 95, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1418440683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418440678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeeb1998f93a12d43b39158f2a9b4e28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundButton
+  clickSound: {fileID: 8300000, guid: 24d73765699ce3e46bb23cabc3a46494, type: 3}
 --- !u!1 &1424213862
 GameObject:
   m_ObjectHideFlags: 0
@@ -4037,6 +4079,7 @@ GameObject:
   - component: {fileID: 1688976158}
   - component: {fileID: 1688976157}
   - component: {fileID: 1688976159}
+  - component: {fileID: 1688976160}
   m_Layer: 5
   m_Name: OrganTab
   m_TagString: Untagged
@@ -4146,6 +4189,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1688976160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1688976155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeeb1998f93a12d43b39158f2a9b4e28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundButton
+  clickSound: {fileID: 8300000, guid: 24d73765699ce3e46bb23cabc3a46494, type: 3}
 --- !u!1 &1727475524
 GameObject:
   m_ObjectHideFlags: 0
