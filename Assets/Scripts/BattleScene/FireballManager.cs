@@ -33,7 +33,7 @@ public class FireballManager : MonoBehaviour
         var fireball = Instantiate(fireballPrefab, spawnPosition, Quaternion.identity);
 
         // Fireball を飛ばす先をLaunchメソッドで設定
-        Vector3 targetPosition = new Vector3(spawnPosition.x, spawnPosition.y - 20f, spawnPosition.z);
+        Vector3 targetPosition = new Vector3(spawnPosition.x, spawnPosition.y - 10f, spawnPosition.z);
         fireball.GetComponent<Fireball>().Launch(targetPosition);
     }
 }
