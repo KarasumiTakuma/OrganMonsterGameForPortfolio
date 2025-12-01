@@ -6,7 +6,7 @@ using System;
 /// パーティ編成画面のひとつのスロットUIを管理するクラス
 /// </summary>
 public class PartySlotUI : MonoBehaviour
-{　　 
+{ 
     [SerializeField] private Image monsterIcon;
     [SerializeField] private TextMeshProUGUI monsterName;
     [SerializeField] private Button selectButton;
