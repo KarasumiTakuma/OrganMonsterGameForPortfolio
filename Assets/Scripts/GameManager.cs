@@ -117,7 +117,7 @@ public class GameManager : MonoBehaviour
     {
         // どのステージに挑戦するか、などの情報を保持してシーンをロード
         //this.currentStageIndex = stageIndex;
-        SceneManager.LoadScene("BattleScene");
+        SceneManager.LoadScene("StageSelectScene");
     }
 
     public void GoToHistory()
