@@ -16,8 +16,6 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private FireballManager fireballManager;
 
 
-
-
     [Header("UI")]
     [SerializeField] private TMP_Text logText; // 戦闘ログ
     [SerializeField] private TMP_Text playerHPText;
@@ -32,16 +30,35 @@ public class BattleManager : MonoBehaviour
     void Awake()
     {
 
-        foreach (var cardData in cardDataList)
+        var session = BattleSessionData.Instance;
+        if (session == null)
         {
-            Card card = new Card(cardData);
-            deckManager.AddCardToDeck(card);
+            Debug.LogError("BattleSessionData が見つかりません！");
+            return;
+        }
+
+        enemyAreaManager.SetEnemyData(session.currentStage.enemies);
+
+        allyAreaManager.SetAllyData(session.playerAllies.ConvertAll(ally => (MonsterData)ally));
+
+        // デッキを作成
+        deckManager.ClearDeck();
+        foreach (var ally in session.playerAllies)
+        {
+            foreach (var cardData in ally.cards)
+            {
+                deckManager.AddCardToDeck(new Card(cardData));
+            }
         }
         deckManager.ShuffleDeck();
+
+        // データクリア（次回ステージ選択に備える）
+        session.ClearData();
     }
 
     void Start()
     {
+
         // 敵を生成
         enemyAreaManager.SpawnEnemies();
         allyAreaManager.SpawnAllies();

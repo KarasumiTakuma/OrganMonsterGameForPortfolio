@@ -97,6 +97,17 @@ public class DeckManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 山札・手札・墓地をすべてクリア
+    /// </summary>
+    public void ClearDeck()
+    {
+        deck.Clear();
+        hand.Clear();
+        discardPile.Clear();
+    }
+
+
     // 手札リスト取得のためのゲッター
     public List<Card> GetHand() => hand;
     public int GetHandCount() => hand.Count;

@@ -8,14 +8,38 @@ using UnityEngine;
 /// </summary>
 public class AllyAreaManager : MonsterAreaManager
 {
-    [Header("Ally Settings")]
-    [SerializeField] private List<AllyMonsterData> allyDataList; // 3体の味方データ
 
     [Header("UI")]
     [SerializeField] private HpGaugeController sharedHpGauge; // 共有HPゲージ
 
     private int sharedMaxHP;      // 3体の最大HP合算
     private int sharedCurrentHP;  // 現在の共有HP（ダメージや回復後とかに使う値）
+
+    private List<AllyMonsterData> allyDataList = new List<AllyMonsterData>();  // 3体の味方データ
+
+    public void SetAllyData(List<MonsterData> allies)
+    {
+        allyDataList.Clear();
+
+        foreach (var data in allies)
+        {
+            AllyMonsterData allyDat;
+
+            if (data is AllyMonsterData existingAlly)
+            {
+                allyDat = existingAlly;
+            }
+            else
+            {
+                // 通常の MonsterData を AllyMonsterData に変換
+                allyDat = MonsterDataConverter.ToAllyMonster(data);
+            }
+
+            allyDataList.Add(allyDat);
+        }
+
+        SpawnAllies();
+    }
 
     /// <summary>
     /// 味方モンスターをスポーン
