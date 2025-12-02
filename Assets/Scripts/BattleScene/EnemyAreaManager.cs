@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class EnemyAreaManager : MonsterAreaManager
 {
-    [Header("Enemy Settings")]
-    [SerializeField] private List<EnemyMonsterData> enemyDataList;  // 各スポーンポイントに出現する敵に対する敵データ
 
     public const int NoSelection = -1;   // 敵が選択されていない状態を表す定数
 
@@ -13,6 +11,21 @@ public class EnemyAreaManager : MonsterAreaManager
     private int selectedEnemyIndex = NoSelection;
 
     private List<int> enemyPowersList;
+    private List<EnemyMonsterData> enemyDataList = new List<EnemyMonsterData>();  // 各スポーンポイントに出現する敵に対する敵データ
+
+    public void SetEnemyData(List<MonsterData> enemies)
+    {
+        enemyDataList.Clear();
+
+        foreach (var data in enemies)
+        {
+            if (data is EnemyMonsterData enemyDat)
+                enemyDataList.Add(enemyDat);
+        }
+
+        SpawnEnemies(); // 敵なので SpawnEnemies() を呼ぶ
+    }
+
 
     /// <summary>
     /// スポーンポイントに敵を生成
@@ -46,7 +59,7 @@ public class EnemyAreaManager : MonsterAreaManager
     public void TakeDamageToSelectedEnemy(int damage)
     {
         if (spawnedMonsters.Count == 0) return;
-        
+
         int targetIndex = selectedEnemyIndex;
 
         // プレイヤーが敵を選択していない、またはプレイヤーが選択している敵がすでに死亡していたら
@@ -57,11 +70,11 @@ public class EnemyAreaManager : MonsterAreaManager
             targetIndex = NoSelection;
         }
 
-        if(targetIndex == NoSelection)
+        if (targetIndex == NoSelection)
         {
             int monstersIndex = 0;
             var enemyAliveList = new List<int>();
-            foreach(var monster in spawnedMonsters)
+            foreach (var monster in spawnedMonsters)
             {
                 if (!monster.GetIsDead())
                 {
@@ -134,7 +147,7 @@ public class EnemyAreaManager : MonsterAreaManager
     public void EnemyRundomPowers()
     {
         enemyPowersList = new List<int>();
-        foreach(var enemyMonster in spawnedMonsters)
+        foreach (var enemyMonster in spawnedMonsters)
         {
             if (enemyMonster.GetIsDead())
             {
@@ -142,8 +155,8 @@ public class EnemyAreaManager : MonsterAreaManager
             }
             // Enemy型の敵データにセットされている攻撃力attackPowerを入手し、
             // [attackPower-3, attackPoewr+3]の範囲でランダムに「味方HPに与えるダメージ量(attackPowerAmount)」を決める。
-            int baseAttackPower = enemyMonster.GetAttackPower();  
-            int attackPowerAmount = UnityEngine.Random.Range(baseAttackPower-3, baseAttackPower+4);
+            int baseAttackPower = enemyMonster.GetAttackPower();
+            int attackPowerAmount = UnityEngine.Random.Range(baseAttackPower - 3, baseAttackPower + 4);
             enemyPowersList.Add(attackPowerAmount);
         }
     }
