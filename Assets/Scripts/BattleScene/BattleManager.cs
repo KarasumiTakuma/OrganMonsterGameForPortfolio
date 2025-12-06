@@ -13,7 +13,8 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private Sprite defaultCardSprite; // カード画像表示用(一時的)
     [SerializeField] private List<CardData> cardDataList;
     [SerializeField] private GameObject endTurnButton;  // プレイヤーターンの終了用ボタン
-    [SerializeField] private FireballManager fireballManager;
+    [SerializeField] private AudioClip AttackSoundEffect;  // 攻撃の効果音
+    [SerializeField] private AudioClip HealSoundEffect; // 回復の効果音
 
 
     [Header("UI")]
@@ -115,14 +116,17 @@ public class BattleManager : MonoBehaviour
             {
                 case CardType.AttackToSelected:
                     enemyAreaManager.TakeDamageToSelectedEnemy(card.GetPower());
+                    AudioManager.Instance.PlaySE(AttackSoundEffect);
                     Log($"敵単体に{card.GetPower()}ダメージ！");
                     break;
                 case CardType.AttackToAll:     // CardType.AttackToAllをCradDataに追加予定。全体攻撃タイプのカードを使用した際に。
                     enemyAreaManager.TakeDamageToAll(card.GetPower());
+                    AudioManager.Instance.PlaySE(AttackSoundEffect);
                     Log($"敵全体に{card.GetPower()}ダメージ！");
                     break;
                 case CardType.Heal:
                     allyAreaManager.HealSharedHP(card.GetPower()); // 味方全体回復
+                    AudioManager.Instance.PlaySE(HealSoundEffect);
                     Log($"味方全体が{card.GetPower()}回復！");
                     break;
             }
@@ -171,12 +175,6 @@ public class BattleManager : MonoBehaviour
 
         AttackToAllySharedHP();  // 決定したダメージ量(敵3体分)を味方共有HPに与える
         UpdateHPUI();
-
-        // ランダムで火の玉を出す
-        if (Random.value < 0.3f) // 30%の確率
-        {
-            fireballManager.TrySpawnFireball();
-        }
 
         // プレイヤーが倒れたら敗北
         if (!allyAreaManager.GetIsAliveMonster())
@@ -250,6 +248,7 @@ public class BattleManager : MonoBehaviour
             allyAreaManager.TakeDamageToSharedHP(power); // 味方側の共有HPにpower分のダメージ
             Log($"敵の攻撃！ プレイヤーに{power}ダメージ！");
         }
+        AudioManager.Instance.PlaySE(AttackSoundEffect);
     }
 
 
