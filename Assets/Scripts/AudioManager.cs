@@ -45,11 +45,10 @@ public class AudioManager : MonoBehaviour
     // SE再生用のメソッドを新しく追加
     public void PlaySE(AudioClip clip)
     {
-        if (clip != null)
-        {
+        if (clip == null || seAudioSource == null) return; // 再生するクリップやSE再生プレイヤーがセットされていないなら何もしない
+
             // PlayOneShotで、音を重ねて再生する
             seAudioSource.PlayOneShot(clip); // 曲をセットして再生まで一度に
-        }
     }
 
     // 途中で止められるSE1（ループSE）を再生する

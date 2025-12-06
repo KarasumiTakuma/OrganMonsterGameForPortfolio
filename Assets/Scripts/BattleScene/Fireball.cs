@@ -9,11 +9,16 @@ public class Fireball : MonoBehaviour
     [SerializeField, Header("味方に与えるダメージ量")] private int damageToAlly;  // 味方に与えるダメージ量
     [SerializeField, Header("味方を回復する量")] private int healToAlly;  // 味方を回復する量
 
+
     [Header("火の玉の揺れ設定")]
     [SerializeField] private float amplitudeX = 0.5f; // 左右の揺れ幅
     [SerializeField] private float frequencyX = 3f;   // 左右の揺れの速さ
     [SerializeField] private float amplitudeY = 0.5f; // 上下の揺れ幅
     [SerializeField] private float frequencyY = 3f;   // 上下の揺れの速さ
+
+    [Header("SE設定")]
+    [SerializeField] private AudioClip AttackSoundEffect;  // 攻撃の効果音
+    [SerializeField] private AudioClip HealSoundEffect; // 回復の効果音
 
     private Vector3 targetPosition;    // 火の玉の目的地座標
     private Vector3 startPosition;   // 火の玉の初期位置
@@ -82,14 +87,17 @@ public class Fireball : MonoBehaviour
             case 0:
                 // 敵にダメージ 
                 Object.FindAnyObjectByType<EnemyAreaManager>()?.TakeDamageToAll(damageToEnemy);
+                AudioManager.Instance.PlaySE(AttackSoundEffect);
                 break;
             case 1:
                 // 味方にダメージ 
                 Object.FindAnyObjectByType<AllyAreaManager>()?.TakeDamageToSharedHP(damageToAlly);
+                AudioManager.Instance.PlaySE(AttackSoundEffect);
                 break;
             case 2:
                 // 味方回復 
                 Object.FindAnyObjectByType<AllyAreaManager>()?.HealSharedHP(healToAlly);
+                AudioManager.Instance.PlaySE(HealSoundEffect);
                 break;
         }
     }
