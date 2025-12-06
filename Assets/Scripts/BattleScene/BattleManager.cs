@@ -10,7 +10,6 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private HandAreaManager handAreaManager; // HandAreaManagerの参照
     [SerializeField] private EnemyAreaManager enemyAreaManager;
     [SerializeField] private AllyAreaManager allyAreaManager;
-    [SerializeField] private Sprite defaultCardSprite; // カード画像表示用(一時的)
     [SerializeField] private List<CardData> cardDataList;
     [SerializeField] private GameObject endTurnButton;  // プレイヤーターンの終了用ボタン
     [SerializeField] private AudioClip AttackSoundEffect;  // 攻撃の効果音
@@ -51,7 +50,6 @@ public class BattleManager : MonoBehaviour
                 deckManager.AddCardToDeck(new Card(cardData));
             }
         }
-        deckManager.ShuffleDeck();
 
         // データクリア（次回ステージ選択に備える）
         session.ClearData();
