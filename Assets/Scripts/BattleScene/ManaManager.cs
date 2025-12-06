@@ -46,7 +46,7 @@ public class ManaManager : MonoBehaviour
     {
         if (manaText != null)
         {
-            manaText.text = currentMana + " / " + currentMaxMana;
+            manaText.text = this.GetCurrentMana().ToString() + " / " + currentMaxMana;
         }
     }
 

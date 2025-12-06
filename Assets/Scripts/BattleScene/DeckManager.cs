@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class DeckManager : MonoBehaviour
 {
@@ -7,6 +8,9 @@ public class DeckManager : MonoBehaviour
     public List<Card> deck = new List<Card>();        // 山札
     public List<Card> hand = new List<Card>();        // 手札
     public List<Card> discardPile = new List<Card>(); // 墓地
+
+    [SerializeField] private TMP_Text deckText;  // 山札枚数を表示するUI
+    [SerializeField] private TMP_Text discardPileText;  // 墓地枚数を表示するUI
 
     private const int FullHandSize = 5;
 
@@ -19,6 +23,7 @@ public class DeckManager : MonoBehaviour
     public void AddCardToDeck(Card card)
     {
         deck.Add(card);
+        ShuffleDeck();
     }
 
     /// <summary>
@@ -30,6 +35,7 @@ public class DeckManager : MonoBehaviour
         {
             DrawCard();
         }
+        UpdateCardUI();
     }
 
     public void DrawCardFull()
@@ -39,6 +45,7 @@ public class DeckManager : MonoBehaviour
             Card card = DrawCard();
             if (card == null) break;
         }
+        UpdateCardUI();
     }
 
     /// デッキから1枚ドロー
@@ -71,6 +78,7 @@ public class DeckManager : MonoBehaviour
             hand.Remove(card);
             discardPile.Add(card);
         }
+        UpdateCardUI();
     }
 
     /// <summary>
@@ -86,7 +94,7 @@ public class DeckManager : MonoBehaviour
     /// <summary>
     /// 山札をシャッフル
     /// </summary>
-    public void ShuffleDeck()
+    private void ShuffleDeck()
     {
         for (int i = 0; i < deck.Count; i++)
         {
@@ -95,6 +103,7 @@ public class DeckManager : MonoBehaviour
             deck[i] = deck[rand];
             deck[rand] = temp;
         }
+        UpdateCardUI();
     }
 
     /// <summary>
@@ -105,10 +114,27 @@ public class DeckManager : MonoBehaviour
         deck.Clear();
         hand.Clear();
         discardPile.Clear();
+        UpdateCardUI();
+    }
+
+    private void UpdateCardUI()
+    {
+        if (deckText != null)
+        {
+            deckText.text = this.GetDeckCount().ToString();
+        }
+
+        if (discardPileText != null)
+        {
+            discardPileText.text = this.GetdiscardPile().ToString();
+        }
     }
 
 
-    // 手札リスト取得のためのゲッター
-    public List<Card> GetHand() => hand;
-    public int GetHandCount() => hand.Count;
+
+    // ゲッター
+    public List<Card> GetHand() => hand;  // 手札リスト取得のためのゲッター
+    public int GetDeckCount() => deck.Count;  // 山札カード枚数を返す
+    public int GetHandCount() => hand.Count;  // 手札カード枚数を返す
+    public int GetdiscardPile() => discardPile.Count; // 墓地のカード枚数を返す
 }
