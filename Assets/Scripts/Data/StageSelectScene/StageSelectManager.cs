@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 //StageSelectSceneで、全ステージのボタンを自動生成するクラス
 
@@ -46,7 +47,7 @@ public class StageSelectManager : MonoBehaviour
             }
 
             // ボタンにステージ名を表示
-            Text buttonText = buttonObj.GetComponentInChildren<Text>();
+            TMP_Text buttonText = buttonObj.GetComponentInChildren<TMP_Text>();
             if (buttonText != null)
             {
                 buttonText.text = stage.GetStageName();
