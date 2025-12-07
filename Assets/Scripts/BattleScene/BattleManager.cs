@@ -37,19 +37,19 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        enemyAreaManager.SetEnemyData(session.currentStage.enemies);
+        enemyAreaManager.SetEnemyData(session.GetCurrentStage().GetEnemiesList());
 
-        allyAreaManager.SetAllyData(session.playerAllies.ConvertAll(ally => (MonsterData)ally));
+        allyAreaManager.SetAllyData(session.GetPlayerAlliesList().ConvertAll(ally => (MonsterData)ally));
 
         // デッキを作成
         deckManager.ClearDeck();
-        foreach (var ally in session.playerAllies)
+        foreach (var cardData in session.GetPlayerCardsList())
         {
-            foreach (var cardData in ally.cards)
-            {
-                deckManager.AddCardToDeck(new Card(cardData));
-            }
+            deckManager.AddCardToDeck(cardData);
         }
+
+        // デッキが作成されたら、山札をシャッフルする
+        deckManager.ShuffleDeck();
 
         // データクリア（次回ステージ選択に備える）
         session.ClearData();

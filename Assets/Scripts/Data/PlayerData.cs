@@ -26,6 +26,10 @@ public class PlayerData : MonoBehaviour
     // 読み取り専用のプロパティ（外からは見れるけど書き換えられない）
     public IReadOnlyList<MonsterData> CurrentParty => currentParty;
 
+    // クリアしているステージのステージIDを保持するリスト
+    public List<int> clearedStages = new List<int>();
+
+
     [Header("図鑑用の発見済みリスト")]
     public List<MonsterData> discoveredMonsters = new List<MonsterData>();
     public List<OrganData> discoveredOrgans = new List<OrganData>();
@@ -43,9 +47,9 @@ public class PlayerData : MonoBehaviour
     private void Update()
     {
         // エディタで再生中のみ、デバッグリストを更新する（パフォーマンスのため）
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         UpdateDebugLists();
-        #endif
+#endif
     }
 
     // OnValidateからも呼び出して、非再生中の編集にも対応
@@ -61,7 +65,7 @@ public class PlayerData : MonoBehaviour
     {
         // nullチェックを追加して、エディタでのエラーを防ぐ
         if (ownedOrgans == null || ownedMonsters == null) return;
-        
+
         organKeys = ownedOrgans.Keys.ToList();
         organValues = ownedOrgans.Values.ToList();
         monsterKeys = ownedMonsters.Keys.ToList();
@@ -131,8 +135,8 @@ public class PlayerData : MonoBehaviour
             }
             // イベント発行
             OnInventoryChanged?.Invoke();
-        }    
-            
+        }
+
     }
 
     public void AddMonster(MonsterData monster, int amount)
@@ -206,6 +210,7 @@ public class PlayerData : MonoBehaviour
         saveData.discoveredOrgans = this.discoveredOrgans;
         saveData.discoveredArtifacts = this.discoveredArtifacts;
         saveData.currentParty = this.currentParty;
+        saveData.clearedStages = this.clearedStages;  // ステージクリア情報を詰める
 
         // DictionaryをList<OrganSaveData>に変換
         saveData.ownedOrgans = new List<OrganSaveData>();
@@ -238,6 +243,9 @@ public class PlayerData : MonoBehaviour
         this.discoveredOrgans = saveData.discoveredOrgans;
         this.discoveredMonsters = saveData.discoveredMonsters;
         this.discoveredArtifacts = saveData.discoveredArtifacts;
+        this.clearedStages = saveData.clearedStages;
+
+
         // パーティ情報の復元（もしSaveDataにpartyがあれば）
         if (saveData.currentParty != null)
         {
@@ -302,4 +310,22 @@ public class PlayerData : MonoBehaviour
         // UIにも変更を通知
         OnInventoryChanged?.Invoke();
     }
+
+    // 指定したステージIDがクリア済みかどうかを判定し、
+    // クリアしているかの状態をboolで返す
+    public bool IsStageCleared(int stageID)
+    {
+        // PlayerData が保持する clearedStages(クリア済みステージIDのリスト)に
+        // 引数のstageIDが含まれていればtrueを返す
+        return clearedStages.Contains(stageID);
+    }
+
+    // 引数のステージIDをクリア済みとして登録する
+    public void ClearStage(int stageID)
+    {
+        // まだclearedStagesに登録されていない場合のみ追加し、重複登録を防ぐ
+        if (!clearedStages.Contains(stageID))
+            clearedStages.Add(stageID);
+    }
+
 }
