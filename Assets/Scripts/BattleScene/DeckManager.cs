@@ -23,7 +23,6 @@ public class DeckManager : MonoBehaviour
     public void AddCardToDeck(Card card)
     {
         deck.Add(card);
-        ShuffleDeck();
     }
 
     /// <summary>
@@ -94,7 +93,7 @@ public class DeckManager : MonoBehaviour
     /// <summary>
     /// 山札をシャッフル
     /// </summary>
-    private void ShuffleDeck()
+    public void ShuffleDeck()
     {
         for (int i = 0; i < deck.Count; i++)
         {
