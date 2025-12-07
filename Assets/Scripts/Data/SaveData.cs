@@ -20,6 +20,8 @@ public class SaveData
     public List<ArtifactData> discoveredArtifacts;
 
     public List<MonsterData> currentParty;
+
+    public List<int> clearedStages;   // クリアしているステージのステージIDを保持するリスト
 }
 
 // 臓器辞書を保存するためのヘルパークラス
