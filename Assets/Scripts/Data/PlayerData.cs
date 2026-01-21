@@ -200,6 +200,31 @@ public class PlayerData : MonoBehaviour
         currentParty[slotIndex - 1] = newMonster;
     }
 
+
+    /// <summary>
+    // 指定したステージIDがクリア済みかどうかを判定し、
+    // クリアしているかの状態をboolで返す
+    /// </summary>
+    /// <param name="stageID"></param>
+    /// <returns></returns>
+    public bool IsStageCleared(int stageID)
+    {
+        // PlayerData が保持する clearedStages(クリア済みステージIDのリスト)に
+        // 引数のstageIDが含まれていればtrueを返す
+        return clearedStages.Contains(stageID);
+    }
+
+    /// <summary>
+    /// 引数のステージIDをクリア済みとして登録する
+    /// </summary>
+    /// <param name="stageID"></param>
+    public void ClearStage(int stageID)
+    {
+        // まだclearedStagesに登録されていない場合のみ追加し、重複登録を防ぐ
+        if (!clearedStages.Contains(stageID))
+            clearedStages.Add(stageID);
+    }
+
     /// --- セーブ・ロード用メソッド ---
     public SaveData CreateSaveData()
     {
@@ -310,22 +335,4 @@ public class PlayerData : MonoBehaviour
         // UIにも変更を通知
         OnInventoryChanged?.Invoke();
     }
-
-    // 指定したステージIDがクリア済みかどうかを判定し、
-    // クリアしているかの状態をboolで返す
-    public bool IsStageCleared(int stageID)
-    {
-        // PlayerData が保持する clearedStages(クリア済みステージIDのリスト)に
-        // 引数のstageIDが含まれていればtrueを返す
-        return clearedStages.Contains(stageID);
-    }
-
-    // 引数のステージIDをクリア済みとして登録する
-    public void ClearStage(int stageID)
-    {
-        // まだclearedStagesに登録されていない場合のみ追加し、重複登録を防ぐ
-        if (!clearedStages.Contains(stageID))
-            clearedStages.Add(stageID);
-    }
-
 }
