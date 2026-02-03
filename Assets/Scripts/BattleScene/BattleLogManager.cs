@@ -1,3 +1,5 @@
+// バトル中の戦闘ログをキューで保持し、管理するシングルトンインスタンスを生成するクラス
+
 using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
