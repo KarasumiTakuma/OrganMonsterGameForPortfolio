@@ -9,7 +9,7 @@ public class MonsterAreaManager : MonoBehaviour
     protected List<Monster> spawnedMonsters = new List<Monster>(); // 生成したモンスターリスト
 
     // モンスターをスポーンさせる
-    public virtual void SpawnMonsters(List<MonsterDataBattleScene> monsterDataList)
+    public virtual void SpawnMonsters(List<MonsterData> monsterDataList)
     {
         // 既存のモンスターがいたら削除
         ClearMonsters();

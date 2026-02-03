@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class DeckManager : MonoBehaviour
 {
@@ -8,11 +9,16 @@ public class DeckManager : MonoBehaviour
     public List<Card> hand = new List<Card>();        // 手札
     public List<Card> discardPile = new List<Card>(); // 墓地
 
+    [SerializeField] private TMP_Text deckText;  // 山札枚数を表示するUI
+    [SerializeField] private TMP_Text discardPileText;  // 墓地枚数を表示するUI
+
+    private const int FullHandSize = 5;
+
     [Header("Start Game Hand Setting")]
-    [SerializeField] private int initialHandSize = 5; // ゲーム開始時の手札枚数
+    private int initialHandSize = FullHandSize; // ゲーム開始時の手札枚数(最大の5枚にする)
 
     /// <summary>
-    /// デッキにカードを追加（これは、カードUIを表示するテスト用に作ったものであり、本来は、DrawIH()関数を使うこと）
+    /// デッキにカードを追加
     /// </summary>
     public void AddCardToDeck(Card card)
     {
@@ -28,12 +34,21 @@ public class DeckManager : MonoBehaviour
         {
             DrawCard();
         }
+        UpdateCardUI();
     }
 
-    /// <summary>
+    public void DrawCardFull()
+    {
+        while (hand.Count < FullHandSize)
+        {
+            Card card = DrawCard();
+            if (card == null) break;
+        }
+        UpdateCardUI();
+    }
+
     /// デッキから1枚ドロー
-    /// </summary>
-    public Card DrawCard()
+    private Card DrawCard()
     {
         if (deck.Count == 0)
         {
@@ -62,6 +77,7 @@ public class DeckManager : MonoBehaviour
             hand.Remove(card);
             discardPile.Add(card);
         }
+        UpdateCardUI();
     }
 
     /// <summary>
@@ -86,8 +102,38 @@ public class DeckManager : MonoBehaviour
             deck[i] = deck[rand];
             deck[rand] = temp;
         }
+        UpdateCardUI();
     }
 
-    // 手札リスト取得のためのゲッター
-    public List<Card> GetHand() => hand;
+    /// <summary>
+    /// 山札・手札・墓地をすべてクリア
+    /// </summary>
+    public void ClearDeck()
+    {
+        deck.Clear();
+        hand.Clear();
+        discardPile.Clear();
+        UpdateCardUI();
+    }
+
+    private void UpdateCardUI()
+    {
+        if (deckText != null)
+        {
+            deckText.text = this.GetDeckCount().ToString();
+        }
+
+        if (discardPileText != null)
+        {
+            discardPileText.text = this.GetdiscardPile().ToString();
+        }
+    }
+
+
+
+    // ゲッター
+    public List<Card> GetHand() => hand;  // 手札リスト取得のためのゲッター
+    public int GetDeckCount() => deck.Count;  // 山札カード枚数を返す
+    public int GetHandCount() => hand.Count;  // 手札カード枚数を返す
+    public int GetdiscardPile() => discardPile.Count; // 墓地のカード枚数を返す
 }

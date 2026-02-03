@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Audio")]
     [SerializeField] private AudioClip mainBGM; // InspectorでメインBGMを設定
+    [SerializeField] private AudioClip battleBGM; // バトルシーンで流すBGM
 
     private void Awake()
     {
@@ -37,6 +38,46 @@ public class GameManager : MonoBehaviour
             AudioManager.Instance.PlayBGM(mainBGM);
         }
         SaveManager.Instance.LoadGame();
+    }
+
+    private void OnEnable()
+    {
+        // シーンがロードされたら、OnSceneLoadedメソッドを呼ぶように予約
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        // オブジェクトが破棄される際は、予約を解除（メモリリーク防止）
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    /// <summary>
+    /// シーンが新しくロードされるたびに呼び出されるメソッド
+    /// </summary>
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // ロードされたシーンの名前で処理を分岐
+        switch (scene.name)
+        {
+            case "BattleScene":
+                AudioManager.Instance.PlayBGM(battleBGM);
+                break;
+            
+            default:
+            // 上記（バトルシーン）以外に当てはまらない、その他全てのシーン
+            AudioManager.Instance.PlayBGM(mainBGM);
+            break;
+        }
+    }
+
+    // BGM再生を public メソッド化(ボス戦でBGMを変更してその後戻す時など)
+    public void PlayMainBGM()
+    {
+        if (mainBGM != null)
+        {
+            AudioManager.Instance.PlayBGM(mainBGM);
+        }
     }
 
     // --- シーン切り替え用のメソッド ---
@@ -76,11 +117,15 @@ public class GameManager : MonoBehaviour
     {
         // どのステージに挑戦するか、などの情報を保持してシーンをロード
         //this.currentStageIndex = stageIndex;
-        SceneManager.LoadScene("BattleScene");
+        SceneManager.LoadScene("StageSelectScene");
     }
 
     public void GoToHistory()
     {
         SceneManager.LoadScene("HistoryScene");
+    }
+    public void GoToPartyEdit()
+    {
+        SceneManager.LoadScene("PartyEditScene");
     }
 }

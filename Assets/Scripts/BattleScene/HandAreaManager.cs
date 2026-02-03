@@ -7,7 +7,7 @@ public class HandAreaManager : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameObject cardPrefab;
-    [SerializeField] private Transform[] cardSlots; // ← 各スロット(5枚のカードを配置する場所)を個別に指定
+    [SerializeField] private Transform[] cardSlots; // 各スロット(5枚のカードを配置する場所)を個別に指定
 
     private readonly List<GameObject> spawnedCards = new List<GameObject>();
     private List<Card> handCardData;
@@ -17,10 +17,12 @@ public class HandAreaManager : MonoBehaviour
         this.handCardData = handCardData;
     }
 
-    //  引数にCard型変数を受け取るようなメソッドたちを登録しておく変数がonCardPlayed
-    //  Action は「戻り値がないメソッド」を表す型
-    //  Action<Care>は、「引数がCard型である返り値のないメソッドの型」を意味する
-    public void UpdateHandUI(System.Action<Card> onCardPlayed)
+    // 手札UIを更新するメソッド。
+    // 引数 onCardPlayed は「カードがプレイされたときに呼ばれる処理をするメソッド」を格納するデリゲート。
+    // onCardPlayedに登録されるメソッドは、第一引数をCard型、
+    // 第二引数をAction<bool>型(bool型を引数とする、返り値void)のメソッド
+    // とする、返り値voidのメソッドである。
+    public void UpdateHandUI(System.Action<Card, System.Action<bool>> onCardPlayed)
     {
         // 1. 既存UI削除
         foreach (var card in spawnedCards)
@@ -35,6 +37,7 @@ public class HandAreaManager : MonoBehaviour
         foreach (var slotPoint in cardSlots)
         {
             // カードスロット5つに対して手札カードが4枚以下の場合に、ないはずの5枚目のデータ(空値)にアクセスしないようにする
+            // 手札枚数よりスロット数が多い場合は生成しない
             if (dataIndex >= handCardData.Count) break;
 
             // cardObjはそのスポーン位置(slotPoint)を親とする
@@ -60,29 +63,26 @@ public class HandAreaManager : MonoBehaviour
 
             Card cardData = handCardData[dataIndex];
 
-            TMP_Text nameText = cardObj.transform.Find("NameText")?.GetComponent<TMP_Text>();
-            if (nameText) nameText.text = cardData.GetName();
-
-            TMP_Text manaText = cardObj.transform.Find("ManaCostText")?.GetComponent<TMP_Text>();
-            if (manaText) manaText.text = "Cost：" + cardData.GetManaCost();
-
-            TMP_Text powerText = cardObj.transform.Find("PowerText")?.GetComponent<TMP_Text>();
-            if (powerText) powerText.text = "Att" + cardData.GetPower();
-
-            Image cardImage = cardObj.transform.Find("CardImage")?.GetComponent<Image>();
-            if (cardImage) cardImage.sprite = cardData.GetSprite();
+            // カードデータをCardViewにセット
+            CardView cardView = cardObj.GetComponent<CardView>();
+            if (cardView != null)
+            {
+                cardView.SetCard(cardData);
+            }
 
             var dragDrop = cardObj.GetComponent<CardUI_DragDrop>();
             if (dragDrop != null && onCardPlayed != null)
             {
                 dragDrop.Setup(cardData);
+
+                // 前回登録済みのイベントをクリア（同じイベントの重複防止）
+                dragDrop.ClearOnCardPlayed();
                 // イベント変数にイベントを登録
                 // onCardPlayed変数には、UpdateHandUI()メソッドが呼び出された際に
-                // 引数として渡されたメソッド(引数：Card型、返り値：void)が登録されているはずである(BattleManagerならPlayCard)
-                // なお、onCardPlayedはAction<Card>型であるので、
-                // CardUI_DragDropのCardPlayedHandler(カードプレイを通知するイベント群を登録する場所)に
-                // 一時的に登録して、それをイベント変数dragDrop.OnCardPlayedにイベントとして登録する
-                dragDrop.OnCardPlayed += new CardUI_DragDrop.CardPlayedHandler(onCardPlayed);
+                // onCardPlayedに登録されるメソッドは、第一引数をCard型、
+                // 第二引数をAction<bool>型のメソッドとするメソッド群が登録されている。
+                // onCardPlayedにあるメソッド群を、dragDrop.OnCardPlayedに登録する
+                dragDrop.OnCardPlayed += (card, callback) => onCardPlayed?.Invoke(card, callback);
             }
 
             spawnedCards.Add(cardObj);

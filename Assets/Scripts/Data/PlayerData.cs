@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 
+/// <summary>
+/// プレイヤーのデータを管理するクラス
+/// </summary>
 public class PlayerData : MonoBehaviour
 {
     [Header("プレイヤーの情報")]
-    public int researchPoints; // 研究ポイント
+    [SerializeField] private int researchPoints; // 研究ポイント
 
     // --- データ変更を通知するためのイベント ---
     public static event Action OnInventoryChanged;
@@ -18,6 +21,14 @@ public class PlayerData : MonoBehaviour
     // public List<MonsterData> unlockedMonsters = new List<MonsterData>();
     // 所持しているアーティファクト
     public Dictionary<ArtifactData, int> ownedArtifacts = new Dictionary<ArtifactData, int>();
+    // 現在編成中のパーティ（最大3体）
+    private List<MonsterData> currentParty = new List<MonsterData>();
+    // 読み取り専用のプロパティ（外からは見れるけど書き換えられない）
+    public IReadOnlyList<MonsterData> CurrentParty => currentParty;
+
+    // クリアしているステージのステージIDを保持するリスト
+    public List<int> clearedStages = new List<int>();
+
 
     [Header("図鑑用の発見済みリスト")]
     public List<MonsterData> discoveredMonsters = new List<MonsterData>();
@@ -36,9 +47,9 @@ public class PlayerData : MonoBehaviour
     private void Update()
     {
         // エディタで再生中のみ、デバッグリストを更新する（パフォーマンスのため）
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         UpdateDebugLists();
-        #endif
+#endif
     }
 
     // OnValidateからも呼び出して、非再生中の編集にも対応
@@ -54,14 +65,29 @@ public class PlayerData : MonoBehaviour
     {
         // nullチェックを追加して、エディタでのエラーを防ぐ
         if (ownedOrgans == null || ownedMonsters == null) return;
-        
+
         organKeys = ownedOrgans.Keys.ToList();
         organValues = ownedOrgans.Values.ToList();
         monsterKeys = ownedMonsters.Keys.ToList();
         monsterValues = ownedMonsters.Values.ToList();
     }
 
+    private void Awake()
+    {
+        // パーティメンバーリストの初期化
+        if (currentParty.Count < 3)
+        {
+            // 必要な数になるまでnullを追加
+            while (currentParty.Count < 3)
+            {
+                currentParty.Add(null);
+            }
+        }
+    }
+
     // --- データ操作用の関数  ---
+
+    public int GetPoints() => researchPoints;
 
     public void AddPoints(int amount)
     {
@@ -109,8 +135,8 @@ public class PlayerData : MonoBehaviour
             }
             // イベント発行
             OnInventoryChanged?.Invoke();
-        }    
-            
+        }
+
     }
 
     public void AddMonster(MonsterData monster, int amount)
@@ -165,6 +191,40 @@ public class PlayerData : MonoBehaviour
         OnInventoryChanged?.Invoke();
     }
 
+    /// <summary>
+    /// 編成画面から呼び出される、パーティ編成を設定するメソッド
+    /// </summary>
+    /// <param name="newParty"></param>
+    public void SetPartyMember(int slotIndex, MonsterData newMonster)
+    {
+        currentParty[slotIndex - 1] = newMonster;
+    }
+
+
+    /// <summary>
+    // 指定したステージIDがクリア済みかどうかを判定し、
+    // クリアしているかの状態をboolで返す
+    /// </summary>
+    /// <param name="stageID"></param>
+    /// <returns></returns>
+    public bool IsStageCleared(int stageID)
+    {
+        // PlayerData が保持する clearedStages(クリア済みステージIDのリスト)に
+        // 引数のstageIDが含まれていればtrueを返す
+        return clearedStages.Contains(stageID);
+    }
+
+    /// <summary>
+    /// 引数のステージIDをクリア済みとして登録する
+    /// </summary>
+    /// <param name="stageID"></param>
+    public void ClearStage(int stageID)
+    {
+        // まだclearedStagesに登録されていない場合のみ追加し、重複登録を防ぐ
+        if (!clearedStages.Contains(stageID))
+            clearedStages.Add(stageID);
+    }
+
     /// --- セーブ・ロード用メソッド ---
     public SaveData CreateSaveData()
     {
@@ -174,6 +234,8 @@ public class PlayerData : MonoBehaviour
         saveData.discoveredMonsters = this.discoveredMonsters;
         saveData.discoveredOrgans = this.discoveredOrgans;
         saveData.discoveredArtifacts = this.discoveredArtifacts;
+        saveData.currentParty = this.currentParty;
+        saveData.clearedStages = this.clearedStages;  // ステージクリア情報を詰める
 
         // DictionaryをList<OrganSaveData>に変換
         saveData.ownedOrgans = new List<OrganSaveData>();
@@ -206,6 +268,25 @@ public class PlayerData : MonoBehaviour
         this.discoveredOrgans = saveData.discoveredOrgans;
         this.discoveredMonsters = saveData.discoveredMonsters;
         this.discoveredArtifacts = saveData.discoveredArtifacts;
+        this.clearedStages = saveData.clearedStages;
+
+
+        // パーティ情報の復元（もしSaveDataにpartyがあれば）
+        if (saveData.currentParty != null)
+        {
+            this.currentParty = saveData.currentParty;
+        }
+        else
+        {
+            // セーブデータにパーティがない（初回など）場合は新しいリストにする
+            this.currentParty = new List<MonsterData>();
+        }
+
+        // ロード後に必ず3枠確保する
+        while (this.currentParty.Count < 3)
+        {
+            this.currentParty.Add(null);
+        }
 
         // List<OrganSaveData>をDictionaryに変換
         ownedOrgans.Clear();

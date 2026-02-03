@@ -107,6 +107,7 @@ public class SynthesisUIManager : MonoBehaviour
 
         UpdateSynthesisUI();
         UpdateInventorySelection();
+        UpdateInventoryInteractability();
     }
 
     // 合成UI全体の表示を更新する
@@ -204,7 +205,7 @@ public class SynthesisUIManager : MonoBehaviour
         // 2. PlayerDataにcurrentRecipeResultを追加
         GameManager.Instance.PlayerData.AddMonster(currentRecipeResult, 1);
 
-        // 3. 合成演出UUIを呼びだす
+        // 3. 合成演出UIを呼びだす
         if (performanceManager != null)
         {
             performanceManager.ShowPerformance(currentRecipeResult);
@@ -222,7 +223,9 @@ public class SynthesisUIManager : MonoBehaviour
         // 5. 合成後、選択をクリアしてUIを再更新
         selectedIngredients.Clear();
         UpdateSynthesisUI();
-        //UpdateInventorySelection();
+        UpdateInventorySelection();
+
+        ResetInventoryInteractability();
     }
     private void UpdateInventorySelection()
     {
@@ -256,6 +259,53 @@ public class SynthesisUIManager : MonoBehaviour
             UpdateSynthesisUI();
             // インベントリの選択色も更新
             UpdateInventorySelection();
+            // インベントリの選択制限も更新
+            UpdateInventoryInteractability();
+        }
+    }
+    // インベントリの選択制限を更新する
+    private void UpdateInventoryInteractability()
+    {
+        // 1. 次に追加可能な素材のリストを取得
+        // (selectedIngredientsは List<OrganData> なので、キャストが必要な場合があります)
+        List<ScriptableObject> currentList = selectedIngredients.Cast<ScriptableObject>().ToList();
+        List<ScriptableObject> validIngredients = synthesizer.GetCompletableIngredients(currentList);
+
+        // 2. インベントリの全スロットをループして制御
+        // (InventoryUIの SlotUIs プロパティが public である必要があります)
+        foreach (var slot in inventoryUI.SlotUIs)
+        {
+            OrganData organ = slot.GetAssignedOrgan();
+            
+            // 空スロットなら無視
+            if (organ == null) continue;
+
+            // 既に選択されているスロットは、解除できるように常に有効
+            if (selectedIngredients.Contains(organ))
+            {
+                slot.SetInteractable(true);
+                continue;
+            }
+
+            // 候補リストに含まれているなら有効、それ以外は無効
+            if (validIngredients == null || validIngredients.Contains(organ))
+            {
+                slot.SetInteractable(true);
+            }
+            else
+            {
+                slot.SetInteractable(false);
+            }
+        }
+    }
+
+    // インベントリの全スロットを選択可能な状態に戻す
+    private void ResetInventoryInteractability()
+    {
+        foreach (var slot in inventoryUI.SlotUIs)
+        {
+            // 全てのスロットを有効（選択可能）にする
+            slot.SetInteractable(true);
         }
     }
 }

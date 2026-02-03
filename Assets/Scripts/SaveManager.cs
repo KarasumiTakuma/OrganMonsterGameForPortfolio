@@ -21,7 +21,7 @@ public class SaveManager : MonoBehaviour
         
         // OSごとに異なる、安全な保存場所のパスを取得
         // 例: C:/Users/[UserName]/AppData/LocalLow/[CompanyName]/[ProductName]/savedata.json
-        saveFilePath = Path.Combine(Application.persistentDataPath, "savedata.json");
+        //saveFilePath = Path.Combine(Application.persistentDataPath, "savedata.json");
     }
 
     /// <button>

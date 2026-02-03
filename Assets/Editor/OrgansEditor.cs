@@ -15,8 +15,8 @@ public class OrgansEditor : EditorWindow
     private enum SortType
     {
         // 名前でソート
-        AssetName_Ascending, // 昇順
-        AssetName_Descending, // 降順
+        Name_Ascending, // 昇順
+        Name_Descending, // 降順
         // 臓器IDでソート
         OrganID_Ascending,
         OrganID_Descending,
@@ -52,7 +52,8 @@ public class OrgansEditor : EditorWindow
         {
             LoadAllOrgans();
         }
-        searchQuery = EditorGUILayout.TextField("アセット名で検索", searchQuery);
+        // 検索欄
+        searchQuery = EditorGUILayout.TextField("素材で検索", searchQuery);
         currentSortType = (SortType)EditorGUILayout.EnumPopup("並び替え", currentSortType);
         
         EditorGUILayout.Space(10);
@@ -61,7 +62,7 @@ public class OrgansEditor : EditorWindow
         // スクロールを管理
         scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
         // 検索してリストを絞る
-        var filteredOrgans = string.IsNullOrEmpty(searchQuery) ? allOrgans : allOrgans.Where(r => r.name.ToLower().Contains(searchQuery.ToLower())).ToList();
+        var filteredOrgans = string.IsNullOrEmpty(searchQuery) ? allOrgans : allOrgans.Where(organ => organ.GetName().ToLower().Contains(searchQuery.ToLower())).ToList();
         // ソートしたリスト
         var sortedOrgans = SortOrgans(filteredOrgans);
         // 削除するアセットを保持
@@ -80,8 +81,10 @@ public class OrgansEditor : EditorWindow
 
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
             
+            // 文字列補間($)を使い、モンスター名とアセット名を組み合わせる
+            string displayName = $"{organ.GetName()} ({organ.name})";
             // Foldout（折りたたみヘッダー）を描画
-            isFoldoutOpen = EditorGUILayout.Foldout(isFoldoutOpen, organ.name, true, EditorStyles.foldoutHeader);
+            isFoldoutOpen = EditorGUILayout.Foldout(isFoldoutOpen, displayName, true, EditorStyles.foldoutHeader);
             organFoldoutStates[organ] = isFoldoutOpen; // 新しい状態を保存
 
             // 「-」削除ボタンを横に配置
@@ -169,8 +172,8 @@ public class OrgansEditor : EditorWindow
     {
         switch (currentSortType)
         {
-            case SortType.AssetName_Ascending: return organs.OrderBy(r => r.name).ToList();
-            case SortType.AssetName_Descending: return organs.OrderByDescending(r => r.name).ToList();
+            case SortType.Name_Ascending: return organs.OrderBy(r => r.GetName()).ToList();
+            case SortType.Name_Descending: return organs.OrderByDescending(r => r.GetName()).ToList();
             case SortType.OrganID_Ascending: return organs.OrderBy(r => r.GetID()).ToList();
             case SortType.OrganID_Descending: return organs.OrderByDescending(r => r.GetID()).ToList();
             case SortType.Rarity_Ascending: return organs.OrderBy(r => r.GetRarity()).ToList();

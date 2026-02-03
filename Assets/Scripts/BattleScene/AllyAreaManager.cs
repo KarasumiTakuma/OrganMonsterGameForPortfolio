@@ -8,8 +8,6 @@ using UnityEngine;
 /// </summary>
 public class AllyAreaManager : MonsterAreaManager
 {
-    [Header("Ally Settings")]
-    [SerializeField] private List<AllyMonsterData> allyDataList; // 3体の味方データ
 
     [Header("UI")]
     [SerializeField] private HpGaugeController sharedHpGauge; // 共有HPゲージ
@@ -17,25 +15,49 @@ public class AllyAreaManager : MonsterAreaManager
     private int sharedMaxHP;      // 3体の最大HP合算
     private int sharedCurrentHP;  // 現在の共有HP（ダメージや回復後とかに使う値）
 
+    private List<AllyMonsterData> allyDataList = new List<AllyMonsterData>();  // 3体の味方データ
+
+    public void SetAllyData(List<MonsterData> allies)
+    {
+        allyDataList.Clear();
+
+        foreach (var data in allies)
+        {
+            AllyMonsterData allyDat;
+
+            if (data is AllyMonsterData existingAlly)
+            {
+                allyDat = existingAlly;
+            }
+            else
+            {
+                // 通常の MonsterData を AllyMonsterData に変換
+                allyDat = MonsterDataConverter.ToAllyMonster(data);
+            }
+
+            allyDataList.Add(allyDat);
+        }
+
+        SpawnAllies();
+    }
+
     /// <summary>
     /// 味方モンスターをスポーン
     /// </summary>
     public void SpawnAllies()
     {
-        List<MonsterDataBattleScene> baseDataList = allyDataList.ConvertAll(data => (MonsterDataBattleScene)data);
+        List<MonsterData> baseDataList = allyDataList.ConvertAll(data => (MonsterData)data);
         base.SpawnMonsters(baseDataList);
         InitializeSharedHP(); // スポーン直後に共有HPを初期化
     }
 
-    /// <summary>
     /// 共有HPを初期化
-    /// </summary>
     private void InitializeSharedHP()
     {
         sharedMaxHP = 0;
         foreach (var ally in spawnedMonsters)
         {
-            sharedMaxHP += ally.GetMaxHP(); // 各味方の最大HPを合算
+            sharedMaxHP += ally.GetHP(); // 各味方の最大HPを合算
         }
         sharedCurrentHP = sharedMaxHP;
 
@@ -45,35 +67,29 @@ public class AllyAreaManager : MonsterAreaManager
         }
     }
 
-    /// <summary>
     /// 共有HPにダメージ
-    /// </summary>
-    protected override void ApplyDamage(int index, int damage)
+    protected override void ApplyDamageToAll(int damage) // 親クラスのApplyDamageToAllをオーバーライド(引数はdamegeの1つのみ)
     {
         sharedCurrentHP = Mathf.Max(sharedCurrentHP - damage, 0);
-        if (sharedHpGauge != null)
-            sharedHpGauge.BeInjured(damage);
-    }
-    protected override void ApplyDamageToAll(int damage)
-    {
-        sharedCurrentHP = Mathf.Max(sharedCurrentHP - damage, 0);
-        if (sharedHpGauge != null)
-            sharedHpGauge.BeInjured(damage);
-    }
-    public void TakeDamage(int damage)
-    {
-        this.ApplyDamage(0, damage);
-    }
 
-    public void TakeDamageToAll(int damage)
+        foreach (var monster in spawnedMonsters)// 各味方モンスターオブジェクトに対して
+        {
+            // Monster型オブジェクトmonsterをAlly型のallyとしてキャストできる場合のみ
+            if (monster != null && monster is Ally ally)
+            {
+                // ダメージエフェクトを再生
+                ally.AllyPlayDamageEffect();
+            }
+        }
+
+        if (sharedHpGauge != null)
+            sharedHpGauge.BeInjured(damage);
+    }
+    public void TakeDamageToSharedHP(int damage)
     {
         this.ApplyDamageToAll(damage);
     }
 
-    public int GetCurrentHP(int index)
-    {
-        return sharedCurrentHP;
-    }
 
 
     /// <summary>
@@ -91,6 +107,10 @@ public class AllyAreaManager : MonsterAreaManager
             if (healedAmount > 0)
                 sharedHpGauge.BeHealed(healedAmount);// ゲージを更新(ゲージの回復処理)
         }
+
+        // シーン内に存在するScreenHealEffectコンポーネントを持つオブジェクトを探して、そのコンポーネントを取得し、
+        ScreenHealEffect healEffect = Object.FindAnyObjectByType<ScreenHealEffect>();
+        healEffect?.PlayHealEffect();  // コンポーネントが正しく取得できた場合は回復エフェクトのアニメーションを実行
     }
 
     public bool GetIsAliveMonster()

@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using TMPro;
 
 public class HpGaugeController : MonoBehaviour
 {
@@ -7,6 +8,9 @@ public class HpGaugeController : MonoBehaviour
     [SerializeField] private GameObject gauge;
     // 猶予ゲージ(裏のゲージ)
     [SerializeField] private GameObject graceGauge;
+
+    // HP表示用テキスト
+    [SerializeField] private TMP_Text HPText;
 
     private int maxHP;      // 最大HP
     private int currentHP;  // 現在のHP
@@ -43,13 +47,16 @@ public class HpGaugeController : MonoBehaviour
         fullSize.x = perHP * currentHP;    // ゲージを確実に満タンにするためにする計算
         gaugeRect.sizeDelta = fullSize;
         graceGaugeRect.sizeDelta = fullSize;
+
+        UpdateHPText();  // HPテキストを更新
     }
 
-    /// <summary>
-    /// 現在HPを返す
-    /// </summary>
-    public int GetCurrentHP() => currentHP;
-
+    // HPテキスト更新用メソッド
+    private void UpdateHPText()
+    {
+        if(HPText != null)
+            HPText.text = $"{currentHP} / {maxHP}";
+    }
 
     // ダメージを受けた際に呼ばれるメソッド(ダメージ処理)
     public void BeInjured(int attack)
@@ -63,6 +70,7 @@ public class HpGaugeController : MonoBehaviour
         // コルーチンでゲージを徐々に減らす
         StartCoroutine(DamageAnimation(remainingHPGaugeWidth));  // ダメージ後のゲージの挙動を制御
 
+        UpdateHPText();  // ダメージ時にHPテキスト更新
     }
 
     // 体力ゲージを減らすコルーチン(アニメーション)
@@ -81,8 +89,9 @@ public class HpGaugeController : MonoBehaviour
         while (elapsed < duration)
         {
             // 現在のゲージ幅から目標のゲージ幅に向かって徐々に減らす処理
-
             // 現在ゲージサイズから目標ゲージサイズまで、(elapsed / duration)の割合でゲージを減らしていく
+            // currentSize.x = currentSize.x + (targetSize.x - currentSize.x) * (elapsed / duration)
+
             currentSize.x = Mathf.Lerp(currentSize.x, targetSize.x, elapsed / duration);
             gaugeRect.sizeDelta = currentSize;  // 表ゲージのサイズを更新
             // 前フレームからの経過時間を加算(60FPSなら0.0166s)(FPSが異なっていても、
@@ -118,6 +127,8 @@ public class HpGaugeController : MonoBehaviour
 
         // 裏ゲージ → 遅れて追いつく（回復演出）
         StartCoroutine(HealAnimation(oldWidth, newWidth));
+
+        UpdateHPText();  // 回復時もHPテキスト更新
     }
 
     // 体力ゲージを増やすコルーチン(アニメーション)
@@ -142,4 +153,7 @@ public class HpGaugeController : MonoBehaviour
 
         graceGaugeRect.sizeDelta = targetSize;
     }
+
+    /// 現在HPを返すゲットメソッド
+    public int GetCurrentHP() => currentHP;
 }
