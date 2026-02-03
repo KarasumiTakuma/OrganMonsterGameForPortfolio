@@ -85,16 +85,17 @@ public class AllyAreaManager : MonsterAreaManager
         if (sharedHpGauge != null)
             sharedHpGauge.BeInjured(damage);
     }
+
+
+    // 味方HPにダメージを与える処理を、外部から呼び出すためのラッパーメソッド
     public void TakeDamageToSharedHP(int damage)
     {
         this.ApplyDamageToAll(damage);
+        Log($"プレイヤーに{damage}ダメージ！"); // // ダメージが与えられた旨をログに追加
     }
 
 
-
-    /// <summary>
-    /// 共有HPを回復
-    /// </summary>
+    /// 共有HPを回復するメソッド
     public void HealSharedHP(int amount)
     {
         int previousHP = sharedCurrentHP;
@@ -107,6 +108,9 @@ public class AllyAreaManager : MonsterAreaManager
             if (healedAmount > 0)
                 sharedHpGauge.BeHealed(healedAmount);// ゲージを更新(ゲージの回復処理)
         }
+
+        // 味方HPが回復した旨を戦闘ログにメッセージとして追加
+        Log($"プレイヤーのHPが{amount}回復!");
 
         // シーン内に存在するScreenHealEffectコンポーネントを持つオブジェクトを探して、そのコンポーネントを取得し、
         ScreenHealEffect healEffect = Object.FindAnyObjectByType<ScreenHealEffect>();
@@ -124,9 +128,7 @@ public class AllyAreaManager : MonsterAreaManager
     public List<Monster> GetAllies() => spawnedMonsters;
     public int GetAllyCount() => spawnedMonsters.Count;
 
-    /// <summary>
-    /// 既存の味方を削除
-    /// </summary>
+    // 既存の味方を削除
     public void ClearAllies()
     {
         foreach (var ally in spawnedMonsters)
