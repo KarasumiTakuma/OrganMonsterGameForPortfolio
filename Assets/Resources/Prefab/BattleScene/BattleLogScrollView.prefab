@@ -850,7 +850,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleLogManager
   logText: {fileID: 7538327193745998515}
-  maxLogCount: 30
+  maxLogCount: 50
 --- !u!1 &8247810733741073618
 GameObject:
   m_ObjectHideFlags: 0
