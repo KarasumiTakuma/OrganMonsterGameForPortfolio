@@ -46,11 +46,12 @@ public class EnemyAreaManager : MonsterAreaManager
         if (index >= 0 && index < spawnedMonsters.Count) // インデックスが生成した敵モンスターリスト範囲外にアクセスしていないかをチェック
         {
             selectedEnemyIndex = index; // クリックした敵の選択インデックス情報を保持。
-            Debug.Log(spawnedMonsters[selectedEnemyIndex].GetMonsterName() + " を選択");
+
+            Log(spawnedMonsters[selectedEnemyIndex].GetMonsterName() + " を選択"); // 選択した旨をメッセージとしてログに追加
         }
         else
         {
-            Debug.Log(spawnedMonsters[selectedEnemyIndex].GetMonsterName() + "の選択を解除");  // 元々選択されていた敵の選択解除を報告してから
+            Log(spawnedMonsters[selectedEnemyIndex].GetMonsterName() + "の選択を解除");  // 元々選択されていた敵の選択を解除したメッセージをログに表示。
             selectedEnemyIndex = index; // 敵の選択インデックス情報を更新
         }
     }
@@ -88,11 +89,12 @@ public class EnemyAreaManager : MonsterAreaManager
 
         // 選択された敵1体に対するダメージ処理
         ApplyDamage(targetIndex, damage);
+        // ダメージが与えられた旨を、その敵の名前とともにログに追加
+        Log($"{spawnedMonsters[targetIndex].GetMonsterName()}に{damage}ダメージ!");
     }
 
     // indexで指定した敵モンスターがdamege量の攻撃を受けた際にMonsterAreaManagerクラス(親)のApplyDamageメソッドを呼び出して
     // その敵モンスターへのダメージ処理を行うメソッド
-    // ↑コメント変更予定
     protected override void ApplyDamage(int index, int damage)
     {
         if (index < 0 || index >= spawnedMonsters.Count) return;  // 生成した敵モンスターリストの範囲外にアクセスした場合は何も返さない
@@ -117,14 +119,15 @@ public class EnemyAreaManager : MonsterAreaManager
         }
     }
 
+    // 敵全体にダメージを与える処理を、外部から呼び出すためのラッパーメソッド
     public void TakeDamageToAll(int damage)
     {
         this.ApplyDamageToAll(damage);
+        // 敵全体にダメージが入ったことをメッセージとしてログに追加
+        Log($"敵全体に{damage}ダメージ!");
     }
 
-    /// <summary>
     /// 指定の敵の現在HPを取得
-    /// </summary>
     public int GetCurrentHP(int index)
     {
         if (index < 0 || index >= spawnedMonsters.Count) return 0;

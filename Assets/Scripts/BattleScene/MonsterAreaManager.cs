@@ -98,4 +98,12 @@ public class MonsterAreaManager : MonoBehaviour
         }
         spawnedMonsters.Clear();
     }
+
+    // 戦闘ログにメッセージを追加するメソッド
+    protected void Log(string message)
+    {
+        // シングルトンインスタンスであるBattleLogManagerインスタンスに追加したいログを送る
+        BattleLogManager.Instance.AddLog(message);  
+        Debug.Log(message);  // デバッグログとしても表示する
+    }
 }
