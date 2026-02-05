@@ -114,17 +114,14 @@ public class BattleManager : MonoBehaviour
                 case CardType.AttackToSelected:
                     enemyAreaManager.TakeDamageToSelectedEnemy(card.GetPower());
                     AudioManager.Instance.PlaySE(AttackSoundEffect);
-                    Log($"敵単体に{card.GetPower()}ダメージ！");
                     break;
                 case CardType.AttackToAll:     // CardType.AttackToAllをCradDataに追加予定。全体攻撃タイプのカードを使用した際に。
                     enemyAreaManager.TakeDamageToAll(card.GetPower());
                     AudioManager.Instance.PlaySE(AttackSoundEffect);
-                    Log($"敵全体に{card.GetPower()}ダメージ！");
                     break;
                 case CardType.Heal:
                     allyAreaManager.HealSharedHP(card.GetPower()); // 味方全体回復
                     AudioManager.Instance.PlaySE(HealSoundEffect);
-                    Log($"味方全体が{card.GetPower()}回復！");
                     break;
             }
 
@@ -167,6 +164,8 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     private void EnemyTurn()
     {
+        Log("敵のターン!");
+
         // 各敵の攻撃力(attackPower)を元に、味方の共有HPに与えるダメージ量を[power-3, power+3]の範囲でランダムに決定
         enemyAreaManager.EnemyRundomPowers();
 
@@ -243,17 +242,15 @@ public class BattleManager : MonoBehaviour
         foreach (int power in enemyPowersList)
         {
             allyAreaManager.TakeDamageToSharedHP(power); // 味方側の共有HPにpower分のダメージ
-            Log($"敵の攻撃！ プレイヤーに{power}ダメージ！");
         }
         AudioManager.Instance.PlaySE(AttackSoundEffect);
     }
 
-    /// <summary>
-    /// 戦闘ログにメッセージを追加
-    /// </summary>
+    // 戦闘ログにメッセージを追加するメソッド
     private void Log(string message)
     {
-        BattleLogManager.Instance.AddLog(message);
-        Debug.Log(message);
+        // シングルトンインスタンスであるBattleLogManagerインスタンスに追加したいログを送る
+        BattleLogManager.Instance.AddLog(message);  
+        Debug.Log(message);  // デバッグログとしても表示する
     }
 }
