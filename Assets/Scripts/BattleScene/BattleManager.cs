@@ -66,7 +66,7 @@ public class BattleManager : MonoBehaviour
 
         UpdateHPUI();
 
-        Log("バトル開始！");
+        Log("バトル開始！", BattleLogType.System);
 
         // 1ターン目開始
         StartPlayerTurn();
@@ -88,7 +88,7 @@ public class BattleManager : MonoBehaviour
 
         endTurnButton.SetActive(true);  // プレイヤーターン終了ボタンを表示
 
-        Log("プレイヤーのターン開始！");
+        Log("プレイヤーのターン開始！", BattleLogType.Attention);
     }
 
     /// プレイヤーがカードを出したときに、そのカードの効果を使用する処理。マナが足りない場合は、効果を適用しない。
@@ -133,14 +133,14 @@ public class BattleManager : MonoBehaviour
             // 敵全滅チェック
             if (enemyAreaManager.GetIsAliveMonsterCount() == 0)
             {
-                Log("敵は全滅した！");
+                Log("敵は全滅した！", BattleLogType.Attention);
                 return;
             }
 
         }
         else
         {
-            Log("マナが足りません！");
+            Log("マナが足りません！", BattleLogType.Attention);
             isSuccessCallback?.Invoke(false); // カードを使用できなかったことを通知して、その時の処理を行う。
         }
     }
@@ -155,7 +155,7 @@ public class BattleManager : MonoBehaviour
         playerTurn = false;
         endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
 
-        Log("プレイヤーのターン終了！");
+        Log("プレイヤーのターン終了！", BattleLogType.Attention);
         EnemyTurn();
     }
 
@@ -164,7 +164,7 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     private void EnemyTurn()
     {
-        Log("敵のターン!");
+        Log("敵のターン!", BattleLogType.Attention);
 
         // 各敵の攻撃力(attackPower)を元に、味方の共有HPに与えるダメージ量を[power-3, power+3]の範囲でランダムに決定
         enemyAreaManager.EnemyRundomPowers();
@@ -175,7 +175,7 @@ public class BattleManager : MonoBehaviour
         // プレイヤーが倒れたら敗北
         if (!allyAreaManager.GetIsAliveMonster())
         {
-            Log("味方は全滅した…");
+            Log("味方は全滅した…", BattleLogType.Attention);
             return;
         }
 
@@ -246,11 +246,11 @@ public class BattleManager : MonoBehaviour
         AudioManager.Instance.PlaySE(AttackSoundEffect);
     }
 
-    // 戦闘ログにメッセージを追加するメソッド
-    private void Log(string message)
+    // 戦闘ログにメッセージを追加するメソッド。メッセージのタイプも引数として与えること。
+    private void Log(string message, BattleLogType type)
     {
         // シングルトンインスタンスであるBattleLogManagerインスタンスに追加したいログを送る
-        BattleLogManager.Instance.AddLog(message);  
+        BattleLogManager.Instance.AddLog(message, type);  
         Debug.Log(message);  // デバッグログとしても表示する
     }
 }
