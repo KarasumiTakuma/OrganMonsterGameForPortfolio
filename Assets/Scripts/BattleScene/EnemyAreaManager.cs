@@ -22,8 +22,6 @@ public class EnemyAreaManager : MonsterAreaManager
             if (data is EnemyMonsterData enemyDat)
                 enemyDataList.Add(enemyDat);
         }
-
-        SpawnEnemies(); // 敵なので SpawnEnemies() を呼ぶ
     }
 
 
@@ -167,7 +165,7 @@ public class EnemyAreaManager : MonsterAreaManager
     // 現在の敵の数を取得。MonsterAreaManagerクラス(親)のGetMonsterCount()メソッドを呼び出す
     public int GetEnemyCount() => base.GetMonsterCount();
 
-    public List<int> GetEnemyPowersList() => enemyPowersList;
+    public List<int> GetEnemyPowersList() => enemyPowersList;  // 各敵の攻撃量(attackPowerAmount)を保持したリストを外部クラスから参照するためのメソッド
 
     public int GetSelectedEnemyIndex() => this.selectedEnemyIndex;
 }

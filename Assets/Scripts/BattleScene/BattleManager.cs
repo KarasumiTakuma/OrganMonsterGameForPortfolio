@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 using TMPro;
 
 public class BattleManager : MonoBehaviour
@@ -10,7 +11,6 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private HandAreaManager handAreaManager; // HandAreaManagerの参照
     [SerializeField] private EnemyAreaManager enemyAreaManager;
     [SerializeField] private AllyAreaManager allyAreaManager;
-    [SerializeField] private List<CardData> cardDataList;
     [SerializeField] private GameObject endTurnButton;  // プレイヤーターンの終了用ボタン
     [SerializeField] private AudioClip AttackSoundEffect;  // 攻撃の効果音
     [SerializeField] private AudioClip HealSoundEffect; // 回復の効果音
@@ -20,8 +20,9 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private TMP_Text playerHPText;
     [SerializeField] private TMP_Text enemyHPText;
 
-    private bool playerTurn = true;  // プレイヤーターンであるかのフラグ。
     private bool isFirstTurn = true; // 最初のターンであるかどうかのフラグ。
+
+    private BattleState battleState; // バトル中の状態をBattleState型として保持するための変数
 
 
     // Awake()には、他シーンからバトルシーンに移動した時に、手持ちデータとしてセットした3体モンスターデータから
@@ -77,7 +78,20 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     private void StartPlayerTurn()
     {
-        playerTurn = true;
+        StartCoroutine(PlayerTurnRoutine());
+    }
+
+    private IEnumerator PlayerTurnRoutine()
+    {
+        // playerTurn = true;
+
+        battleState = BattleState.TurnTransition;  // バトルの状態を「演出中」にする
+
+        Log("プレイヤーのターン開始！", BattleLogType.Attention);
+        
+        yield return new WaitForSeconds(1.5f);  // 少し間を空ける
+
+        battleState = BattleState.PlayerTurn; // その後、プレイヤーターン状態にする
 
         // マナ回復（ターン数に応じて使用可能マナ増加）
         manaManager.StartTurn();
@@ -87,8 +101,7 @@ public class BattleManager : MonoBehaviour
         RefreshHandUI();  // 手札データを入手して、それを元に手札UIを表示。
 
         endTurnButton.SetActive(true);  // プレイヤーターン終了ボタンを表示
-
-        Log("プレイヤーのターン開始！", BattleLogType.Attention);
+        
     }
 
     /// プレイヤーがカードを出したときに、そのカードの効果を使用する処理。マナが足りない場合は、効果を適用しない。
@@ -98,7 +111,7 @@ public class BattleManager : MonoBehaviour
     /// CardUI_DragDrop側でカード削除や元の位置に戻す処理が記載されている(第二引数isSuccessCallbackの処理内容)
     public void PlayCard(Card card, System.Action<bool> isSuccessCallback)
     {
-        if (!playerTurn) // プレイヤーターンでない場合、
+        if (battleState != BattleState.PlayerTurn) // プレイヤーターン中でない場合、
         {
             // カードの効果を適用せずにそのままリターン
             isSuccessCallback?.Invoke(false);
@@ -150,11 +163,9 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     public void EndPlayerTurn()
     {
-        if (!playerTurn) return;
+        if (battleState != BattleState.PlayerTurn) return;  // バトル状態がプレイヤーターンでなければ、何もしない。
 
-        playerTurn = false;
         endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
-
         Log("プレイヤーのターン終了！", BattleLogType.Attention);
         EnemyTurn();
     }
@@ -164,19 +175,32 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     private void EnemyTurn()
     {
+        StartCoroutine(EnemyTurnRoutine());
+    }
+
+    private IEnumerator EnemyTurnRoutine()
+    {
+        battleState = BattleState.TurnTransition;  // バトルの状態を「演出中」にする
+
         Log("敵のターン!", BattleLogType.Attention);
+
+        yield return new WaitForSeconds(1.5f);  // ターン開始演出の待ち時間
+
+        battleState = BattleState.EnemyTurn;  // その後、敵ターン状態にする
 
         // 各敵の攻撃力(attackPower)を元に、味方の共有HPに与えるダメージ量を[power-3, power+3]の範囲でランダムに決定
         enemyAreaManager.EnemyRundomPowers();
 
-        AttackToAllySharedHP();  // 決定したダメージ量(敵3体分)を味方共有HPに与える
-        UpdateHPUI();
+        // 決定したダメージ量(敵3体分)を味方共有HPに与える
+        // この処理が終わるまで待つ
+        yield return StartCoroutine(AttackToAllySharedHP());
 
         // プレイヤーが倒れたら敗北
         if (!allyAreaManager.GetIsAliveMonster())
         {
             Log("味方は全滅した…", BattleLogType.Attention);
-            return;
+            battleState = BattleState.GameOver;
+            yield break;
         }
 
         // 次のプレイヤーターンへ
@@ -236,14 +260,19 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    private void AttackToAllySharedHP()
+    // 味方共有HPにダメージを与えるメソッド
+    private IEnumerator AttackToAllySharedHP()
     {
-        List<int> enemyPowersList = enemyAreaManager.GetEnemyPowersList();
-        foreach (int power in enemyPowersList)
+        List<int> enemyPowersList = enemyAreaManager.GetEnemyPowersList();  // 各敵の攻撃量を保持するリストを参照
+        foreach (int power in enemyPowersList) //　各敵の攻撃量powerごとに
         {
             allyAreaManager.TakeDamageToSharedHP(power); // 味方側の共有HPにpower分のダメージ
+            AudioManager.Instance.PlaySE(AttackSoundEffect);  // 攻撃時の効果音を出す
+
+            UpdateHPUI();  // HPテキストの更新
+
+            yield return new WaitForSeconds(0.8f);  // 攻撃後は少し間を空ける
         }
-        AudioManager.Instance.PlaySE(AttackSoundEffect);
     }
 
     // 戦闘ログにメッセージを追加するメソッド。メッセージのタイプも引数として与えること。
@@ -253,4 +282,14 @@ public class BattleManager : MonoBehaviour
         BattleLogManager.Instance.AddLog(message, type);  
         Debug.Log(message);  // デバッグログとしても表示する
     }
+}
+
+// バトル中の状態を4タイプに分別
+// enumは列挙型
+public enum BattleState
+{
+    PlayerTurn,  // プレイヤーの手番
+    EnemyTurn,   // 敵の手番
+    TurnTransition,  // 演出中の状態
+    GameOver        // ゲームオーバーの状態
 }

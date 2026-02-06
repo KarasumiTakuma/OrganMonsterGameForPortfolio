@@ -37,8 +37,6 @@ public class AllyAreaManager : MonsterAreaManager
 
             allyDataList.Add(allyDat);
         }
-
-        SpawnAllies();
     }
 
     /// <summary>
