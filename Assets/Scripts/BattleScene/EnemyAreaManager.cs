@@ -47,11 +47,11 @@ public class EnemyAreaManager : MonsterAreaManager
         {
             selectedEnemyIndex = index; // クリックした敵の選択インデックス情報を保持。
 
-            Log(spawnedMonsters[selectedEnemyIndex].GetMonsterName() + " を選択"); // 選択した旨をメッセージとしてログに追加
+            Log(spawnedMonsters[selectedEnemyIndex].GetMonsterName() + " を選択", BattleLogType.System); // 選択した旨をメッセージとしてログに追加
         }
         else
         {
-            Log(spawnedMonsters[selectedEnemyIndex].GetMonsterName() + "の選択を解除");  // 元々選択されていた敵の選択を解除したメッセージをログに表示。
+            Log(spawnedMonsters[selectedEnemyIndex].GetMonsterName() + "の選択を解除", BattleLogType.System);  // 元々選択されていた敵の選択を解除したメッセージをログに表示。
             selectedEnemyIndex = index; // 敵の選択インデックス情報を更新
         }
     }
@@ -90,7 +90,7 @@ public class EnemyAreaManager : MonsterAreaManager
         // 選択された敵1体に対するダメージ処理
         ApplyDamage(targetIndex, damage);
         // ダメージが与えられた旨を、その敵の名前とともにログに追加
-        Log($"{spawnedMonsters[targetIndex].GetMonsterName()}に{damage}ダメージ!");
+        Log($"{spawnedMonsters[targetIndex].GetMonsterName()}に{damage}ダメージ!", BattleLogType.Attack);
     }
 
     // indexで指定した敵モンスターがdamege量の攻撃を受けた際にMonsterAreaManagerクラス(親)のApplyDamageメソッドを呼び出して
@@ -124,7 +124,7 @@ public class EnemyAreaManager : MonsterAreaManager
     {
         this.ApplyDamageToAll(damage);
         // 敵全体にダメージが入ったことをメッセージとしてログに追加
-        Log($"敵全体に{damage}ダメージ!");
+        Log($"敵全体に{damage}ダメージ!", BattleLogType.Attack);
     }
 
     /// 指定の敵の現在HPを取得

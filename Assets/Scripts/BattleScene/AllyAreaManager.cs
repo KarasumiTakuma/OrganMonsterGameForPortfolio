@@ -91,7 +91,7 @@ public class AllyAreaManager : MonsterAreaManager
     public void TakeDamageToSharedHP(int damage)
     {
         this.ApplyDamageToAll(damage);
-        Log($"プレイヤーに{damage}ダメージ！"); // // ダメージが与えられた旨をログに追加
+        Log($"プレイヤーに{damage}ダメージ！", BattleLogType.Attack); // // ダメージが与えられた旨をログに追加
     }
 
 
@@ -110,7 +110,7 @@ public class AllyAreaManager : MonsterAreaManager
         }
 
         // 味方HPが回復した旨を戦闘ログにメッセージとして追加
-        Log($"プレイヤーのHPが{amount}回復!");
+        Log($"プレイヤーのHPが{amount}回復!", BattleLogType.Heal);
 
         // シーン内に存在するScreenHealEffectコンポーネントを持つオブジェクトを探して、そのコンポーネントを取得し、
         ScreenHealEffect healEffect = Object.FindAnyObjectByType<ScreenHealEffect>();
