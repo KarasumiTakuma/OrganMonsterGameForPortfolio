@@ -506,6 +506,7 @@ GameObject:
   m_Component:
   - component: {fileID: 424116509}
   - component: {fileID: 424116510}
+  - component: {fileID: 424116511}
   m_Layer: 5
   m_Name: HandArea
   m_TagString: Untagged
@@ -556,6 +557,19 @@ MonoBehaviour:
   - {fileID: 1964476093}
   - {fileID: 2105295523}
   - {fileID: 1425695975}
+  canvasGroup: {fileID: 424116511}
+--- !u!225 &424116511
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 424116508}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &470757554
 GameObject:
   m_ObjectHideFlags: 0
@@ -826,11 +840,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6078259872148069464, guid: a4e7ea1bdf26c465dac21e67317886af, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 7.0540314
+      value: 7.0540276
       objectReference: {fileID: 0}
     - target: {fileID: 6078259872148069464, guid: a4e7ea1bdf26c465dac21e67317886af, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -5.459176
+      value: -5.4591827
       objectReference: {fileID: 0}
     - target: {fileID: 6229858566367056661, guid: a4e7ea1bdf26c465dac21e67317886af, type: 3}
       propertyPath: m_AnchorMax.x

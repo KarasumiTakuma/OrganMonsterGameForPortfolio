@@ -48,7 +48,7 @@ public class FireballManager : MonoBehaviour
         // 生成位置からズレた位置X方向 -2 〜 +2, Y方向 -0.5 〜 +0.5 
         // の範囲でランダムに火の玉オブジェクトのスポーン位置を決めて、
         Vector3 spawnPosition = spawnArea.position;
-        spawnPosition += new Vector3(Random.Range(-8.0f, 6.0f), Random.Range(-0.5f, 0.5f), 0);
+        spawnPosition += new Vector3(Random.Range(-8.0f, 5.0f), Random.Range(-0.5f, 0.5f), 0);
 
         // fireballPrefab(火の玉オブジェクト)をスポーン位置(spawnPosition)に生成
         // Quaternion.identityは回転が0°であることを示す
