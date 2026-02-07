@@ -113,6 +113,8 @@ public class BattleManager : MonoBehaviour
 
         RefreshHandUI();  // 手札データを入手して、それを元に手札UIを表示。
 
+        handAreaManager.SetVisible(true); // 手札の表示
+        handAreaManager.SetInteractable(true);  // 手札を明るく表示し、操作可能状態に
         endTurnButton.SetActive(true);  // プレイヤーターン終了ボタンを表示
         fireballManager.StartSpawning();  // fireballの生成を開始する
     }
@@ -162,7 +164,8 @@ public class BattleManager : MonoBehaviour
                 Log("敵は全滅した！", BattleLogType.Attention);
                 Log("プレイヤーの勝利！", BattleLogType.Attention);
                 battleNoticeManager.Show(BattleNoticeType.Victory);
-                battleState = BattleState.GameOver;
+                battleState = BattleState.Victory;
+                handAreaManager.SetVisible(false);  // 手札の非表示
                 endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
                 fireballManager.StopSpawning();  // fireballの生成を停止する
                 return;
@@ -182,6 +185,7 @@ public class BattleManager : MonoBehaviour
         if (battleState != BattleState.PlayerTurn) return;  // バトル状態がプレイヤーターンでなければ、何もしない。
 
         endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
+        handAreaManager.SetInteractable(false); // 手札を暗く表示し、操作不可能状態に
         fireballManager.StopSpawning();  // fireballの生成を停止する
         Log("プレイヤーのターン終了！", BattleLogType.Attention);
         EnemyTurn();
@@ -217,6 +221,7 @@ public class BattleManager : MonoBehaviour
             battleNoticeManager.Show(BattleNoticeType.GameOver);
             Log("味方は全滅した…", BattleLogType.Attention);
             battleState = BattleState.GameOver;
+            handAreaManager.SetVisible(false);  // 手札の非表示
             endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
             fireballManager.StopSpawning();  // fireballの生成を停止する
             yield break;
@@ -303,12 +308,13 @@ public class BattleManager : MonoBehaviour
     }
 }
 
-// バトル中の状態を4タイプに分別
+// バトル中の状態を5タイプに分別
 // enumは列挙型
 public enum BattleState
 {
     PlayerTurn,  // プレイヤーの手番
     EnemyTurn,   // 敵の手番
     TurnTransition,  // 演出中の状態
+    Victory,        // 勝利状態
     GameOver        // ゲームオーバーの状態
 }
