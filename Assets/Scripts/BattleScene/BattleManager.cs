@@ -14,6 +14,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private GameObject endTurnButton;  // プレイヤーターンの終了用ボタン
     [SerializeField] private AudioClip AttackSoundEffect;  // 攻撃の効果音
     [SerializeField] private AudioClip HealSoundEffect; // 回復の効果音
+    [SerializeField] private BattleNoticeManager battleNoticeManager;  // バトル中の通知の表示管理用
 
 
     [Header("UI")]
@@ -67,15 +68,24 @@ public class BattleManager : MonoBehaviour
 
         UpdateHPUI();
 
-        Log("バトル開始！", BattleLogType.System);
+        StartCoroutine(BattleStartRoutine());  // ゲーム開始の通知やログ表示のためのコルーチンを始動
+        
+    }
+
+    private IEnumerator BattleStartRoutine()
+    {
+        battleState = BattleState.TurnTransition;
+
+        battleNoticeManager.Show(BattleNoticeType.BattleStart);  // 「バトル開始」の通知を表示
+        Log("バトル開始！", BattleLogType.System);  // 「バトル開始」の戦闘ログ表示
+
+        yield return new WaitForSeconds(2.0f);  // バトル開始の通知、ログ表示時間
 
         // 1ターン目開始
         StartPlayerTurn();
     }
 
-    /// <summary>
-    /// プレイヤーターン開始
-    /// </summary>
+    // プレイヤーターン開始
     private void StartPlayerTurn()
     {
         StartCoroutine(PlayerTurnRoutine());
@@ -86,6 +96,8 @@ public class BattleManager : MonoBehaviour
         // playerTurn = true;
 
         battleState = BattleState.TurnTransition;  // バトルの状態を「演出中」にする
+
+        battleNoticeManager.Show(BattleNoticeType.PlayerTurn);
 
         Log("プレイヤーのターン開始！", BattleLogType.Attention);
         
@@ -147,6 +159,10 @@ public class BattleManager : MonoBehaviour
             if (enemyAreaManager.GetIsAliveMonsterCount() == 0)
             {
                 Log("敵は全滅した！", BattleLogType.Attention);
+                Log("プレイヤーの勝利！", BattleLogType.Attention);
+                battleNoticeManager.Show(BattleNoticeType.Victory);
+                battleState = BattleState.GameOver;
+                endTurnButton.SetActive(false);
                 return;
             }
 
@@ -158,9 +174,7 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// プレイヤーがターンエンド
-    /// </summary>
+    // プレイヤーがターンエンド
     public void EndPlayerTurn()
     {
         if (battleState != BattleState.PlayerTurn) return;  // バトル状態がプレイヤーターンでなければ、何もしない。
@@ -170,9 +184,7 @@ public class BattleManager : MonoBehaviour
         EnemyTurn();
     }
 
-    /// <summary>
-    /// 敵ターン
-    /// </summary>
+    //　敵ターン
     private void EnemyTurn()
     {
         StartCoroutine(EnemyTurnRoutine());
@@ -182,6 +194,7 @@ public class BattleManager : MonoBehaviour
     {
         battleState = BattleState.TurnTransition;  // バトルの状態を「演出中」にする
 
+        battleNoticeManager.Show(BattleNoticeType.EnemyTurn);
         Log("敵のターン!", BattleLogType.Attention);
 
         yield return new WaitForSeconds(1.5f);  // ターン開始演出の待ち時間
@@ -189,7 +202,7 @@ public class BattleManager : MonoBehaviour
         battleState = BattleState.EnemyTurn;  // その後、敵ターン状態にする
 
         // 各敵の攻撃力(attackPower)を元に、味方の共有HPに与えるダメージ量を[power-3, power+3]の範囲でランダムに決定
-        enemyAreaManager.EnemyRundomPowers();
+        enemyAreaManager.PrepareEnemyAttackAmounts();
 
         // 決定したダメージ量(敵3体分)を味方共有HPに与える
         // この処理が終わるまで待つ
@@ -198,8 +211,10 @@ public class BattleManager : MonoBehaviour
         // プレイヤーが倒れたら敗北
         if (!allyAreaManager.GetIsAliveMonster())
         {
+            battleNoticeManager.Show(BattleNoticeType.GameOver);
             Log("味方は全滅した…", BattleLogType.Attention);
             battleState = BattleState.GameOver;
+            endTurnButton.SetActive(false);
             yield break;
         }
 

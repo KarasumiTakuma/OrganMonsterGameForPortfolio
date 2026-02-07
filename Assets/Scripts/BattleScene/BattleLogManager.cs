@@ -43,8 +43,8 @@ public class BattleLogManager : MonoBehaviour
         scrollRect.content.anchoredPosition = new Vector2(scrollRect.content.anchoredPosition.x, 0f);
     }
 
-    // メッセージの種別(type)ごとに、メッセージに色を与えて、それを返すメソッド
-    private string ApplyColor(string message, BattleLogType type)
+    // メッセージの種別(type)ごとに、メッセージに色を与えて、それを返すメソッド。デフォルトでのタイプはSystem
+    private string ApplyColor(string message, BattleLogType type = BattleLogType.System)
     {
         // メッセージの種別(type)ごとに、messageに色を与えて(colorタグをつけて)それをリターンする
         return type switch

@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Fireballをランダム時間で生成するかを決定し、そのFireballの出現位置をランダムで決定し、生成する制御クラス
 public class FireballManager : MonoBehaviour
 {
     [SerializeField] private GameObject fireballPrefab;  // 火の玉オブジェクト(プレファブ)
