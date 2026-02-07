@@ -15,7 +15,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private AudioClip AttackSoundEffect;  // 攻撃の効果音
     [SerializeField] private AudioClip HealSoundEffect; // 回復の効果音
     [SerializeField] private BattleNoticeManager battleNoticeManager;  // バトル中の通知の表示管理用
-
+    [SerializeField] private FireballManager fireballManager;  // Fireballの生成を 制御(実行/停止)
 
     [Header("UI")]
     [SerializeField] private TMP_Text playerHPText;
@@ -97,6 +97,7 @@ public class BattleManager : MonoBehaviour
 
         battleState = BattleState.TurnTransition;  // バトルの状態を「演出中」にする
 
+
         battleNoticeManager.Show(BattleNoticeType.PlayerTurn);
 
         Log("プレイヤーのターン開始！", BattleLogType.Attention);
@@ -113,7 +114,7 @@ public class BattleManager : MonoBehaviour
         RefreshHandUI();  // 手札データを入手して、それを元に手札UIを表示。
 
         endTurnButton.SetActive(true);  // プレイヤーターン終了ボタンを表示
-        
+        fireballManager.StartSpawning();  // fireballの生成を開始する
     }
 
     /// プレイヤーがカードを出したときに、そのカードの効果を使用する処理。マナが足りない場合は、効果を適用しない。
@@ -162,7 +163,8 @@ public class BattleManager : MonoBehaviour
                 Log("プレイヤーの勝利！", BattleLogType.Attention);
                 battleNoticeManager.Show(BattleNoticeType.Victory);
                 battleState = BattleState.GameOver;
-                endTurnButton.SetActive(false);
+                endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
+                fireballManager.StopSpawning();  // fireballの生成を停止する
                 return;
             }
 
@@ -180,6 +182,7 @@ public class BattleManager : MonoBehaviour
         if (battleState != BattleState.PlayerTurn) return;  // バトル状態がプレイヤーターンでなければ、何もしない。
 
         endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
+        fireballManager.StopSpawning();  // fireballの生成を停止する
         Log("プレイヤーのターン終了！", BattleLogType.Attention);
         EnemyTurn();
     }
@@ -214,7 +217,8 @@ public class BattleManager : MonoBehaviour
             battleNoticeManager.Show(BattleNoticeType.GameOver);
             Log("味方は全滅した…", BattleLogType.Attention);
             battleState = BattleState.GameOver;
-            endTurnButton.SetActive(false);
+            endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
+            fireballManager.StopSpawning();  // fireballの生成を停止する
             yield break;
         }
 
