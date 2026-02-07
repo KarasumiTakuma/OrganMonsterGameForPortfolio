@@ -145,7 +145,7 @@ public class EnemyAreaManager : MonsterAreaManager
         return count;
     }
 
-    public void EnemyRundomPowers()
+    public void PrepareEnemyAttackAmounts()
     {
         enemyPowersList = new List<int>();
         foreach (var enemyMonster in spawnedMonsters)
