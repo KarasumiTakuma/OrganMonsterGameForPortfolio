@@ -41,7 +41,6 @@ public class Enemy : Monster
 
     protected override void OnDeath()
     {
-        Debug.Log(GetMonsterName() + "は死んだ");
 
         if (hpGauge != null)
         {
@@ -54,8 +53,8 @@ public class Enemy : Monster
             this.gameObject.SetActive(false);
         }
 
+    }    
 
-    }
 
     // HPバーが減少するアニメーションが終了してからHPバーと敵のオブジェクトを非表示にするCoroutine
     private IEnumerator DeactivateAfterDelay()

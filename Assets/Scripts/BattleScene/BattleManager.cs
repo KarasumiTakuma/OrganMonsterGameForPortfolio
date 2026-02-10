@@ -68,6 +68,10 @@ public class BattleManager : MonoBehaviour
 
         UpdateHPUI();
 
+        // Fireball(火の玉)がクリックされて、その効果を決定する際に
+        // 処理されるイベントメソッドを登録
+        fireballManager.OnFireballEffectTriggered += HandleFireballEffect;
+
         StartCoroutine(BattleStartRoutine());  // ゲーム開始の通知やログ表示のためのコルーチンを始動
         
     }
@@ -159,7 +163,7 @@ public class BattleManager : MonoBehaviour
             isSuccessCallback?.Invoke(true);  // カードを使用できたことを(isSuccessCallbackに登録しているメソッドに)通知して、その時の処理を行う。
 
             // 敵全滅チェック
-            if (enemyAreaManager.GetIsAliveMonsterCount() == 0)
+            if (enemyAreaManager.GetIsAllMonstersDeath())
             {
                 Log("敵は全滅した！", BattleLogType.Attention);
                 Log("プレイヤーの勝利！", BattleLogType.Attention);
@@ -305,6 +309,31 @@ public class BattleManager : MonoBehaviour
         // シングルトンインスタンスであるBattleLogManagerインスタンスに追加したいログを送る
         BattleLogManager.Instance.AddLog(message, type);  
         Debug.Log(message);  // デバッグログとしても表示する
+    }
+
+    // Fireball(火の玉)の効果の種類に対応した処理
+    // Fireballがクリックされた際に発動するイベントとして登録されている
+    private void HandleFireballEffect(FireballEffectResult effectResult)
+    {
+        Debug.Log($"Fireball効果: {effectResult.effectType}, 効果量: {effectResult.effectAmount}");
+
+        // 決定されたFireballのタイプ別にその効果を発動する
+        switch (effectResult.effectType)
+        {
+            case FireballEffectType.DamageToAllEnemy:  // 敵全員に攻撃を与える効果
+                enemyAreaManager.TakeDamageToAll(effectResult.effectAmount);
+                break;
+            case FireballEffectType.DamageToAlly:  // 味方(プレイヤー)に攻撃を与える効果
+                allyAreaManager.TakeDamageToSharedHP(effectResult.effectAmount);
+                break;
+            case FireballEffectType.HealToAlly:        // 味方(プレイヤー)のHPを回復する効果
+                allyAreaManager.HealSharedHP(effectResult.effectAmount);
+                break;
+        }
+
+        UpdateHPUI();  // HPテキストの更新
+
+
     }
 }
 

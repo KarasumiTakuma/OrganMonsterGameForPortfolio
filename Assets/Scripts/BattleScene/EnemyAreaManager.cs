@@ -123,6 +123,7 @@ public class EnemyAreaManager : MonsterAreaManager
         this.ApplyDamageToAll(damage);
         // 敵全体にダメージが入ったことをメッセージとしてログに追加
         Log($"敵全体に{damage}ダメージ!", BattleLogType.Attack);
+        
     }
 
     /// 指定の敵の現在HPを取得
@@ -132,17 +133,22 @@ public class EnemyAreaManager : MonsterAreaManager
         return spawnedMonsters[index].GetCurrentHP();
     }
 
-    public int GetIsAliveMonsterCount()
+    // 敵モンスターが全員死亡している状態であるかを取得するメソッド
+    // trueなら 敵モンスターは全滅している状態
+    public bool GetIsAllMonstersDeath()
     {
-        int count = 0;
+        bool isAllMonstersDeath = true;  // 全てのモンスターが死亡しているかどうかのフラグ
+
+        // 生成した各敵モンスターについて、死亡しているかどうかの確認
         foreach (var enemyMonster in spawnedMonsters)
         {
-            if (enemyMonster.GetCurrentHP() > 0)
+            if (!enemyMonster.GetIsDead()) //死亡していなければ
             {
-                count++;
+                isAllMonstersDeath = false;
+                break;
             }
         }
-        return count;
+        return isAllMonstersDeath;
     }
 
     public void PrepareEnemyAttackAmounts()
