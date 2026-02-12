@@ -303,6 +303,14 @@ public class BattleManager : MonoBehaviour
             handAreaManager.SetVisible(false);  // 手札の非表示
             endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
             fireballManager.StopSpawning();  // fireballの生成を停止する
+
+            // 現在のステージ情報を取得し、「クリア済みのステージ」としてPlayerDataにステージIDを登録する
+            var currentStage = BattleSessionData.Instance.GetCurrentStage();
+            if(currentStage != null)
+            {
+                GameManager.Instance.PlayerData.SetClearedStage(currentStage.GetStageID());
+            }
+
             return true;
         }
 
