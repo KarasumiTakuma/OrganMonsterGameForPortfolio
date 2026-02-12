@@ -162,19 +162,7 @@ public class BattleManager : MonoBehaviour
             RefreshHandUI(); // カード使用後に、残った手札カード情報で手札UIを更新する
             isSuccessCallback?.Invoke(true);  // カードを使用できたことを(isSuccessCallbackに登録しているメソッドに)通知して、その時の処理を行う。
 
-            // 敵全滅チェック
-            if (enemyAreaManager.GetIsAllMonstersDeath())
-            {
-                Log("敵は全滅した！", BattleLogType.Attention);
-                Log("プレイヤーの勝利！", BattleLogType.Attention);
-                battleNoticeManager.Show(BattleNoticeType.Victory);
-                battleState = BattleState.Victory;
-                handAreaManager.SetVisible(false);  // 手札の非表示
-                endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
-                fireballManager.StopSpawning();  // fireballの生成を停止する
-                return;
-            }
-
+            CheckBattleEnd();    // 敵が全滅して、ゲームが終了しているかをチェック
         }
         else
         {
@@ -219,17 +207,9 @@ public class BattleManager : MonoBehaviour
         // この処理が終わるまで待つ
         yield return StartCoroutine(AttackToAllySharedHP());
 
-        // プレイヤーが倒れたら敗北
-        if (!allyAreaManager.GetIsAliveMonster())
-        {
-            battleNoticeManager.Show(BattleNoticeType.GameOver);
-            Log("味方は全滅した…", BattleLogType.Attention);
-            battleState = BattleState.GameOver;
-            handAreaManager.SetVisible(false);  // 手札の非表示
-            endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
-            fireballManager.StopSpawning();  // fireballの生成を停止する
-            yield break;
-        }
+        // プレイヤーが死亡し、ゲームが終了したかを確かめ、ゲーム終了していたら
+        // コルーチンも終了させる
+        if(CheckBattleEnd()) yield break;
 
         // 次のプレイヤーターンへ
         StartPlayerTurn();
@@ -303,6 +283,40 @@ public class BattleManager : MonoBehaviour
         }
     }
 
+    // ゲームが終了しているかを確認し、その結果に応じた処理をし、
+    // 終了状態をtrueとして返すメソッド
+    private bool CheckBattleEnd()
+    {
+
+        // 敵が全滅していたら、「勝利」として処理する
+        if (enemyAreaManager.GetIsAllMonstersDead())
+        {
+            battleState = BattleState.Victory;
+            Log("敵は全滅した！", BattleLogType.Attention);
+            Log("プレイヤーの勝利！", BattleLogType.Attention);
+            battleNoticeManager.Show(BattleNoticeType.Victory);  // 勝利した際の通知の表示
+            handAreaManager.SetVisible(false);  // 手札の非表示
+            endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
+            fireballManager.StopSpawning();  // fireballの生成を停止する
+            return true;
+        }
+
+        // 味方(プレイヤー)が死んでいたら、「GameOver」として処理する
+        if (allyAreaManager.GetIsDead())
+        {
+            battleState = BattleState.GameOver;
+            Log("味方は全滅した…", BattleLogType.Attention);
+            battleNoticeManager.Show(BattleNoticeType.GameOver);    // 敗北した際の通知の表示
+            handAreaManager.SetVisible(false);  // 手札の非表示
+            endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
+            fireballManager.StopSpawning();  // fireballの生成を停止する
+            return true;
+        }
+
+        return false;
+        
+    }
+
     // 戦闘ログにメッセージを追加するメソッド。メッセージのタイプも引数として与えること。
     private void Log(string message, BattleLogType type)
     {
@@ -315,6 +329,12 @@ public class BattleManager : MonoBehaviour
     // Fireballがクリックされた際に発動するイベントとして登録されている
     private void HandleFireballEffect(FireballEffectResult effectResult)
     {
+        if (battleState != BattleState.PlayerTurn) // プレイヤーターン以外なら、Fireball効果は無効
+        {
+            Debug.Log("プレイヤーターン以外なのでFireball効果は無効");
+            return;
+        }
+        
         Debug.Log($"Fireball効果: {effectResult.effectType}, 効果量: {effectResult.effectAmount}");
 
         // 決定されたFireballのタイプ別にその効果を発動する
@@ -333,7 +353,7 @@ public class BattleManager : MonoBehaviour
 
         UpdateHPUI();  // HPテキストの更新
 
-
+        CheckBattleEnd();  // ゲームが終了(勝利 or GameOver)しているかを確かめる。
     }
 }
 

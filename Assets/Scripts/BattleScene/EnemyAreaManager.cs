@@ -135,20 +135,20 @@ public class EnemyAreaManager : MonsterAreaManager
 
     // 敵モンスターが全員死亡している状態であるかを取得するメソッド
     // trueなら 敵モンスターは全滅している状態
-    public bool GetIsAllMonstersDeath()
+    public bool GetIsAllMonstersDead()
     {
-        bool isAllMonstersDeath = true;  // 全てのモンスターが死亡しているかどうかのフラグ
+        bool isAllMonstersDead = true;  // 全てのモンスターが死亡しているかどうかのフラグ
 
         // 生成した各敵モンスターについて、死亡しているかどうかの確認
         foreach (var enemyMonster in spawnedMonsters)
         {
             if (!enemyMonster.GetIsDead()) //死亡していなければ
             {
-                isAllMonstersDeath = false;
+                isAllMonstersDead = false;
                 break;
             }
         }
-        return isAllMonstersDeath;
+        return isAllMonstersDead;
     }
 
     public void PrepareEnemyAttackAmounts()
