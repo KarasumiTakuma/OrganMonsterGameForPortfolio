@@ -89,15 +89,16 @@ public class EnemyAreaManager : MonsterAreaManager
         ApplyDamage(targetIndex, damage);
         // ダメージが与えられた旨を、その敵の名前とともにログに追加
         Log($"{spawnedMonsters[targetIndex].GetMonsterName()}に{damage}ダメージ!", BattleLogType.Attack);
+        LogIfDead();
     }
 
     // indexで指定した敵モンスターがdamege量の攻撃を受けた際にMonsterAreaManagerクラス(親)のApplyDamageメソッドを呼び出して
     // その敵モンスターへのダメージ処理を行うメソッド
-    protected override void ApplyDamage(int index, int damage)
+    protected override void ApplyDamage(int targetIndex, int damage)
     {
-        if (index < 0 || index >= spawnedMonsters.Count) return;  // 生成した敵モンスターリストの範囲外にアクセスした場合は何も返さない
+        if (targetIndex < 0 || targetIndex >= spawnedMonsters.Count) return;  // 生成した敵モンスターリストの範囲外にアクセスした場合は何も返さない
 
-        Enemy enemy = spawnedMonsters[index] as Enemy;
+        Enemy enemy = spawnedMonsters[targetIndex] as Enemy;
         if (enemy != null)
         {
             enemy.TakeDamagePublic(damage);  // TakeDamageメソッドを呼び出してダメージ処理
@@ -123,7 +124,7 @@ public class EnemyAreaManager : MonsterAreaManager
         this.ApplyDamageToAll(damage);
         // 敵全体にダメージが入ったことをメッセージとしてログに追加
         Log($"敵全体に{damage}ダメージ!", BattleLogType.Attack);
-        
+        LogIfDead();
     }
 
     /// 指定の敵の現在HPを取得
@@ -149,6 +150,21 @@ public class EnemyAreaManager : MonsterAreaManager
             }
         }
         return isAllMonstersDead;
+    }
+
+    // 敵が倒れたら、それに応じたログを出すメソッド
+   private void LogIfDead()
+    {
+        // 各敵に対して、死亡ログの表示が必要かどうかを判断する
+        foreach (var enemyMonster in spawnedMonsters)
+        {
+            // 該当の敵が死亡しており、その旨を伝えるログが既に表示されている場合は、
+            // IsShouldDeathLogged()がfalseになるので、ログの重複表示がされない
+            if (enemyMonster is Enemy enemy && enemy.IsShouldDeathLogged())
+            {
+                Log($"{enemy.GetMonsterName()}は倒れた！", BattleLogType.Attention);
+            }
+        }
     }
 
     public void PrepareEnemyAttackAmounts()
