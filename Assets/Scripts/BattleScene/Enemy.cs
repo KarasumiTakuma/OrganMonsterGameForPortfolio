@@ -6,6 +6,8 @@ public class Enemy : Monster
 {
     [SerializeField, Header("HPゲージのコントローラ")] private HpGaugeController hpGauge;
 
+    private bool isShouldDeathLogged = true;  // この敵が倒れたとき用のログを出すべきか否かを判断するためのbool。
+
     // Enemyデータの初期化(敵スポーン時の初期化)
     public void InitializeSet(EnemyMonsterData enemyMonsterData)
     {
@@ -34,14 +36,16 @@ public class Enemy : Monster
         }
     }
 
+
+    // 外部クラスから、この敵にダメージを与える処理を発動させるためのメソッド
     public void TakeDamagePublic(int amount)
     {
         this.TakeDamage(amount);
     }
 
+    // この敵モンスターが死んだときにするべき処理
     protected override void OnDeath()
     {
-        Debug.Log(GetMonsterName() + "は死んだ");
 
         if (hpGauge != null)
         {
@@ -54,8 +58,23 @@ public class Enemy : Monster
             this.gameObject.SetActive(false);
         }
 
-
     }
+
+    // 「この敵の死亡ログを出してよいか?」を判定するメソッド。
+    // 死んだ直後ならtrueを、
+    // 既に死亡しているなら、重複防止のためfalseを返す
+    public bool IsShouldDeathLogged()
+    {
+        // isShouldDeadLoggedは、既に該当の敵モンスターが倒れた時にはfalseとなっている
+        // この敵が倒れた瞬間だけはtrueを返すようにしている
+        if (GetIsDead() && isShouldDeathLogged)
+        {
+            isShouldDeathLogged = false;
+            return true;
+        }
+        return false;
+    }
+
 
     // HPバーが減少するアニメーションが終了してからHPバーと敵のオブジェクトを非表示にするCoroutine
     private IEnumerator DeactivateAfterDelay()

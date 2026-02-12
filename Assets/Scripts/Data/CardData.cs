@@ -26,12 +26,12 @@ public class CardData : ScriptableObject
     public Sprite GetCardImage() => cardImage;
 }
 
+
+// カードの種類を3タイプに分別
+// enumは列挙型
 public enum CardType
 {
     AttackToSelected,  // 単体攻撃用のカードタイプ。選択した敵に対する攻撃
-    AttackToAll,
-    Heal,
-    Magic,
-    Buff,
-    Debuff
+    AttackToAll,       // 全体攻撃用のカードタイプ
+    Heal,              // 回復タイプ
 }

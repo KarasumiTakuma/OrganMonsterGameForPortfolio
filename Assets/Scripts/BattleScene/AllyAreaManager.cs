@@ -37,8 +37,6 @@ public class AllyAreaManager : MonsterAreaManager
 
             allyDataList.Add(allyDat);
         }
-
-        SpawnAllies();
     }
 
     /// <summary>
@@ -91,7 +89,7 @@ public class AllyAreaManager : MonsterAreaManager
     public void TakeDamageToSharedHP(int damage)
     {
         this.ApplyDamageToAll(damage);
-        Log($"プレイヤーに{damage}ダメージ！"); // // ダメージが与えられた旨をログに追加
+        Log($"プレイヤーに{damage}ダメージ！", BattleLogType.Attack); // // ダメージが与えられた旨をログに追加
     }
 
 
@@ -110,16 +108,17 @@ public class AllyAreaManager : MonsterAreaManager
         }
 
         // 味方HPが回復した旨を戦闘ログにメッセージとして追加
-        Log($"プレイヤーのHPが{amount}回復!");
+        Log($"プレイヤーのHPが{amount}回復!", BattleLogType.Heal);
 
         // シーン内に存在するScreenHealEffectコンポーネントを持つオブジェクトを探して、そのコンポーネントを取得し、
         ScreenHealEffect healEffect = Object.FindAnyObjectByType<ScreenHealEffect>();
         healEffect?.PlayHealEffect();  // コンポーネントが正しく取得できた場合は回復エフェクトのアニメーションを実行
     }
 
-    public bool GetIsAliveMonster()
+    // 味方(プレイヤー)が死んでいるかどうかの判定
+    public bool GetIsDead()
     {
-        return sharedCurrentHP > 0 ? true : false; // 共有HPなので、falseなら全滅扱い
+        return sharedCurrentHP <= 0 ? true : false;  // 共有HPが0以下なら、死亡している
     }
 
     public int GetSharedCurrentHP() => sharedCurrentHP;
