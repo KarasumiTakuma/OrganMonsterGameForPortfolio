@@ -115,9 +115,10 @@ public class AllyAreaManager : MonsterAreaManager
         healEffect?.PlayHealEffect();  // コンポーネントが正しく取得できた場合は回復エフェクトのアニメーションを実行
     }
 
-    public bool GetIsAliveMonster()
+    // 味方(プレイヤー)が死んでいるかどうかの判定
+    public bool GetIsDead()
     {
-        return sharedCurrentHP > 0 ? true : false; // 共有HPなので、falseなら全滅扱い
+        return sharedCurrentHP <= 0 ? true : false;  // 共有HPが0以下なら、死亡している
     }
 
     public int GetSharedCurrentHP() => sharedCurrentHP;
