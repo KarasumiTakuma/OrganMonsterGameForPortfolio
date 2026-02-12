@@ -172,6 +172,7 @@ public class EnemyAreaManager : MonsterAreaManager
         enemyPowersList = new List<int>();
         foreach (var enemyMonster in spawnedMonsters)
         {
+            // 既に該当のモンスターが倒れていたら、そのモンスターの攻撃処理は行わない
             if (enemyMonster.GetIsDead())
             {
                 continue;

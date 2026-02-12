@@ -747,7 +747,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 93528fac3ad9543508f98c73c147b05e, type: 2}
   - {fileID: 11400000, guid: 14240763d4b6843f58917a42b46e29f2, type: 2}
   - {fileID: 11400000, guid: f5f56e7923c60474b83ce8b500214c8f, type: 2}
-  buttonParents:
+  buttonPosition:
   - {fileID: 1517988647}
   - {fileID: 898551846}
   - {fileID: 1220704118}
