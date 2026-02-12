@@ -196,7 +196,7 @@ public class BattleManager : MonoBehaviour
         battleNoticeManager.Show(BattleNoticeType.EnemyTurn);
         Log("敵のターン!", BattleLogType.Attention);
 
-        yield return new WaitForSeconds(1.5f);  // ターン開始演出の待ち時間
+        yield return new WaitForSeconds(3.0f);  // ターン開始演出の待ち時間
 
         battleState = BattleState.EnemyTurn;  // その後、敵ターン状態にする
 
@@ -226,14 +226,19 @@ public class BattleManager : MonoBehaviour
             enemyHPText.text = $"HP: ";
     }
 
-    // 各敵のスポーン位置(EnemyArea/SpawnPoint{1,2,3})をクリックした際に呼ばれるメソッド。
+    // 各敵のスポーン位置(EnemyArea/SpawnPoint{1,2,3})に応じた敵キャラのImageをクリックした際に呼ばれるメソッド。
     // プレイヤーが敵をクリックしたときに呼ばれるメソッド。
-    public void ClickedEnemy(int index)
+    // ClickedEnemyのtargetIndexの対象は、各敵のスポーン位置(EnemyArea/SpawnPoint{1,2,3})
+    // に対応した番号(左から {0,1,2})であるが、実際にクリック判定の対象となるのは各スポーン位置に応じた
+    // 敵のImageである(スポーン位置に生成するEnemyPrefabのEnemyCharacterがImageコンポーネントを持ち、
+    // そのRaycastTargetがONになっているから。)。なので、敵が死んだ場合はその敵がスポーンしていた場所(pawnPoint)
+    // をプレイヤークリックしても、反応しない
+    public void ClickedEnemy(int targetIndex)
     {
         // 現在選択されている敵のインデックスを取得
         int currentSelectedIndex = enemyAreaManager.GetSelectedEnemyIndex();
 
-        if (currentSelectedIndex == index)  // 現在選択されている敵をプレイヤーがクリックしたなら
+        if (currentSelectedIndex == targetIndex)  // 現在選択されている敵をプレイヤーがクリックしたなら
         {
             //　選択を解除する処理を行う
             //　EnemyAreaManager.NoSelectionは、選択していない状態を表す定数
@@ -242,7 +247,7 @@ public class BattleManager : MonoBehaviour
         else
         {
             // 別の敵をクリックした場合、その敵を新しく選択する
-            enemyAreaManager.UpdateSelectedEnemy(index);
+            enemyAreaManager.UpdateSelectedEnemy(targetIndex);
         }
     }
 
@@ -334,7 +339,7 @@ public class BattleManager : MonoBehaviour
             Debug.Log("プレイヤーターン以外なのでFireball効果は無効");
             return;
         }
-        
+
         Debug.Log($"Fireball効果: {effectResult.effectType}, 効果量: {effectResult.effectAmount}");
 
         // 決定されたFireballのタイプ別にその効果を発動する

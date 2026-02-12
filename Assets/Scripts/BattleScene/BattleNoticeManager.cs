@@ -17,7 +17,7 @@ public class BattleNoticeManager : MonoBehaviour
 
     // 通知の表示を行う処理を外部から呼び出すメソッド
     // battleNoticeTypeは、表示する通知の種類。durationは表示したい時間
-    public void Show(BattleNoticeType battleNoticeType, float duration = 1.5f)
+    public void Show(BattleNoticeType battleNoticeType, float duration = 2.0f)
     {
         // 表示中の通知があるなら、コルーチンを止めて、
         // 新たな通知を表示する
@@ -30,7 +30,7 @@ public class BattleNoticeManager : MonoBehaviour
     }
 
     // message(通知)をduration秒間表示し続けるコルーチン
-    private IEnumerator ShowRoutine(BattleNoticeType type, float duration = 1.5f)
+    private IEnumerator ShowRoutine(BattleNoticeType type, float duration)
     {
         // typeに応じた通知の表示
         switch (type)
