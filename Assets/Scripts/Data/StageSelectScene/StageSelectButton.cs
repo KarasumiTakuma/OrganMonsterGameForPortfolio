@@ -76,6 +76,7 @@ public class StageSelectButton : MonoBehaviour
         // プレイヤーが使うカードの山札情報としてBattleSessionDataにセットしておく
         battleSessionData.SetPlayerCardList(deck);
 
+        // BattleSceneへ移動
         UnityEngine.SceneManagement.SceneManager.LoadScene("BattleScene");
     }
 
