@@ -113,7 +113,7 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("GachaScene");
     }
 
-    public void GoToBattle()
+    public void GoToStageSelectScene()
     {
         // どのステージに挑戦するか、などの情報を保持してシーンをロード
         //this.currentStageIndex = stageIndex;
@@ -128,4 +128,5 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene("PartyEditScene");
     }
+    public Scene GetCurrentActiveScene() => SceneManager.GetActiveScene();  // 現在アクティブなシーン(再生中のシーン)を取得するゲットメソッド
 }

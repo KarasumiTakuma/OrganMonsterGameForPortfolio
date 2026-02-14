@@ -90,6 +90,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SettingsManager
   mainMixer: {fileID: 24100000, guid: 7e2d0995238aa45219e0a58381623ac2, type: 2}
   settingsPanelPrefab: {fileID: 4400280566378334539, guid: 8c3436ded628847af869ab0ff1813ba9, type: 3}
+  settingsPanelPrefabForBattle: {fileID: 4400280566378334539, guid: fd86aa2f663fa40e59ab82e5688e3946, type: 3}
 --- !u!1 &5514121258907560936
 GameObject:
   m_ObjectHideFlags: 0
@@ -219,6 +220,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   researchPoints: 0
+  clearedStages: 
   discoveredMonsters: []
   discoveredOrgans: []
   discoveredArtifacts: []

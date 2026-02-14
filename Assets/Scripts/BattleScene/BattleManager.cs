@@ -31,29 +31,26 @@ public class BattleManager : MonoBehaviour
     void Awake()
     {
 
-        var session = BattleSessionData.Instance;
-        if (session == null)
+        var battleSessionData = BattleSessionData.Instance;
+        if (battleSessionData == null)
         {
             Debug.LogError("BattleSessionData が見つかりません！");
             return;
         }
 
-        enemyAreaManager.SetEnemyData(session.GetCurrentStage().GetEnemiesList());
+        enemyAreaManager.SetEnemyData(battleSessionData.GetCurrentStage().GetEnemiesList());
 
-        allyAreaManager.SetAllyData(session.GetPlayerAlliesList().ConvertAll(ally => (MonsterData)ally));
+        allyAreaManager.SetAllyData(battleSessionData.GetPlayerAlliesList().ConvertAll(ally => (MonsterData)ally));
 
         // デッキを作成
         deckManager.ClearDeck();
-        foreach (var cardData in session.GetPlayerCardsList())
+        foreach (var cardData in battleSessionData.GetPlayerCardsList())
         {
             deckManager.AddCardToDeck(cardData);
         }
 
         // デッキが作成されたら、山札をシャッフルする
         deckManager.ShuffleDeck();
-
-        // データクリア（次回ステージ選択に備える）
-        session.ClearData();
     }
 
     void Start()
@@ -226,9 +223,11 @@ public class BattleManager : MonoBehaviour
             enemyHPText.text = $"HP: ";
     }
 
-    // 各敵のスポーン位置(EnemyArea/SpawnPoint{1,2,3})に応じた敵キャラのImageをクリックした際に呼ばれるメソッド。
+    // 各敵のスポーン位置(Canvas/EnemyArea/SpawnPoint{1,2,3})に応じた敵キャラのImageをクリックした際に呼ばれるメソッド。
     // プレイヤーが敵をクリックしたときに呼ばれるメソッド。
-    // ClickedEnemyのtargetIndexの対象は、各敵のスポーン位置(EnemyArea/SpawnPoint{1,2,3})
+    // 各敵のスポーン位置(Canvas/EnemyArea/SpawnPoint{1,2,3})にButtonコンポーネントをアタッチし、
+    // Inspectorウィンドウから、OnClick()メソッドのAddListenerとして、ClickedEnemy()メソッドを呼び出すように設定している。
+    // ClickedEnemyのtargetIndexの対象は、各敵のスポーン位置(Canvas/EnemyArea/SpawnPoint{1,2,3})
     // に対応した番号(左から {0,1,2})であるが、実際にクリック判定の対象となるのは各スポーン位置に応じた
     // 敵のImageである(スポーン位置に生成するEnemyPrefabのEnemyCharacterがImageコンポーネントを持ち、
     // そのRaycastTargetがONになっているから。)。なので、敵が死んだ場合はその敵がスポーンしていた場所(pawnPoint)
@@ -303,13 +302,14 @@ public class BattleManager : MonoBehaviour
             handAreaManager.SetVisible(false);  // 手札の非表示
             endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
             fireballManager.StopSpawning();  // fireballの生成を停止する
-
             // 現在のステージ情報を取得し、「クリア済みのステージ」としてPlayerDataにステージIDを登録する
             var currentStage = BattleSessionData.Instance.GetCurrentStage();
             if(currentStage != null)
             {
                 GameManager.Instance.PlayerData.SetClearedStage(currentStage.GetStageID());
             }
+
+            StartCoroutine(ReturnToLabScene());  // LabSceneに戻る
 
             return true;
         }
@@ -323,6 +323,7 @@ public class BattleManager : MonoBehaviour
             handAreaManager.SetVisible(false);  // 手札の非表示
             endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
             fireballManager.StopSpawning();  // fireballの生成を停止する
+            StartCoroutine(ReturnToLabScene());  // LabSceneに戻る
             return true;
         }
 
@@ -336,6 +337,13 @@ public class BattleManager : MonoBehaviour
         // シングルトンインスタンスであるBattleLogManagerインスタンスに追加したいログを送る
         BattleLogManager.Instance.AddLog(message, type);  
         Debug.Log(message);  // デバッグログとしても表示する
+    }
+
+    // 数秒待ってからラボシーンへ戻るコルーチン
+    private IEnumerator ReturnToLabScene()
+    {
+        yield return new WaitForSeconds(2.0f); // 演出等が終了するまで待つ
+        GameManager.Instance.GoToLab();  // ラボシーンへ移動
     }
 
     // Fireball(火の玉)の効果の種類に対応した処理
