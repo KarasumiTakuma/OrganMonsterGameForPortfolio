@@ -164,9 +164,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Fireball
   speed: 3
-  damageToEnemy: 10
-  damageToAlly: 100
-  healToAlly: 50
+  damageToEnemyAmount: 50
+  damageToAllyAmount: 50
+  healToAllyAmount: 50
   amplitudeX: 0.5
   frequencyX: 2
   amplitudeY: 0.2

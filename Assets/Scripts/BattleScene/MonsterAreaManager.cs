@@ -9,7 +9,7 @@ public class MonsterAreaManager : MonoBehaviour
     protected List<Monster> spawnedMonsters = new List<Monster>(); // 生成したモンスターリスト
 
     // モンスターをスポーンさせる
-    public virtual void SpawnMonsters(List<MonsterData> monsterDataList)
+    protected virtual void SpawnMonsters(List<MonsterData> monsterDataList)
     {
         // 既存のモンスターがいたら削除
         ClearMonsters();
@@ -97,5 +97,14 @@ public class MonsterAreaManager : MonoBehaviour
             if (monster != null) Destroy(monster.gameObject);
         }
         spawnedMonsters.Clear();
+    }
+
+    // 戦闘ログにメッセージを追加するメソッド。メッセージのタイプも引数として与えること。
+
+    protected void Log(string message, BattleLogType type)
+    {
+        // シングルトンインスタンスであるBattleLogManagerインスタンスに追加したいログを送る
+        BattleLogManager.Instance.AddLog(message, type);  
+        Debug.Log(message);  // デバッグログとしても表示する
     }
 }

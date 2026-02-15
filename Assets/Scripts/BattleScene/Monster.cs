@@ -84,6 +84,8 @@ public class Monster : MonoBehaviour
         }
     }
 
+
+    // このモンスターが死んだときにするべき処理。子クラスEnemyでオーバーライドする
     protected virtual void OnDeath()
     {
 

@@ -16,7 +16,7 @@ public class LabManager : MonoBehaviour
 
     void Start()
     {
-        goToButtle.onClick.AddListener(GameManager.Instance.GoToBattle);
+        goToButtle.onClick.AddListener(GameManager.Instance.GoToStageSelectScene);
         goToSynthesis.onClick.AddListener(GameManager.Instance.GoToSynthesis);
         goToStudy.onClick.AddListener(GameManager.Instance.GoToStudy);
         goToInventry.onClick.AddListener(GameManager.Instance.GoToInventory);

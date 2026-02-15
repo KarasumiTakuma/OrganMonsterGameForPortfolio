@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Audio; // AudioMixerを使うために必要
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// 設定の管理を構成するクラス
@@ -10,7 +11,8 @@ public class SettingsManager : MonoBehaviour
     public static SettingsManager Instance { get; private set; }
     [SerializeField] private AudioMixer mainMixer; // InspectorでAudioMixerアセットを設定
 
-    [SerializeField] private GameObject settingsPanelPrefab; // 設定パネルのプレハブ
+    [SerializeField] private GameObject settingsPanelPrefab; // 通常の設定パネルのプレハブ
+    [SerializeField] private GameObject settingsPanelPrefabForBattle; // 戦闘用の設定パネル(BattleSceneやStageSelectSceneでの設定パネル)のプレハブ
     private GameObject currentSettingsPanel; // 生成したパネル
 
     // PlayerPrefsのキー
@@ -58,7 +60,20 @@ public class SettingsManager : MonoBehaviour
                 return;
             }
 
-            currentSettingsPanel = Instantiate(settingsPanelPrefab, mainCanvas.transform);
+            // GameManagerから、現在アクティブなシーンを取得する
+            Scene currentActiveScene = GameManager.Instance.GetCurrentActiveScene();
+
+            // アクティブなシーンが「BattleScene」や「StageSelectScene」なら、
+            if(currentActiveScene.name == "BattleScene" || currentActiveScene.name == "StageSelectScene")
+            {
+                // 戦闘用の設定パネルをCanvasに用意
+                currentSettingsPanel = Instantiate(settingsPanelPrefabForBattle, mainCanvas.transform); 
+            }
+            else //それ以外のシーンなら、
+            {
+                // 通常の設定パネルをCanvasに用意
+                currentSettingsPanel = Instantiate(settingsPanelPrefab, mainCanvas.transform);
+            }
             Time.timeScale = 0f; // ゲームを一時停止
         }
     }

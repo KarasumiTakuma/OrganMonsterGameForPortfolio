@@ -1,13 +1,14 @@
 using UnityEngine;
+using System;
 
 // 戦闘中に飛んでくる火の玉(Fireball)を管理するスクリプト
 public class Fireball : MonoBehaviour
 {
     [SerializeField, Header("火の玉の移動速度(1秒あたり)")] private float speed;  // 火の玉が移動する速度(1秒あたり)
 
-    [SerializeField, Header("敵に与えるダメージ量")] private int damageToEnemy;  // 敵に与えるダメージ量
-    [SerializeField, Header("味方に与えるダメージ量")] private int damageToAlly;  // 味方に与えるダメージ量
-    [SerializeField, Header("味方を回復する量")] private int healToAlly;  // 味方を回復する量
+    [SerializeField, Header("敵に与えるダメージ量")] private int damageToEnemyAmount;  // 敵に与えるダメージ量
+    [SerializeField, Header("味方に与えるダメージ量")] private int damageToAllyAmount;  // 味方に与えるダメージ量
+    [SerializeField, Header("味方を回復する量")] private int healToAllyAmount;  // 味方を回復する量
 
 
     [Header("火の玉の揺れ設定")]
@@ -24,6 +25,10 @@ public class Fireball : MonoBehaviour
     private Vector3 startPosition;   // 火の玉の初期位置
     private float elapsedTime;  // 火の玉が移動してからの経過時間をフレームごとに加算するための変数
     private bool isMoving = false;  // 火の玉が移動中かどうかのフラグ
+
+    private FireballEffectResult effectResult;  // Fireballの効果の種類とその量を保持する
+    public event Action<FireballEffectResult> OnEffectTriggered;  // Fireballの効果の結果を通知するイベント
+
 
     // 火の玉を指定の位置まで飛ばすときに呼ぶメソッド
     public void Launch(Vector3 target)
@@ -73,32 +78,61 @@ public class Fireball : MonoBehaviour
     // クリック時に呼び出される 
     void OnMouseDown()
     {
-        TriggerEffect(); // 火の玉をクリックしたら、ランダムで効果が発動(TriggerEffect()を呼び出す) 
+        ResolveFireballEffect(); // 火の玉をクリックしたら、ランダムで効果と効果量が決定する
         Destroy(gameObject); // 1回クリックしたら、オブジェクトを破壊(火の玉を消す) 
     }
 
-    // 火の玉の効果の実行（ランダムで何が起こるか決まる） 
-    private void TriggerEffect()
+    // 火の玉の効果とその効果量を結果として返すメソッド
+    private void ResolveFireballEffect()
     {
-        // ランダムで効果決定 
-        int effectNumber = Random.Range(0, 3);
+        // ランダムで効果決定
+        int effectNumber = UnityEngine.Random.Range(0, 3);
+
+        effectResult = new FireballEffectResult();
+
         switch (effectNumber)
         {
             case 0:
-                // 敵にダメージ 
-                Object.FindAnyObjectByType<EnemyAreaManager>()?.TakeDamageToAll(damageToEnemy);
+                // 火の玉の効果は「敵全員に攻撃を与える効果」として、
+                // その結果と効力をFireballEffectResult型に保持する
+                effectResult.effectType = FireballEffectType.DamageToAllEnemy;
+                effectResult.effectAmount = damageToEnemyAmount;
                 AudioManager.Instance.PlaySE(AttackSoundEffect);
                 break;
             case 1:
-                // 味方にダメージ 
-                Object.FindAnyObjectByType<AllyAreaManager>()?.TakeDamageToSharedHP(damageToAlly);
+                // 火の玉の効果は「味方(プレイヤー)に攻撃を与える効果」として、
+                // その結果と効力をFireballEffectResult型に保持する
+                effectResult.effectType = FireballEffectType.DamageToAlly;
+                effectResult.effectAmount = damageToAllyAmount;
                 AudioManager.Instance.PlaySE(AttackSoundEffect);
                 break;
             case 2:
-                // 味方回復 
-                Object.FindAnyObjectByType<AllyAreaManager>()?.HealSharedHP(healToAlly);
+                // 火の玉の効果は「味方(プレイヤー)のHPを回復する効果」として、
+                // その結果と効力をFireballEffectResult型に保持する
+                effectResult.effectType = FireballEffectType.HealToAlly;
+                effectResult.effectAmount = healToAllyAmount;
                 AudioManager.Instance.PlaySE(HealSoundEffect);
                 break;
         }
+        // Fireballの効果の結果を通知するイベント
+        // 登録されているリスナーがいれば、effectResultを渡して通知する
+        OnEffectTriggered?.Invoke(effectResult);
     }
+}
+
+
+// Fireball(火の玉)の効果を3種類に分ける(列挙/enum 型)
+public enum FireballEffectType
+{
+    DamageToAllEnemy,  // 敵全員に攻撃を与える効果
+    DamageToAlly,   // 味方(プレイヤー)に攻撃を与える効果
+    HealToAlly      // 味方(プレイヤー)のHPを回復する効果
+}
+
+
+// Fireballの効果の種類とその量を保持するクラス
+public class FireballEffectResult
+{
+    public FireballEffectType effectType;  // 効果のタイプ
+    public int effectAmount;   // 効果の量(大きさ)
 }

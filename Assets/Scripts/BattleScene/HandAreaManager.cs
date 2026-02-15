@@ -9,6 +9,9 @@ public class HandAreaManager : MonoBehaviour
     [SerializeField] private GameObject cardPrefab;
     [SerializeField] private Transform[] cardSlots; // 各スロット(5枚のカードを配置する場所)を個別に指定
 
+    [Header("Visual Control")]
+    [SerializeField] private CanvasGroup canvasGroup;  // CanvasGroupは、子オブジェクトを含めたUI全体を制御するためのもの
+
     private readonly List<GameObject> spawnedCards = new List<GameObject>();
     private List<Card> handCardData;
 
@@ -89,6 +92,27 @@ public class HandAreaManager : MonoBehaviour
             dataIndex++;
         }
     }
+    
+    // 手札エリア(および手札)の表示/非表示を外部から制御するためのメソッド
+    public void SetVisible(bool visible)
+    {
+        gameObject.SetActive(visible);
+    }
+
+    // 手札の操作可能/不可能 状態の切り替え処理を外部から制御するためのメソッド
+    public void SetInteractable(bool interactable)
+    {
+        if (canvasGroup == null) return;
+
+        // 手札が操作可能状態なら、手札の明るさを1(通常)に、
+        // 不可能状態なら、手札を少し暗くして、
+        // 操作不可能(interactable = false)と
+        // クリック不可状態(blocksRaycasts = false)にする
+        canvasGroup.alpha = interactable ? 1.0f : 0.4f;
+        canvasGroup.interactable = interactable;
+        canvasGroup.blocksRaycasts = interactable;
+    }
+
     // 他クラスから生成したカードUIリスト取得
     public List<GameObject> GetSpawnedCards() => spawnedCards;
 }
