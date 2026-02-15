@@ -51,8 +51,53 @@ public class PartyEditController : MonoBehaviour
     {
         if (currentEditingSlotIndex == -1) return;
 
-        // Modelを更新
-        GameManager.Instance.PlayerData.SetPartyMember(currentEditingSlotIndex, selectedMonster);
+        // 現在のパーティ情報を取得
+        var currentParty = GameManager.Instance.PlayerData.CurrentParty;
+
+        // 1. パーティ全体を調べて、既に同じモンスターがいるか探す
+        int existingSlotIndex = -1; // 見つからなかったら -1
+
+        for (int i = 0; i < currentParty.Count; i++)
+        {
+            // 空のスロットはスキップ
+            if (currentParty[i] == null) continue;
+
+            // IDで比較して、同じモンスターか確認
+            if (currentParty[i].GetID() == selectedMonster.GetID())
+            {
+                existingSlotIndex = i; // 「i番目のスロットに既にいた！」と記録
+                break; // 見つかったらループ終了
+            }
+        }
+
+        // 2. 状況に応じて処理を分岐
+
+        // パターンA: 「今編集中のスロット」に既にそのモンスターがいる
+        // → つまり、自分で自分を選んだ状態（選択解除）
+        if (existingSlotIndex == currentEditingSlotIndex)
+        {
+            GameManager.Instance.PlayerData.SetPartyMember(currentEditingSlotIndex, null);
+            Debug.Log("選択解除しました");
+        }
+        // パターンB: 「別のスロット」に既にそのモンスターがいる
+        // → モンスターを移動させる（元の場所を消して、今の場所に入れる）
+        else if (existingSlotIndex != -1)
+        {
+            // 先に元の場所を空にする
+            GameManager.Instance.PlayerData.SetPartyMember(existingSlotIndex, null);
+
+            // 新しい場所にセットする
+            GameManager.Instance.PlayerData.SetPartyMember(currentEditingSlotIndex, selectedMonster);
+
+            Debug.Log($"スロット{existingSlotIndex} から スロット{currentEditingSlotIndex} へ移動しました");
+        }
+        // パターンC: パーティにまだいない（新規）
+        // → そのままセットする
+        else
+        {
+            GameManager.Instance.PlayerData.SetPartyMember(currentEditingSlotIndex, selectedMonster);
+            Debug.Log("新規セットしました");
+        }
 
         // Viewを更新（最新のパーティ情報を再取得して表示）
         var updatedParty = GameManager.Instance.PlayerData.CurrentParty;

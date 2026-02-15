@@ -197,7 +197,8 @@ public class PlayerData : MonoBehaviour
     /// <param name="newParty"></param>
     public void SetPartyMember(int slotIndex, MonsterData newMonster)
     {
-        currentParty[slotIndex - 1] = newMonster;
+        // currentParty[slotIndex - 1] = newMonster;
+        currentParty[slotIndex] = newMonster;
     }
 
 
