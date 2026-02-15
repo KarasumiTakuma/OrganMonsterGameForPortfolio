@@ -18,7 +18,7 @@ public class SaveManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        
+
         // OSごとに異なる、安全な保存場所のパスを取得
         // 例: C:/Users/[UserName]/AppData/LocalLow/[CompanyName]/[ProductName]/savedata.json
         //saveFilePath = Path.Combine(Application.persistentDataPath, "savedata.json");
@@ -31,10 +31,10 @@ public class SaveManager : MonoBehaviour
     {
         // 1. PlayerDataからセーブ用のデータを生成
         SaveData saveData = GameManager.Instance.PlayerData.CreateSaveData();
-        
+
         // 2. SaveDataオブジェクトをJSON形式の文字列に変換
         string jsonString = JsonUtility.ToJson(saveData);
-        
+
         // // 3. JSON文字列をファイルとしてディスクに書き込む
         // File.WriteAllText(saveFilePath, jsonString);
         // Debug.Log("セーブ完了: " + saveFilePath);
@@ -99,4 +99,27 @@ public class SaveManager : MonoBehaviour
     //     // 2. PlayerDataのランタイムデータをリセット
     //     GameManager.Instance.PlayerData.ResetData();
     // }
+
+
+
+    // セーブデータの削除およびメモリ上のゲームデータの初期化用メソッド
+    public void DeleteSaveData()
+    {
+        // PlayerPrefsが持つキーを削除して、セーブデータを削除する
+        if (PlayerPrefs.HasKey(SAVE_KEY))
+        {
+            PlayerPrefs.DeleteKey(SAVE_KEY);
+            PlayerPrefs.Save();
+
+            // ゲームデータもリセット
+            GameManager.Instance.PlayerData.ResetData();
+
+            Debug.Log("セーブデータを削除＆ゲームデータを初期化しました");
+        }
+        else
+        {
+            Debug.Log("削除対象のセーブデータは存在しません。ゲームデータのみ、初期化しました");
+            GameManager.Instance.PlayerData.ResetData();
+        }
+    }
 }
