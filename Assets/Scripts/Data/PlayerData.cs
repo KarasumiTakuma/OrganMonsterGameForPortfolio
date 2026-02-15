@@ -310,7 +310,7 @@ public class PlayerData : MonoBehaviour
         }
     }
     /// <summary>
-    /// 全てのセーブデータを初期状態にリセットする
+    /// 全てのセーブデータを初期状態にリセットする(メモリ上のみ)
     /// </summary>
     public void ResetData()
     {
@@ -324,7 +324,16 @@ public class PlayerData : MonoBehaviour
         discoveredOrgans.Clear();
         discoveredArtifacts.Clear();
 
-        Debug.Log("プレイヤーデータをリセットしました。");
+        clearedStages.Clear();
+
+        currentParty.Clear();
+
+        // 味方パーティ枠を必ず3枠分用意しておく(nullでパディング)
+        while (currentParty.Count < 3)
+            currentParty.Add(null);
+
+
+        // Debug.Log("プレイヤーデータをリセットしました。");
 
         // UIにも変更を通知
         OnInventoryChanged?.Invoke();

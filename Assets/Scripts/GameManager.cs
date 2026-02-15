@@ -63,12 +63,22 @@ public class GameManager : MonoBehaviour
             case "BattleScene":
                 AudioManager.Instance.PlayBGM(battleBGM);
                 break;
-            
+
             default:
-            // 上記（バトルシーン）以外に当てはまらない、その他全てのシーン
-            AudioManager.Instance.PlayBGM(mainBGM);
-            break;
+                // 上記（バトルシーン）以外に当てはまらない、その他全てのシーン
+                AudioManager.Instance.PlayBGM(mainBGM);
+                break;
         }
+    }
+
+    void Update()
+    {
+#if UNITY_EDITOR
+    if (Input.GetKeyDown(KeyCode.R))
+    {
+        SaveManager.Instance.DeleteSaveData();
+    }
+#endif
     }
 
     // BGM再生を public メソッド化(ボス戦でBGMを変更してその後戻す時など)
