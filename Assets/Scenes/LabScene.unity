@@ -407,6 +407,10 @@ PrefabInstance:
       propertyPath: m_PlayOnAwake
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2349217755279364306, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
+      propertyPath: noticeObject
+      value: 
+      objectReference: {fileID: 8455347727093412465, guid: 34c11aaca51aa4340a1f66456df75a35, type: 3}
     - target: {fileID: 3838243970845557221, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
       propertyPath: mainBGM
       value: 
