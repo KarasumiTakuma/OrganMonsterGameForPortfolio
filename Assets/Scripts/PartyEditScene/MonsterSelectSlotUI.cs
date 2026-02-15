@@ -27,15 +27,18 @@ public class MonsterSelectSlotUI : MonoBehaviour
         monsterData = monster;
         monsterIcon.sprite = monster.GetIcon();
         nameText.text = monster.GetName();
+
+        selectButton.interactable = true;
         // 選択済みの場合はボタンを無効化、未選択の場合は有効化
+        // →モンスター１体でも編成し、バトルに連れて行けるようにするため、選択済みでもボタンは有効化しておく
         if (isSeledted)
         {
-            selectButton.interactable = false;
+            // selectButton.interactable = false;
             if (selectedCover) selectedCover.SetActive(true);
         }
         else
         {
-            selectButton.interactable = true;
+            // selectButton.interactable = true;
             if (selectedCover) selectedCover.SetActive(false);
         }
     }

@@ -798,7 +798,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.42745098}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.27058825}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1739,7 +1739,7 @@ PrefabInstance:
       objectReference: {fileID: -2951843035778274856, guid: 915684a4526514fe5b99dfed4aa6c9ba, type: 3}
     - target: {fileID: 6936057456235080260, guid: c165f7fda61f96c4fa00530feba3e135, type: 3}
       propertyPath: slotIndex
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7342941793266026787, guid: c165f7fda61f96c4fa00530feba3e135, type: 3}
       propertyPath: m_Name
@@ -1865,7 +1865,7 @@ PrefabInstance:
       objectReference: {fileID: -2531241511545790211, guid: 82cee2429a4e74e129d4e5821488eec2, type: 3}
     - target: {fileID: 6936057456235080260, guid: c165f7fda61f96c4fa00530feba3e135, type: 3}
       propertyPath: slotIndex
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7342941793266026787, guid: c165f7fda61f96c4fa00530feba3e135, type: 3}
       propertyPath: m_Name
@@ -2211,7 +2211,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6936057456235080260, guid: c165f7fda61f96c4fa00530feba3e135, type: 3}
       propertyPath: slotIndex
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7342941793266026787, guid: c165f7fda61f96c4fa00530feba3e135, type: 3}
       propertyPath: m_Name
