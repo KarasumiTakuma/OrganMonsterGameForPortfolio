@@ -29,7 +29,7 @@ public class BattleNoticeManager : MonoBehaviour
         currentRoutine = StartCoroutine(ShowRoutine(battleNoticeType, duration));
     }
 
-    // message(通知)をduration秒間表示し続けるコルーチン
+    // 通知の種類に応じたメッセージをduration秒間表示し続けるコルーチン
     private IEnumerator ShowRoutine(BattleNoticeType type, float duration)
     {
         // typeに応じた通知の表示
