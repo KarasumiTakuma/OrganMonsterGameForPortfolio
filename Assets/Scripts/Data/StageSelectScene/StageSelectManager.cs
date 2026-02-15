@@ -11,7 +11,7 @@ public class StageSelectManager : MonoBehaviour
     [SerializeField] private List<StageInfo> allStages = new List<StageInfo>();  // 表示する全ステージの情報リスト
 
     [Header("UI")]
-    [SerializeField] private List<Transform> buttonParents;  // 各ステージボタンを配置するポジションを親としてリストに入れる
+    [SerializeField] private List<Transform> buttonPosition;  // 各ステージボタンを配置するポジションを親としてリストに入れる
     [SerializeField] private GameObject stageButtonPrefab;  // 各ステージボタンのプレハブ
 
     private void Start()
@@ -27,14 +27,15 @@ public class StageSelectManager : MonoBehaviour
         // ステージに応じてボタンを配置
         for (int index = 0; index < allStages.Count; index++)
         {
-            // 配置先の親を決める。buttonParentsの数より多いステージがあっても、最後の親に配置する
-            Transform parent = buttonParents[Mathf.Min(index, buttonParents.Count - 1)];
+            // 配置先の親を決める。buttonPositionの数より多いステージがあっても、最後の親ポジションに配置する
+            Transform parentPosition = buttonPosition[Mathf.Min(index, buttonPosition.Count - 1)];
 
             // allStageのインデックスに応じたステージ情報を取り出す
-            StageInfo stage = allStages[index];
+            StageInfo stageInfo = allStages[index];
 
-            GameObject buttonObj = Instantiate(stageButtonPrefab, parent);
-            buttonObj.name = $"StageButton{stage.GetStageID()}";
+            // 該当のボタン配置ポジションを親として、stageButtonPrefabを配置する
+            GameObject buttonObj = Instantiate(stageButtonPrefab, parentPosition);
+            buttonObj.name = $"StageButton{stageInfo.GetStageID()}";
 
             // ボタンコンポーネントをボタンオブジェクトから取り出す
             Button button = buttonObj.GetComponent<Button>();
@@ -43,14 +44,14 @@ public class StageSelectManager : MonoBehaviour
             StageSelectButton stageSelectButton = buttonObj.GetComponent<StageSelectButton>();
             if (stageSelectButton != null)
             {
-                stageSelectButton.SetStage(stage);
+                stageSelectButton.SetStage(stageInfo);
             }
 
             // ボタンにステージ名を表示
             TMP_Text buttonText = buttonObj.GetComponentInChildren<TMP_Text>();
             if (buttonText != null)
             {
-                buttonText.text = stage.GetStageName();
+                buttonText.text = stageInfo.GetStageName();
             }
 
             bool isUnlocked = false;  // ステージが解放されている状態を示す。trueなら解放
@@ -65,7 +66,8 @@ public class StageSelectManager : MonoBehaviour
                 // 前のステージのステージIDが
                 // PlayerDataが保持する「クリア済みステージのIDリスト」に含まれていれば、
                 // isUnlockedがtrueになる。
-                StageInfo prevStage = allStages[index - 1];
+                StageInfo prevStage = allStages[index - 1];  // 一つ前のステージ情報を取り出し、
+                // そのステージがクリア済みなら、ステージが解放されている状態(isUnlocked = true)にする
                 isUnlocked = GameManager.Instance.PlayerData.IsStageCleared(prevStage.GetStageID());
             }
 

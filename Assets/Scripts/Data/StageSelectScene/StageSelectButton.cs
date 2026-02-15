@@ -17,12 +17,12 @@ public class StageSelectButton : MonoBehaviour
     }
 
     // このボタンにステージ情報をセットするメソッド
-    public void SetStage(StageInfo stage) { stageData = stage; }
+    public void SetStage(StageInfo stageInfo) { stageData = stageInfo; }
 
     // ボタンが押されたときに処理されるメソッド。クリック時に発動するイベントとして登録されている。
     private void OnButtonClick()
     {
-        var session = BattleSessionData.Instance;
+        var battleSessionData = BattleSessionData.Instance;
         // stageData がセットされているか確認
         if (stageData == null)
         {
@@ -31,7 +31,7 @@ public class StageSelectButton : MonoBehaviour
         }
 
         // 選択されたステージの情報を BattleSessionData にセット
-        session.SetCurrentStage(stageData);
+        battleSessionData.SetCurrentStage(stageData);
 
         // 現在のプレイヤーパーティリストを取得
         List<MonsterData> party = GameManager.Instance.PlayerData.CurrentParty.ToList();
@@ -41,7 +41,7 @@ public class StageSelectButton : MonoBehaviour
             return;
         }
         // BattleSessionData の味方リストを初期化
-        session.SetPlayerAlliesList(new List<AllyMonsterData>());
+        battleSessionData.SetPlayerAlliesList(new List<AllyMonsterData>());
         // プレイヤーパーティのMonsterData型オブジェクト1体1体に対して
         foreach (var monster in party)
         {
@@ -57,13 +57,13 @@ public class StageSelectButton : MonoBehaviour
             }
             // AllyMonsterDataであることを確認後、
             // BattleSessionData の味方リストに味方データを追加する
-            session.GetPlayerAlliesList().Add(ally);
+            battleSessionData.GetPlayerAlliesList().Add(ally);
         }
 
 
         // 味方データからカードデッキを生成
         List<Card> deck = new List<Card>();
-        foreach (var ally in session.GetPlayerAlliesList()) // 味方モンスターそれぞれに対して
+        foreach (var ally in battleSessionData.GetPlayerAlliesList()) // 味方モンスターそれぞれに対して
         {
             if (ally.cards == null) continue;  // カード情報がセットされていなければ、次のモンスターへ処理を移す
 
@@ -74,8 +74,9 @@ public class StageSelectButton : MonoBehaviour
             }
         }
         // プレイヤーが使うカードの山札情報としてBattleSessionDataにセットしておく
-        session.SetPlayerCardList(deck);
+        battleSessionData.SetPlayerCardList(deck);
 
+        // BattleSceneへ移動
         UnityEngine.SceneManagement.SceneManager.LoadScene("BattleScene");
     }
 

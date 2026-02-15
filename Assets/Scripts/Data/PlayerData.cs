@@ -201,12 +201,9 @@ public class PlayerData : MonoBehaviour
     }
 
 
-    /// <summary>
+
     // 指定したステージIDがクリア済みかどうかを判定し、
-    // クリアしているかの状態をboolで返す
-    /// </summary>
-    /// <param name="stageID"></param>
-    /// <returns></returns>
+    // クリアしているかの状態をboolで返すメソッド
     public bool IsStageCleared(int stageID)
     {
         // PlayerData が保持する clearedStages(クリア済みステージIDのリスト)に
@@ -214,11 +211,8 @@ public class PlayerData : MonoBehaviour
         return clearedStages.Contains(stageID);
     }
 
-    /// <summary>
-    /// 引数のステージIDをクリア済みとして登録する
-    /// </summary>
-    /// <param name="stageID"></param>
-    public void ClearStage(int stageID)
+    // 引数のステージIDをクリア済みステージのIDとして、リストに登録するメソッド
+    public void SetClearedStage(int stageID)
     {
         // まだclearedStagesに登録されていない場合のみ追加し、重複登録を防ぐ
         if (!clearedStages.Contains(stageID))

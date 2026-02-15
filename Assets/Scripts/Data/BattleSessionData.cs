@@ -43,7 +43,7 @@ public class BattleSessionData : MonoBehaviour
     public List<Card> GetPlayerCardsList() => playerCards;
 
     // セットメソッド
-    public void SetCurrentStage(StageInfo stage) {currentStage = stage;}
+    public void SetCurrentStage(StageInfo stageInfo) {currentStage = stageInfo;}
     public void SetPlayerAlliesList(List<AllyMonsterData> allyMonsterData) {playerAllies = allyMonsterData;}
     public void SetPlayerCardList(List<Card> cards) {playerCards = cards;}
 }
