@@ -12,12 +12,11 @@ public class BattlePreparation : MonoBehaviour
     public static bool TryPrepareBattle()
     {
 
-        // 現在のプレイヤーパーティリストを取得し、味方モンスターが1体でもパーティに入っているかを確認
+        // 現在のプレイヤーパーティリストを取得し、味方モンスターが3体揃っているかを確認(非nullの数でカウント)
         List<MonsterData> currentPartyList = GameManager.Instance.PlayerData.CurrentParty.ToList();
-        if (!currentPartyList.Any(partyMonster => partyMonster != null))
+        if (currentPartyList.Count(partyMonster => partyMonster != null) < 3)
         {
-            NoticeUI.Instance.Show("パーティがセットされていません");
-            Debug.Log("味方モンスターが編成されていません");
+            Debug.Log("パーティが3体揃っていません");
             return false;
         }
 
