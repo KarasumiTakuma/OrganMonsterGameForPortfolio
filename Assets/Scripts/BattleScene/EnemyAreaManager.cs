@@ -41,17 +41,35 @@ public class EnemyAreaManager : MonsterAreaManager
     // 敵の選択状態を更新する
     public void UpdateSelectedEnemy(int index)
     {
-        if (index >= 0 && index < spawnedMonsters.Count) // インデックスが生成した敵モンスターリスト範囲外にアクセスしていないかをチェック
-        {
-            selectedEnemyIndex = index; // クリックした敵の選択インデックス情報を保持。
+        // インデックスが生成した敵モンスターリスト範囲外にアクセスしていないかをチェック
+        if (index < 0 || index >= spawnedMonsters.Count)
+            return;
 
-            Log(spawnedMonsters[selectedEnemyIndex].GetMonsterName() + " を選択", BattleLogType.System); // 選択した旨をメッセージとしてログに追加
-        }
-        else
+        // 同じ敵を再度選択すると、選択解除
+        if (selectedEnemyIndex == index)
         {
-            Log(spawnedMonsters[selectedEnemyIndex].GetMonsterName() + "の選択を解除", BattleLogType.System);  // 元々選択されていた敵の選択を解除したメッセージをログに表示。
-            selectedEnemyIndex = index; // 敵の選択インデックス情報を更新
+            var enemy = spawnedMonsters[index] as Enemy;
+            enemy?.SetTargetMarkVisible(false);
+
+            Log($"{spawnedMonsters[selectedEnemyIndex].GetMonsterName()} の選択を解除", BattleLogType.System);  // 元々選択されていた敵の選択を解除したメッセージをログに表示。
+            selectedEnemyIndex = NoSelection;
+            return;
         }
+
+        // 前の敵の選択を解除
+        if (selectedEnemyIndex != NoSelection)
+        {
+            var prevEnemy = spawnedMonsters[selectedEnemyIndex] as Enemy;
+            prevEnemy?.SetTargetMarkVisible(false);
+        }
+
+        // 新しく選択した敵に対するターゲット処理
+        selectedEnemyIndex = index;// クリックした敵の選択インデックス情報を保持。
+      
+        var newEnemy = spawnedMonsters[selectedEnemyIndex] as Enemy;
+        newEnemy?.SetTargetMarkVisible(true);
+
+        Log($"{spawnedMonsters[selectedEnemyIndex].GetMonsterName()}を選択", BattleLogType.System); // 選択した旨をメッセージとしてログに追加
     }
 
     // 敵モンスター単体に対する攻撃処理用メソッド
@@ -153,7 +171,7 @@ public class EnemyAreaManager : MonsterAreaManager
     }
 
     // 敵が倒れたら、それに応じたログを出すメソッド
-   private void LogIfDead()
+    private void LogIfDead()
     {
         // 各敵に対して、死亡ログの表示が必要かどうかを判断する
         foreach (var enemyMonster in spawnedMonsters)

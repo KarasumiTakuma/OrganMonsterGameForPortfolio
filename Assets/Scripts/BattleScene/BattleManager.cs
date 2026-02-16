@@ -234,20 +234,8 @@ public class BattleManager : MonoBehaviour
     // をプレイヤークリックしても、反応しない
     public void ClickedEnemy(int targetIndex)
     {
-        // 現在選択されている敵のインデックスを取得
-        int currentSelectedIndex = enemyAreaManager.GetSelectedEnemyIndex();
-
-        if (currentSelectedIndex == targetIndex)  // 現在選択されている敵をプレイヤーがクリックしたなら
-        {
-            //　選択を解除する処理を行う
-            //　EnemyAreaManager.NoSelectionは、選択していない状態を表す定数
-            enemyAreaManager.UpdateSelectedEnemy(EnemyAreaManager.NoSelection);
-        }
-        else
-        {
-            // 別の敵をクリックした場合、その敵を新しく選択する
-            enemyAreaManager.UpdateSelectedEnemy(targetIndex);
-        }
+        if (battleState != BattleState.PlayerTurn) return;
+        enemyAreaManager.UpdateSelectedEnemy(targetIndex);
     }
 
 
