@@ -53,6 +53,7 @@ public class GachaSystem : MonoBehaviour
         if (!GameManager.Instance.PlayerData.UsePoints(totalCost))
         {
             Debug.Log("研究ポイントが足りません！");
+            NoticeUI.Instance.Show("研究ポイントが不足しています", 1.0f);
             return;
         }
         myPointsText.text = GameManager.Instance.PlayerData.GetPoints().ToString() + "pt";
