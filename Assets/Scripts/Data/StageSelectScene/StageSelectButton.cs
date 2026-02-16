@@ -44,7 +44,8 @@ public class StageSelectButton : MonoBehaviour
         bool isReadyBattlePreparation = BattlePreparation.TryPrepareBattle();
         if (!isReadyBattlePreparation)
         {
-            Debug.Log("味方モンスターが編成されていません");
+            NoticeUI.Instance.Show("パーティが3体そろっていません");
+            Debug.Log("パーティが3体揃っていません");
             return;
         }
 
