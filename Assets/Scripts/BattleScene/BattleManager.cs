@@ -286,7 +286,6 @@ public class BattleManager : MonoBehaviour
             battleState = BattleState.Victory;
             Log("敵は全滅した！", BattleLogType.Attention);
             Log("プレイヤーの勝利！", BattleLogType.Attention);
-            battleNoticeManager.Show(BattleNoticeType.Victory);  // 勝利した際の通知の表示
             handAreaManager.SetVisible(false);  // 手札の非表示
             endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
             fireballManager.StopSpawning();  // fireballの生成を停止する
@@ -294,7 +293,10 @@ public class BattleManager : MonoBehaviour
             var currentStage = BattleSessionData.Instance.GetCurrentStage();
             if(currentStage != null)
             {
+                int clearRewardPoints = currentStage.GetClearRewardPoints();
                 GameManager.Instance.PlayerData.SetClearedStage(currentStage.GetStageID());
+                battleNoticeManager.ShowVictoryAndReward(clearRewardPoints);// 勝利した際の通知・報酬の表示
+                GameManager.Instance.PlayerData.AddPoints(clearRewardPoints);
             }
 
             StartCoroutine(ReturnToLabScene());  // LabSceneに戻る
@@ -330,7 +332,7 @@ public class BattleManager : MonoBehaviour
     // 数秒待ってからラボシーンへ戻るコルーチン
     private IEnumerator ReturnToLabScene()
     {
-        yield return new WaitForSeconds(2.0f); // 演出等が終了するまで待つ
+        yield return new WaitForSeconds(4.0f); // 演出等が終了するまで待つ
         GameManager.Instance.GoToLab();  // ラボシーンへ移動
     }
 

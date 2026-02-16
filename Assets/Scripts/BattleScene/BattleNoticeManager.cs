@@ -49,10 +49,6 @@ public class BattleNoticeManager : MonoBehaviour
                 noticeText.text = "敵のターン";
                 noticeText.color = Color.red;
                 break;
-            case BattleNoticeType.Victory:
-                noticeText.text = "勝利！";
-                noticeText.color = Color.yellow;
-                break;
             case BattleNoticeType.GameOver:
                 noticeText.text = "GameOver";
                 noticeText.color = Color.red;
@@ -66,16 +62,44 @@ public class BattleNoticeManager : MonoBehaviour
         noticeObject.SetActive(false);  // duration秒間待ってから非表示にする
         currentRoutine = null;  // 表示処理は、このコルーチンへの参照をはずす
     }
+
+    //　「報酬ポイント」の通知表示専用の処理を外部から呼び出すメソッド
+    public void ShowVictoryAndReward(int points, float duration = 2.0f)
+    {
+        if(currentRoutine != null)
+        {
+            StopCoroutine(currentRoutine);
+            noticeObject.SetActive(false); 
+        }
+
+        currentRoutine = StartCoroutine(ShowVictoryAndRewardRoutine(points, duration));
+    }
     
+    // 獲得した研究ポイントのメッセージをduration秒間表示し続けるコルーチン
+    private IEnumerator ShowVictoryAndRewardRoutine(int points, float duration)
+    {
+        noticeText.text = "勝利!";
+        noticeText.color = Color.yellow;
+        noticeObject.SetActive(true);  // 通知オブジェクトを表示する
+
+        yield return new WaitForSeconds(duration);
+
+        noticeText.text = $"研究ポイント{points}pt獲得!";
+        noticeText.color = Color.yellow;
+
+        yield return new WaitForSeconds(duration);
+
+        noticeObject.SetActive(false);  // duration秒間待ってから非表示にする
+        currentRoutine = null;  // 表示処理は、このコルーチンへの参照をはずす
+    }
 }
 
-// バトル中の通知を、enum(列挙)型で5つのタイプに分ける
+// バトル中の通知を、enum(列挙)型で4つのタイプに分ける
 public enum BattleNoticeType
 {
     BattleStart,
     PlayerTurn,
     EnemyTurn,
-    Victory,
     GameOver
 }
 

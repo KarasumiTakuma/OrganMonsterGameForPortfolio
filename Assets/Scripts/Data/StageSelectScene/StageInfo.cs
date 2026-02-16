@@ -9,10 +9,12 @@ public class StageInfo : ScriptableObject
     [SerializeField] private int stageID; // ステージを識別するためのID
     [SerializeField] private string stageName;  // ステージ名
     [SerializeField] private List<MonsterData> enemies; // ステージ固有の敵モンスターのリスト
+    [SerializeField] private int clearRewardPoints;  // クリア後に報酬としてもらえる研究ポイント
 
     // ゲッターメソッド
     public List<MonsterData> GetEnemiesList() => enemies;
     public string GetStageName() => stageName;
     public int GetStageID() => stageID;
+    public int GetClearRewardPoints() => clearRewardPoints;
     
 }
