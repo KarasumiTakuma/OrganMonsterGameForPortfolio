@@ -5,6 +5,7 @@ using System.Collections;
 public class Enemy : Monster
 {
     [SerializeField, Header("HPゲージのコントローラ")] private HpGaugeController hpGauge;
+    [SerializeField, Header("ターゲットマーク")] private Image targetMark;
 
     private bool isShouldDeathLogged = true;  // この敵が倒れたとき用のログを出すべきか否かを判断するためのbool。
 
@@ -19,10 +20,13 @@ public class Enemy : Monster
             enemyMonsterData.GetAttackPower(),
             enemyMonsterData.GetIcon()
         );
-        
+
         // この敵のHpGaugeController側にも最大HPを設定する
         if (hpGauge != null)
             hpGauge.SetMaxHP(enemyMonsterData.GetHP());
+
+        if (targetMark != null)
+            targetMark.enabled = false;
     }
 
     // ダメージ処理（HPゲージ更新込み）
@@ -46,6 +50,9 @@ public class Enemy : Monster
     // この敵モンスターが死んだときにするべき処理
     protected override void OnDeath()
     {
+        // ターゲットマークを非表示にしておく
+        if (targetMark != null)
+            targetMark.enabled = false;
 
         if (hpGauge != null)
         {
@@ -84,6 +91,13 @@ public class Enemy : Monster
         // HPバーと敵のオブジェクトを非表示
         hpGauge.gameObject.SetActive(false);
         this.gameObject.SetActive(false);
+    }
+
+    // ターゲットマークの表示状態を処理するメソッド
+    public void SetTargetMarkVisible(bool isVisible)
+    {
+        if (targetMark != null)
+            targetMark.enabled = isVisible;
     }
 
 
