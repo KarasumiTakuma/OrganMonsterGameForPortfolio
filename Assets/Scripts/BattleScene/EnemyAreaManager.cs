@@ -10,8 +10,10 @@ public class EnemyAreaManager : MonsterAreaManager
     // どの敵を選択している状態かを示すインデックス情報。初期値は敵が選択されていない状態(-1)に。
     private int selectedEnemyIndex = NoSelection;
 
+    [SerializeField] private AudioClip AttackSoundEffect;  // 攻撃の効果音
     private List<int> enemyPowersList;
     private List<EnemyMonsterData> enemyDataList = new List<EnemyMonsterData>();  // 各スポーンポイントに出現する敵に対する敵データ
+    private List<DamageOverTimeEffect> damageOverTimeEffects = new List<DamageOverTimeEffect>();  // 進行中の継続ダメージ効果をまとめたリスト
 
     public void SetEnemyData(List<MonsterData> enemies)
     {
@@ -65,7 +67,7 @@ public class EnemyAreaManager : MonsterAreaManager
 
         // 新しく選択した敵に対するターゲット処理
         selectedEnemyIndex = index;// クリックした敵の選択インデックス情報を保持。
-      
+
         var newEnemy = spawnedMonsters[selectedEnemyIndex] as Enemy;
         newEnemy?.SetTargetMarkVisible(true);
 
@@ -82,26 +84,12 @@ public class EnemyAreaManager : MonsterAreaManager
         // プレイヤーが敵を選択していない、またはプレイヤーが選択している敵がすでに死亡していたら
         if (targetIndex < 0 || targetIndex >= spawnedMonsters.Count || spawnedMonsters[targetIndex].GetIsDead())
         {
-            // 敵を選択していない状態に
+            // 敵を選択していない状態にして、ターゲットをランダムに決める
             selectedEnemyIndex = NoSelection;
-            targetIndex = NoSelection;
+            targetIndex = GetRandomAliveEnemyIndex();
         }
 
-        if (targetIndex == NoSelection)
-        {
-            int monstersIndex = 0;
-            var enemyAliveList = new List<int>();
-            foreach (var monster in spawnedMonsters)
-            {
-                if (!monster.GetIsDead())
-                {
-                    enemyAliveList.Add(monstersIndex);
-                }
-                monstersIndex++;
-            }
-            if (enemyAliveList.Count == 0) return; // 敵が全滅していたときは処理を終了
-            targetIndex = enemyAliveList[Random.Range(0, enemyAliveList.Count)];  // 生きている敵の中からランダムで1体を選択するように
-        }
+        if (targetIndex == NoSelection) return;  // ランダム取得に失敗
 
         // 選択された敵1体に対するダメージ処理
         ApplyDamage(targetIndex, damage);
@@ -145,6 +133,81 @@ public class EnemyAreaManager : MonsterAreaManager
         LogIfDead();
     }
 
+    public void ApplyDamageOverTimeToSelectedEnemy(int damage, int turns)
+    {
+        if (spawnedMonsters.Count == 0) return;
+
+        int targetIndex = selectedEnemyIndex;
+
+        if (targetIndex < 0 || targetIndex >= spawnedMonsters.Count || spawnedMonsters[targetIndex].GetIsDead())
+        {
+            // 敵を選択していない状態にして、ターゲットをランダムに決める
+            selectedEnemyIndex = NoSelection;
+            targetIndex = GetRandomAliveEnemyIndex();
+        }
+
+        if (targetIndex == NoSelection) return;
+
+        // 継続ターン数turnsを、[turns, turns+2]の範囲でランダム化
+        int randomizedTurns = UnityEngine.Random.Range(turns, turns + 3);
+
+        damageOverTimeEffects.Add(new DamageOverTimeEffect(targetIndex, damage, randomizedTurns));  // 新たな継続ダメージ効果として保持
+
+        Log($"{spawnedMonsters[targetIndex].GetMonsterName()}に継続ダメージ付与！", BattleLogType.DamageOverTime);
+    }
+
+    // 残っている継続ダメージ効果を適用するメソッド(ダメージ量はターンごとに変動)
+    public void ProcessDamageOverTime()
+    {
+        if (damageOverTimeEffects.Count == 0) return;  // 適用する継続ダメージ効果が残っていなければ何もしない
+
+        List<DamageOverTimeEffect> expiredEffects = new List<DamageOverTimeEffect>(); // 期限切れの効果を保持(効果削除用)
+
+        // 現在適用中の継続ダメージの効果を発動する
+        foreach (var dotEffect in damageOverTimeEffects)
+        {
+            if (dotEffect.targetIndex < 0 || dotEffect.targetIndex >= spawnedMonsters.Count)
+            {
+                expiredEffects.Add(dotEffect);
+                continue;
+            }
+
+            // 継続ダメージ量を[dotEffect.damagePerTurn * 0.8, dotEffect.damagePerTurn*1.5]の範囲でランダム化
+            int randomizedDamage = Mathf.RoundToInt(dotEffect.damagePerTurn * Random.Range(0.8f, 1.5f));
+
+            // 効果の対象の敵が死んでいなければ、ダメージを与える
+            var monster = spawnedMonsters[dotEffect.targetIndex];
+
+            if (monster.GetIsDead())
+            {
+                expiredEffects.Add(dotEffect);
+                continue;
+            }
+
+            ApplyDamage(dotEffect.targetIndex, randomizedDamage);
+            AudioManager.Instance.PlaySE(AttackSoundEffect);
+            Log($"{monster.GetMonsterName()}に継続ダメージ {randomizedDamage}!", BattleLogType.DamageOverTime);
+
+            dotEffect.remainingTurns--;   // 継続ダメージを適用する残りターン数を減らす
+
+
+            if (dotEffect.remainingTurns <= 0)
+            {
+                expiredEffects.Add(dotEffect);
+                Log($"{monster.GetMonsterName()}の継続ダメージの効果が切れた！", BattleLogType.Attention);
+            }
+        }
+
+        // 期限が切れた効果は削除する
+        foreach (var expEffect in expiredEffects)
+        {
+            damageOverTimeEffects.Remove(expEffect);
+        }
+
+        LogIfDead();
+    }
+
+
     /// 指定の敵の現在HPを取得
     public int GetCurrentHP(int index)
     {
@@ -168,6 +231,26 @@ public class EnemyAreaManager : MonsterAreaManager
             }
         }
         return isAllMonstersDead;
+    }
+
+    // 生存している敵の中から、ランダムに(spawnedMonstersにおける)インデックスを返すメソッド
+    private int GetRandomAliveEnemyIndex()
+    {
+        int monsterIndex = 0;
+        var enemyAliveList = new List<int>();
+
+        foreach (var monster in spawnedMonsters)
+        {
+            if (!monster.GetIsDead())
+            {
+                enemyAliveList.Add(monsterIndex);
+            }
+            monsterIndex++;
+        }
+
+        if (enemyAliveList.Count == 0) return NoSelection;  // 全敵が死んでいた場合は、敵が選択されていない状態のインデックス
+
+        return enemyAliveList[Random.Range(0, enemyAliveList.Count)];
     }
 
     // 敵が倒れたら、それに応じたログを出すメソッド
@@ -196,9 +279,9 @@ public class EnemyAreaManager : MonsterAreaManager
                 continue;
             }
             // Enemy型の敵データにセットされている攻撃力attackPowerを入手し、
-            // [attackPower-3, attackPoewr+3]の範囲でランダムに「味方HPに与えるダメージ量(attackPowerAmount)」を決める。
+            // [attackPowe-10, attackPoewr+30]の範囲でランダムに「味方HPに与えるダメージ量(attackPowerAmount)」を決める。
             int baseAttackPower = enemyMonster.GetAttackPower();
-            int attackPowerAmount = UnityEngine.Random.Range(baseAttackPower - 3, baseAttackPower + 4);
+            int attackPowerAmount = UnityEngine.Random.Range(baseAttackPower - 10, baseAttackPower + 41);
             enemyPowersList.Add(attackPowerAmount);
         }
     }
@@ -206,7 +289,38 @@ public class EnemyAreaManager : MonsterAreaManager
     // 現在の敵の数を取得。MonsterAreaManagerクラス(親)のGetMonsterCount()メソッドを呼び出す
     public int GetEnemyCount() => base.GetMonsterCount();
 
-    public List<int> GetEnemyPowersList() => enemyPowersList;  // 各敵の攻撃量(attackPowerAmount)を保持したリストを外部クラスから参照するためのメソッド
+    public IReadOnlyList<int> GetEnemyPowersList() => enemyPowersList;  // 各敵の攻撃量(attackPowerAmount)を保持したリストを外部クラスから参照するためのメソッド
 
     public int GetSelectedEnemyIndex() => this.selectedEnemyIndex;
+
+    public IReadOnlyList<string> GetAliveEnemyNamesList()
+    {
+        var aliveEnemyNamesList = new List<string>();
+
+        foreach (var monster in spawnedMonsters)
+        {
+            if (monster is Enemy enemy && !enemy.GetIsDead())
+            {
+                aliveEnemyNamesList.Add(enemy.GetMonsterName());
+            }
+        }
+        return aliveEnemyNamesList;
+    }
+
+
+    // 継続ダメージ効果用のクラスデータ構造(内部クラス)
+    private class DamageOverTimeEffect
+    {
+        public int targetIndex;      // 継続ダメージを与える対象の敵のインデックス
+        public int damagePerTurn;    // 1ターン当たりのダメージ量
+        public int remainingTurns;  // 残り継続ターン数
+
+        // コンストラクタ
+        public DamageOverTimeEffect(int targetIndex, int damagePerTurn, int remainingTurns)
+        {
+            this.targetIndex = targetIndex;
+            this.damagePerTurn = damagePerTurn;
+            this.remainingTurns = remainingTurns;
+        }
+    }
 }

@@ -70,7 +70,7 @@ public class BattleManager : MonoBehaviour
         fireballManager.OnFireballEffectTriggered += HandleFireballEffect;
 
         StartCoroutine(BattleStartRoutine());  // ゲーム開始の通知やログ表示のためのコルーチンを始動
-        
+
     }
 
     private IEnumerator BattleStartRoutine()
@@ -102,7 +102,7 @@ public class BattleManager : MonoBehaviour
         battleNoticeManager.Show(BattleNoticeType.PlayerTurn);
 
         Log("プレイヤーのターン開始！", BattleLogType.Attention);
-        
+
         yield return new WaitForSeconds(1.5f);  // 少し間を空ける
 
         battleState = BattleState.PlayerTurn; // その後、プレイヤーターン状態にする
@@ -133,39 +133,22 @@ public class BattleManager : MonoBehaviour
             isSuccessCallback?.Invoke(false);
             return;
         }
-
         // マナが足りるか確認
-        if (manaManager.UseMana(card.GetManaCost()))
-        {
-            // カード効果を適用
-            switch (card.GetCardType())
-            {
-                case CardType.AttackToSelected:
-                    enemyAreaManager.TakeDamageToSelectedEnemy(card.GetPower());
-                    AudioManager.Instance.PlaySE(AttackSoundEffect);
-                    break;
-                case CardType.AttackToAll:     // CardType.AttackToAllをCradDataに追加予定。全体攻撃タイプのカードを使用した際に。
-                    enemyAreaManager.TakeDamageToAll(card.GetPower());
-                    AudioManager.Instance.PlaySE(AttackSoundEffect);
-                    break;
-                case CardType.Heal:
-                    allyAreaManager.HealSharedHP(card.GetPower()); // 味方全体回復
-                    AudioManager.Instance.PlaySE(HealSoundEffect);
-                    break;
-            }
-
-            UpdateHPUI();
-            deckManager.DiscardCard(card);  // 使用したカードは墓地へ
-            RefreshHandUI(); // カード使用後に、残った手札カード情報で手札UIを更新する
-            isSuccessCallback?.Invoke(true);  // カードを使用できたことを(isSuccessCallbackに登録しているメソッドに)通知して、その時の処理を行う。
-
-            CheckBattleEnd();    // 敵が全滅して、ゲームが終了しているかをチェック
-        }
-        else
+        if (!manaManager.UseMana(card.GetManaCost()))
         {
             Log("マナが足りません！", BattleLogType.Attention);
             isSuccessCallback?.Invoke(false); // カードを使用できなかったことを通知して、その時の処理を行う。
+            return;
         }
+
+        ResolveCardAndEffect(card);  // カードの種類に応じて効果を適用
+
+        UpdateHPUI();
+        deckManager.DiscardCard(card);  // 使用したカードは墓地へ
+        RefreshHandUI(); // カード使用後に、残った手札カード情報で手札UIを更新する
+        isSuccessCallback?.Invoke(true);  // カードを使用できたことを(isSuccessCallbackに登録しているメソッドに)通知して、その時の処理を行う。
+
+        CheckBattleEnd();    // 敵が全滅して、ゲームが終了しているかをチェック
     }
 
     // プレイヤーがターンエンド
@@ -193,23 +176,55 @@ public class BattleManager : MonoBehaviour
         battleNoticeManager.Show(BattleNoticeType.EnemyTurn);
         Log("敵のターン!", BattleLogType.Attention);
 
-        yield return new WaitForSeconds(3.0f);  // ターン開始演出の待ち時間
+        yield return new WaitForSeconds(2.0f);  // ターン開始演出の待ち時間
+
+        // 継続ダメージ効果を適用し、敵が全滅したかを判定
+        enemyAreaManager.ProcessDamageOverTime();
+        UpdateHPUI();
+        yield return new WaitForSeconds(1.0f);
+
+        if (CheckBattleEnd()) yield break;
+        yield return new WaitForSeconds(0.8f);  // 演出の待ち時間
+
 
         battleState = BattleState.EnemyTurn;  // その後、敵ターン状態にする
 
-        // 各敵の攻撃力(attackPower)を元に、味方の共有HPに与えるダメージ量を[power-3, power+3]の範囲でランダムに決定
+        // 各敵の攻撃力(attackPower)を元に、味方の共有HPに与えるダメージ量を[power-10, power+30]の範囲でランダムに決定
         enemyAreaManager.PrepareEnemyAttackAmounts();
 
-        // 決定したダメージ量(敵3体分)を味方共有HPに与える
+        // 決定したダメージ量(生存している敵の数分)を味方共有HPに与える
         // この処理が終わるまで待つ
         yield return StartCoroutine(AttackToAllySharedHP());
 
         // プレイヤーが死亡し、ゲームが終了したかを確かめ、ゲーム終了していたら
         // コルーチンも終了させる
-        if(CheckBattleEnd()) yield break;
+        if (CheckBattleEnd()) yield break;
 
         // 次のプレイヤーターンへ
         StartPlayerTurn();
+    }
+
+    // 味方共有HPにダメージを与えるメソッド
+    private IEnumerator AttackToAllySharedHP()
+    {
+        IReadOnlyList<int> enemyPowersList = enemyAreaManager.GetEnemyPowersList();  // 各敵の攻撃量を保持するリストを参照
+        IReadOnlyList<string> aliveEnemyNamesList = enemyAreaManager.GetAliveEnemyNamesList();  // 生存している敵の名前を保持するリストを参照
+
+        for (int i = 0; i < enemyPowersList.Count; i++)
+        {
+            if (i >= aliveEnemyNamesList.Count) break;
+
+            string attackerName = aliveEnemyNamesList[i];
+            int power = enemyPowersList[i];
+            Log($"{attackerName}の攻撃！", BattleLogType.Attack);
+            yield return new WaitForSeconds(1.0f);  // ログ表示後の待ち時間
+
+            allyAreaManager.TakeDamageToSharedHP(power); // 味方側の共有HPにpower分のダメージ
+            AudioManager.Instance.PlaySE(AttackSoundEffect); // 攻撃時の効果音を出す
+            UpdateHPUI();  // HPテキストの更新
+
+            yield return new WaitForSeconds(1.0f);      // 攻撃後は少し間を空ける
+        }
     }
 
     /// <summary>
@@ -238,6 +253,40 @@ public class BattleManager : MonoBehaviour
         enemyAreaManager.UpdateSelectedEnemy(targetIndex);
     }
 
+    // カードの種類に応じて、味方や敵に効果を適用するメソッド
+    private void ResolveCardAndEffect(Card card)
+    {
+        switch (card.GetCardEffectType())
+        {
+            case CardEffectType.AttackToSelected:  // 選択している敵への単体攻撃
+                enemyAreaManager.TakeDamageToSelectedEnemy(card.GetPower());
+                AudioManager.Instance.PlaySE(AttackSoundEffect);
+                break;
+
+            case CardEffectType.AttackToAll:      // 敵全体への攻撃
+                enemyAreaManager.TakeDamageToAll(card.GetPower());
+                AudioManager.Instance.PlaySE(AttackSoundEffect);
+                break;
+
+            case CardEffectType.Heal:             // 味方HPを回復
+                allyAreaManager.HealSharedHP(card.GetPower());
+                AudioManager.Instance.PlaySE(HealSoundEffect);
+                break;
+
+            // case CardEffectType.Buff:             // 味方にバフを与えて強化
+            //     allyAreaManager.ApplyBuff(card.GetPower(), card.GetDurationTurn());
+            //     break;
+
+            case CardEffectType.DamageOverTime:   // 敵単体への継続ダメージ
+                enemyAreaManager.ApplyDamageOverTimeToSelectedEnemy(card.GetPower(), card.GetDurationTurn());
+                break;
+
+                // case CardEffectType.HealOverTime:     // 味方HPの継続回復
+                //     allyAreaManager.ApplyHealOverTime(card.GetPower(), card.GetDurationTurn());
+                //     break;
+        }
+    }
+
 
 
     // 手札カードデータを入手して、手札UIを更新するメソッド
@@ -260,21 +309,6 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    // 味方共有HPにダメージを与えるメソッド
-    private IEnumerator AttackToAllySharedHP()
-    {
-        List<int> enemyPowersList = enemyAreaManager.GetEnemyPowersList();  // 各敵の攻撃量を保持するリストを参照
-        foreach (int power in enemyPowersList) //　各敵の攻撃量powerごとに
-        {
-            allyAreaManager.TakeDamageToSharedHP(power); // 味方側の共有HPにpower分のダメージ
-            AudioManager.Instance.PlaySE(AttackSoundEffect);  // 攻撃時の効果音を出す
-
-            UpdateHPUI();  // HPテキストの更新
-
-            yield return new WaitForSeconds(0.8f);  // 攻撃後は少し間を空ける
-        }
-    }
-
     // ゲームが終了しているかを確認し、その結果に応じた処理をし、
     // 終了状態をtrueとして返すメソッド
     private bool CheckBattleEnd()
@@ -291,7 +325,7 @@ public class BattleManager : MonoBehaviour
             fireballManager.StopSpawning();  // fireballの生成を停止する
             // 現在のステージ情報(勝利したステージの情報)を取得し、「クリア済みのステージ」としてPlayerDataにステージIDを登録する
             var currentStage = BattleSessionData.Instance.GetCurrentStage();
-            if(currentStage != null)
+            if (currentStage != null)
             {
                 int clearRewardPoints = currentStage.GetClearRewardPoints();
                 GameManager.Instance.PlayerData.SetClearedStage(currentStage.GetStageID());
@@ -318,21 +352,21 @@ public class BattleManager : MonoBehaviour
         }
 
         return false;
-        
+
     }
 
     // 戦闘ログにメッセージを追加するメソッド。メッセージのタイプも引数として与えること。
     private void Log(string message, BattleLogType type)
     {
         // シングルトンインスタンスであるBattleLogManagerインスタンスに追加したいログを送る
-        BattleLogManager.Instance.AddLog(message, type);  
+        BattleLogManager.Instance.AddLog(message, type);
         Debug.Log(message);  // デバッグログとしても表示する
     }
 
     // 数秒待ってからラボシーンへ戻るコルーチン
     private IEnumerator ReturnToLabScene()
     {
-        yield return new WaitForSeconds(4.0f); // 演出等が終了するまで待つ
+        yield return new WaitForSeconds(3.0f); // 演出等が終了するまで待つ
         GameManager.Instance.GoToLab();  // ラボシーンへ移動
     }
 

@@ -7,22 +7,25 @@ public class Card
 {
     private string cardName;
     private int manaCost;
-    private CardType cardType;
+    private CardEffectType cardEffectType;
     private int power;
+    private int durationTurn;
     private Sprite cardImage;
 
     public Card(CardData cardData)
     {
         cardName = cardData.GetCardName();
         manaCost = cardData.GetManaCost();
-        cardType = cardData.GetCardType();
+        cardEffectType = cardData.GetCardEffectType(); 
         power = cardData.GetPower();
+        durationTurn = cardData.GetDurationTurn();
         cardImage = cardData.GetCardImage();
     }
 
     public string GetName() => cardName;
     public int GetManaCost() => manaCost;
-    public CardType GetCardType() => cardType;
+    public CardEffectType GetCardEffectType() => cardEffectType;
     public int GetPower() => power;
+    public int GetDurationTurn() => durationTurn;
     public Sprite GetSprite() => cardImage;
 }

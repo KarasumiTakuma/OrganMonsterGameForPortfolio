@@ -50,6 +50,7 @@ public class BattleLogManager : MonoBehaviour
         return type switch
         {
             BattleLogType.Attack => $"<color=red>{message}</color>",
+            BattleLogType.DamageOverTime => $"<color=purple>{message}</color>",
             BattleLogType.Heal => $"<color=green>{message}</color>",
             BattleLogType.Attention => $"<color=yellow>{message}</color>",
             BattleLogType.System => $"<color=white>{message}</color>",
@@ -60,11 +61,12 @@ public class BattleLogManager : MonoBehaviour
 
 }
 
-// 戦闘ログのメッセージを4つのタイプに分ける
+// 戦闘ログのメッセージを5つのタイプに分ける
 // enumは列挙型
 public enum BattleLogType
 {
     Attack,
+    DamageOverTime,
     Heal,
     Attention,
     System
