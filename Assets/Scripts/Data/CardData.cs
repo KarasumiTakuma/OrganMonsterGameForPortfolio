@@ -7,10 +7,15 @@ public class CardData : ScriptableObject
     [Header("基本情報")]
     [SerializeField] private string cardName;          // カード名
     [SerializeField] private int manaCost;             // 消費マナ
-    [SerializeField] private CardType cardType;        // カードの種類（攻撃・回復など）
+
+    [Header("効果情報")]
+    [SerializeField] private CardEffectType effectType;  // カードの効果の種類
 
     [Header("効果設定")]
     [SerializeField] private int power;                // 効果量（攻撃力や回復量など）
+
+    [Header("継続効果用")]
+    [SerializeField] private int durationTurn;         // 継続ターン数
 
     [Header("UI用情報")]
     [TextArea]
@@ -21,17 +26,20 @@ public class CardData : ScriptableObject
 
     public string GetCardName() => cardName;
     public int GetManaCost() => manaCost;
-    public CardType GetCardType() => cardType;
+    public CardEffectType GetCardEffectType() => effectType;
     public int GetPower() => power;
+    public int GetDurationTurn() => durationTurn;
     public Sprite GetCardImage() => cardImage;
 }
 
-
-// カードの種類を3タイプに分別
+// カードが持つ効果をCardEffectTypeとして分類
 // enumは列挙型
-public enum CardType
+public enum CardEffectType
 {
-    AttackToSelected,  // 単体攻撃用のカードタイプ。選択した敵に対する攻撃
-    AttackToAll,       // 全体攻撃用のカードタイプ
+    AttackToSelected,  // 単体攻撃タイプ(選択した敵へ)
+    AttackToAll,       // 全体攻撃タイプ(敵全体への攻撃)
     Heal,              // 回復タイプ
+    Buff,              // バフ(強化)タイプ
+    DamageOverTime,    // 継続ダメージ
+    HealOverTime       // 継続回復
 }
