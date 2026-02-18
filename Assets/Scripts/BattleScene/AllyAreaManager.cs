@@ -11,11 +11,11 @@ public class AllyAreaManager : MonsterAreaManager
 
     [Header("UI")]
     [SerializeField] private HpGaugeController sharedHpGauge; // 共有HPゲージ
-
+    [SerializeField] private AudioClip HealSoundEffect;  // 回復の効果音
     private int sharedMaxHP;      // 3体の最大HP合算
     private int sharedCurrentHP;  // 現在の共有HP（ダメージや回復後とかに使う値）
-
     private List<AllyMonsterData> allyDataList = new List<AllyMonsterData>();  // 3体の味方データ
+    private List<HealOverTimeEffect> healOverTimeEffects = new List<HealOverTimeEffect>();  // 進行中の継続回復効果をまとめたリスト
 
     public void SetAllyData(List<MonsterData> allies)
     {
@@ -99,20 +99,63 @@ public class AllyAreaManager : MonsterAreaManager
         int previousHP = sharedCurrentHP;
         sharedCurrentHP = Mathf.Min(sharedCurrentHP + amount, sharedMaxHP);
 
+        int healedAmount = sharedCurrentHP - previousHP;
+
         if (sharedHpGauge != null)
         {
             // 回復分をゲージに反映
-            int healedAmount = sharedCurrentHP - previousHP;
             if (healedAmount > 0)
                 sharedHpGauge.BeHealed(healedAmount);// ゲージを更新(ゲージの回復処理)
         }
 
-        // 味方HPが回復した旨を戦闘ログにメッセージとして追加
-        Log($"プレイヤーのHPが{amount}回復!", BattleLogType.Heal);
+        // プレイヤーHPが回復した旨を戦闘ログにメッセージとして追加
+        Log($"プレイヤーのHPが{healedAmount}回復!", BattleLogType.Heal);
 
         // シーン内に存在するScreenHealEffectコンポーネントを持つオブジェクトを探して、そのコンポーネントを取得し、
         ScreenHealEffect healEffect = Object.FindAnyObjectByType<ScreenHealEffect>();
         healEffect?.PlayHealEffect();  // コンポーネントが正しく取得できた場合は回復エフェクトのアニメーションを実行
+    }
+
+    public void ApplyHealOverTime(int healAmount, int durationTurns)
+    {
+        // 継続ターン数durationTurnsを、[durationTurns, durationTurns+2]の範囲でランダム化
+        int randomizedTurns = UnityEngine.Random.Range(durationTurns, durationTurns + 3);
+        healOverTimeEffects.Add(new HealOverTimeEffect(healAmount, randomizedTurns));
+        Log($"プレイヤーに継続回復付与!：{randomizedTurns}ターン", BattleLogType.Heal);
+    }
+
+    // 残っている継続回復効果を適用するメソッド(回復量はターンごとに変動)
+    public void ProcessHealOverTime()
+    {
+        if (healOverTimeEffects.Count == 0) return;  // 適用する継続回復効果が残っていなければ何もしない
+
+        List<HealOverTimeEffect> expiredEffects = new List<HealOverTimeEffect>(); // 期限切れの効果を保持(効果削除用)
+
+        // 現在適用中の継続ダメージの効果を発動する
+        foreach (var hotEffect in healOverTimeEffects)
+        {
+            // 継続回復量を[hotEffect.healPerTurn * 0.8,hotEffect.healPerTurn * 1.5]の範囲でランダム化
+            int randomizedHealAmount = Mathf.RoundToInt(hotEffect.healPerTurn * Random.Range(0.8f, 1.5f));
+            
+            // 共有HPを回復する
+            HealSharedHP(randomizedHealAmount);
+            AudioManager.Instance.PlaySE(HealSoundEffect);
+
+            hotEffect.remainingTurns--;   // 継続回復を適用する残りターン数を減らす
+
+            // 継続回復の残りターン数が0になると、効果が切れる
+            if (hotEffect.remainingTurns <= 0)
+            {
+                expiredEffects.Add(hotEffect);
+                Log($"プレイヤーへの継続回復の効果が切れた！", BattleLogType.Attention);
+            }
+        }
+
+        // 期限が切れた効果は削除する
+        foreach (var expEffect in expiredEffects)
+        {
+            healOverTimeEffects.Remove(expEffect);
+        }
     }
 
     // 味方(プレイヤー)が死んでいるかどうかの判定
@@ -135,5 +178,17 @@ public class AllyAreaManager : MonsterAreaManager
             if (ally != null) Destroy(ally.gameObject);
         }
         spawnedMonsters.Clear();
+    }
+
+    private class HealOverTimeEffect
+    {
+        public int healPerTurn;     // 1ターン当たりの回復量
+        public int remainingTurns;  // 残り継続ターン数
+
+        public HealOverTimeEffect(int healPerTurn, int remainingTurns)
+        {
+            this.healPerTurn = healPerTurn;
+            this.remainingTurns = remainingTurns;
+        }
     }
 }

@@ -133,7 +133,7 @@ public class EnemyAreaManager : MonsterAreaManager
         LogIfDead();
     }
 
-    public void ApplyDamageOverTimeToSelectedEnemy(int damage, int turns)
+    public void ApplyDamageOverTimeToSelectedEnemy(int damageAmount, int durationTurns)
     {
         if (spawnedMonsters.Count == 0) return;
 
@@ -148,12 +148,12 @@ public class EnemyAreaManager : MonsterAreaManager
 
         if (targetIndex == NoSelection) return;
 
-        // 継続ターン数turnsを、[turns, turns+2]の範囲でランダム化
-        int randomizedTurns = UnityEngine.Random.Range(turns, turns + 3);
+        // 継続ターン数durationTurnsを、[durationTurns, durationTurns+2]の範囲でランダム化
+        int randomizedTurns = UnityEngine.Random.Range(durationTurns, durationTurns + 3);
 
-        damageOverTimeEffects.Add(new DamageOverTimeEffect(targetIndex, damage, randomizedTurns));  // 新たな継続ダメージ効果として保持
+        damageOverTimeEffects.Add(new DamageOverTimeEffect(targetIndex, damageAmount, randomizedTurns));  // 新たな継続ダメージ効果として保持
 
-        Log($"{spawnedMonsters[targetIndex].GetMonsterName()}に継続ダメージ付与！", BattleLogType.DamageOverTime);
+        Log($"{spawnedMonsters[targetIndex].GetMonsterName()}に継続ダメージ付与！：{randomizedTurns}ターン", BattleLogType.DamageOverTime);
     }
 
     // 残っている継続ダメージ効果を適用するメソッド(ダメージ量はターンごとに変動)
@@ -190,7 +190,7 @@ public class EnemyAreaManager : MonsterAreaManager
 
             dotEffect.remainingTurns--;   // 継続ダメージを適用する残りターン数を減らす
 
-
+            // 継続ダメージの残りターン数が0になると、効果が切れる
             if (dotEffect.remainingTurns <= 0)
             {
                 expiredEffects.Add(dotEffect);
