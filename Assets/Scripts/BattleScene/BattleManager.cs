@@ -103,7 +103,12 @@ public class BattleManager : MonoBehaviour
 
         Log("プレイヤーのターン開始！", BattleLogType.Attention);
 
-        yield return new WaitForSeconds(1.5f);  // 少し間を空ける
+        yield return new WaitForSeconds(2.0f);  // 少し間を空ける
+
+        allyAreaManager.ProcessHealOverTime();
+
+        UpdateHPUI();
+        yield return new WaitForSeconds(1.0f);
 
         battleState = BattleState.PlayerTurn; // その後、プレイヤーターン状態にする
 
@@ -159,7 +164,6 @@ public class BattleManager : MonoBehaviour
         endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
         handAreaManager.SetInteractable(false); // 手札を暗く表示し、操作不可能状態に
         fireballManager.StopSpawning();  // fireballの生成を停止する
-        Log("プレイヤーのターン終了！", BattleLogType.Attention);
         EnemyTurn();
     }
 
@@ -281,9 +285,9 @@ public class BattleManager : MonoBehaviour
                 enemyAreaManager.ApplyDamageOverTimeToSelectedEnemy(card.GetPower(), card.GetDurationTurn());
                 break;
 
-                // case CardEffectType.HealOverTime:     // 味方HPの継続回復
-                //     allyAreaManager.ApplyHealOverTime(card.GetPower(), card.GetDurationTurn());
-                //     break;
+            case CardEffectType.HealOverTime:     // 味方HPの継続回復
+                allyAreaManager.ApplyHealOverTime(card.GetPower(), card.GetDurationTurn());
+                break;
         }
     }
 
