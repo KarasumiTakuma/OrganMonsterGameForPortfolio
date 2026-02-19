@@ -15,7 +15,7 @@ public class Ally : Monster
         InitializeBase(
             allyMonsterData.GetID(),
             allyMonsterData.GetName(),
-            allyMonsterData.GetHP(),
+            allyMonsterData.GetMaxHP(),
             allyMonsterData.GetAttackPower(),
             allyMonsterData.GetIcon()
         );

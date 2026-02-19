@@ -126,11 +126,12 @@ public class BattleManager : MonoBehaviour
     }
 
     /// プレイヤーがカードを出したときに、そのカードの効果を使用する処理。マナが足りない場合は、効果を適用しない。
+    /// dropPositionは、カードをドロップした位置。
     /// System.Action は C# 標準のデリゲート型。Action自体は引数なしのメソッド型。<T>のは引数Tがという意味。
     /// isSuccessCallbackは、カードを使用できたかどうかをboolで通知し、それに応じた処理を行うメソッドを登録するデリゲート。
     /// 成功なら true、失敗なら false。
     /// CardUI_DragDrop側でカード削除や元の位置に戻す処理が記載されている(第二引数isSuccessCallbackの処理内容)
-    public void PlayCard(Card card, System.Action<bool> isSuccessCallback)
+    public void PlayCard(Card card, Vector2 dropPosition, System.Action<bool> isSuccessCallback)
     {
         if (battleState != BattleState.PlayerTurn) // プレイヤーターン中でない場合、
         {
@@ -138,6 +139,7 @@ public class BattleManager : MonoBehaviour
             isSuccessCallback?.Invoke(false);
             return;
         }
+
         // マナが足りるか確認
         if (!manaManager.UseMana(card.GetManaCost()))
         {
@@ -146,14 +148,62 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        ResolveCardAndEffect(card);  // カードの種類に応じて効果を適用
+        bool playSuccess = isSuccessResolveCardAndEffect(card, dropPosition);  // カードの種類に応じて効果を適用。
+
+        if (playSuccess)
+        {
+            deckManager.DiscardCard(card);  // 使用したカードは墓地へ
+            RefreshHandUI(); // カード使用後に、残った手札カード情報で手札UIを更新する
+        }
 
         UpdateHPUI();
-        deckManager.DiscardCard(card);  // 使用したカードは墓地へ
-        RefreshHandUI(); // カード使用後に、残った手札カード情報で手札UIを更新する
-        isSuccessCallback?.Invoke(true);  // カードを使用できたことを(isSuccessCallbackに登録しているメソッドに)通知して、その時の処理を行う。
-
+        isSuccessCallback?.Invoke(playSuccess);  // カードを使用できたことを(isSuccessCallbackに登録しているメソッドに)通知して、その時の処理を行う。
         CheckBattleEnd();    // 敵が全滅して、ゲームが終了しているかをチェック
+    }
+
+    // カードの種類に応じて、味方や敵に効果を適用するメソッド。カードの効果発動が解決すれば、trueを返す
+    private bool isSuccessResolveCardAndEffect(Card card, Vector2 dropPosition)
+    {
+        bool playSuccess = false;
+        switch (card.GetCardEffectType())
+        {
+            case CardEffectType.AttackToSelected:  // 選択している敵への単体攻撃
+                int targetIndex = enemyAreaManager.GetNearestEnemyIndex(dropPosition); // ドロップ位置に一番近い敵のインデックスを取得
+                if(targetIndex >= 0)
+                {
+                    enemyAreaManager.TakeDamageToSelectedEnemy(targetIndex, card.GetPower());
+                    AudioManager.Instance.PlaySE(AttackSoundEffect);
+                    playSuccess = true;
+                }
+                break;
+
+            case CardEffectType.AttackToAll:      // 敵全体への攻撃
+                enemyAreaManager.TakeDamageToAll(card.GetPower());
+                AudioManager.Instance.PlaySE(AttackSoundEffect);
+                playSuccess = true;
+                break;
+
+            case CardEffectType.Heal:             // 味方HPを回復
+                allyAreaManager.HealSharedHP(card.GetPower());
+                AudioManager.Instance.PlaySE(HealSoundEffect);
+                playSuccess = true;
+                break;
+
+            // case CardEffectType.Buff:             // 味方にバフを与えて強化
+            //     allyAreaManager.ApplyBuff(card.GetPower(), card.GetDurationTurn());
+            //     break;
+
+            case CardEffectType.DamageOverTime:   // 敵単体への継続ダメージ
+                enemyAreaManager.ApplyDamageOverTimeToSelectedEnemy(card.GetPower(), card.GetDurationTurn());
+                playSuccess = true;
+                break;
+
+            case CardEffectType.HealOverTime:     // 味方HPの継続回復
+                allyAreaManager.ApplyHealOverTime(card.GetPower(), card.GetDurationTurn());
+                playSuccess = true;
+                break;
+        }
+        return playSuccess;
     }
 
     // プレイヤーがターンエンド
@@ -251,47 +301,11 @@ public class BattleManager : MonoBehaviour
     // 敵のImageである(スポーン位置に生成するEnemyPrefabのEnemyCharacterがImageコンポーネントを持ち、
     // そのRaycastTargetがONになっているから。)。なので、敵が死んだ場合はその敵がスポーンしていた場所(pawnPoint)
     // をプレイヤークリックしても、反応しない
-    public void ClickedEnemy(int targetIndex)
-    {
-        if (battleState != BattleState.PlayerTurn) return;
-        enemyAreaManager.UpdateSelectedEnemy(targetIndex);
-    }
-
-    // カードの種類に応じて、味方や敵に効果を適用するメソッド
-    private void ResolveCardAndEffect(Card card)
-    {
-        switch (card.GetCardEffectType())
-        {
-            case CardEffectType.AttackToSelected:  // 選択している敵への単体攻撃
-                enemyAreaManager.TakeDamageToSelectedEnemy(card.GetPower());
-                AudioManager.Instance.PlaySE(AttackSoundEffect);
-                break;
-
-            case CardEffectType.AttackToAll:      // 敵全体への攻撃
-                enemyAreaManager.TakeDamageToAll(card.GetPower());
-                AudioManager.Instance.PlaySE(AttackSoundEffect);
-                break;
-
-            case CardEffectType.Heal:             // 味方HPを回復
-                allyAreaManager.HealSharedHP(card.GetPower());
-                AudioManager.Instance.PlaySE(HealSoundEffect);
-                break;
-
-            // case CardEffectType.Buff:             // 味方にバフを与えて強化
-            //     allyAreaManager.ApplyBuff(card.GetPower(), card.GetDurationTurn());
-            //     break;
-
-            case CardEffectType.DamageOverTime:   // 敵単体への継続ダメージ
-                enemyAreaManager.ApplyDamageOverTimeToSelectedEnemy(card.GetPower(), card.GetDurationTurn());
-                break;
-
-            case CardEffectType.HealOverTime:     // 味方HPの継続回復
-                allyAreaManager.ApplyHealOverTime(card.GetPower(), card.GetDurationTurn());
-                break;
-        }
-    }
-
-
+    // public void ClickedEnemy(int targetIndex)
+    // {
+    //     if (battleState != BattleState.PlayerTurn) return;
+    //     enemyAreaManager.UpdateSelectedEnemy(targetIndex);
+    // }
 
     // 手札カードデータを入手して、手札UIを更新するメソッド
     private void RefreshHandUI()
@@ -301,7 +315,7 @@ public class BattleManager : MonoBehaviour
         handAreaManager.setHandCardData(deckManager.GetHand());
         // セットした手札データを元に手札カードオブジェクトを生成し、UI表示。
         // そのとき、プレイヤーがカードを使用した時に発生するイベントPlayCard()メソッド(メソッドへのポインタ)を渡す。
-        handAreaManager.UpdateHandUI(PlayCard);
+        handAreaManager.UpdateHandUI((card, dropPos, callback) => PlayCard(card, dropPos, callback), enemyAreaManager, allyAreaManager);
     }
 
     // ターン開始時にカードを1枚ドローするメソッド。但し、1ターン目の場合や手札が5枚以上ある場合はドローしない(手札は常に5枚以下)

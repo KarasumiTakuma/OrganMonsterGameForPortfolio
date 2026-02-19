@@ -16,14 +16,14 @@ public class Enemy : Monster
         InitializeBase(
             enemyMonsterData.GetID(),
             enemyMonsterData.GetName(),
-            enemyMonsterData.GetHP(),
+            enemyMonsterData.GetMaxHP(),
             enemyMonsterData.GetAttackPower(),
             enemyMonsterData.GetIcon()
         );
 
         // この敵のHpGaugeController側にも最大HPを設定する
         if (hpGauge != null)
-            hpGauge.SetMaxHP(enemyMonsterData.GetHP());
+            hpGauge.SetMaxHP(enemyMonsterData.GetMaxHP());
 
         if (targetMark != null)
             targetMark.enabled = false;
@@ -50,6 +50,8 @@ public class Enemy : Monster
     // この敵モンスターが死んだときにするべき処理
     protected override void OnDeath()
     {
+        StopHighlight();  // ハイライトを確実に停止する
+
         // ターゲットマークを非表示にしておく
         if (targetMark != null)
             targetMark.enabled = false;
@@ -99,6 +101,5 @@ public class Enemy : Monster
         if (targetMark != null)
             targetMark.enabled = isVisible;
     }
-
 
 }

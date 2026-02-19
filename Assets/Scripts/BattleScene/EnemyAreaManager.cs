@@ -75,11 +75,11 @@ public class EnemyAreaManager : MonsterAreaManager
     }
 
     // 敵モンスター単体に対する攻撃処理用メソッド
-    public void TakeDamageToSelectedEnemy(int damage)
+    public void TakeDamageToSelectedEnemy(int targetIndex, int damage)
     {
         if (spawnedMonsters.Count == 0) return;
 
-        int targetIndex = selectedEnemyIndex;
+        // targetIndex = selectedEnemyIndex;
 
         // プレイヤーが敵を選択していない、またはプレイヤーが選択している敵がすでに死亡していたら
         if (targetIndex < 0 || targetIndex >= spawnedMonsters.Count || spawnedMonsters[targetIndex].GetIsDead())
@@ -253,6 +253,75 @@ public class EnemyAreaManager : MonsterAreaManager
         return enemyAliveList[Random.Range(0, enemyAliveList.Count)];
     }
 
+
+
+    // 引数で指定されたワールド/ローカル座標に最も近い生存している敵のインデックスを返すメソッド。
+    // 生存している敵がいなければ NoSelection を返す
+    public int GetNearestEnemyIndex(Vector2 position)
+    {
+        if (spawnedMonsters.Count == 0) return NoSelection;
+
+        int nearestEnemyIndex = NoSelection;
+        float minDistance = float.MaxValue;
+
+        for (int i = 0; i < spawnedMonsters.Count; i++)
+        {
+            var monster = spawnedMonsters[i];
+            if (monster == null || monster.GetIsDead()) continue;
+
+            // モンスターと引数で指定された座標との距離を測る
+            Vector2 monsterPosition = monster.transform.position;
+            float distance = Vector2.Distance(position, monsterPosition);
+
+
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                nearestEnemyIndex = i;
+            }
+        }
+
+        return nearestEnemyIndex;
+    }
+
+    // カードをドラッグしているときに近い敵をハイライト
+    public void HighlightNearestEnemy(Vector2 screenPosition)
+    {
+        if (spawnedMonsters.Count == 0) return;
+
+        int nearestIndex = GetNearestEnemyIndex(screenPosition);
+
+        // まず全てのハイライトを消す
+        foreach (var monster in spawnedMonsters)
+        {
+            monster.StopHighlight();
+        }
+
+        // 最も近い敵にハイライト
+        if (nearestIndex != NoSelection && spawnedMonsters[nearestIndex] is Enemy nearestEnemy)
+        {
+            nearestEnemy.StartHighlight();
+        }
+    }
+
+    public void HighlightAllEnemies()
+    {
+        foreach(var monster in spawnedMonsters)
+        {
+            if (!monster.GetIsDead())
+            monster.StartHighlight();
+        }
+    }
+
+    // ドラッグ終了時に全てのハイライトを消す
+    public void ClearAllHighlights()
+    {
+        foreach (var monster in spawnedMonsters)
+        {
+            monster.StopHighlight();
+        }
+    }
+
     // 敵が倒れたら、それに応じたログを出すメソッド
     private void LogIfDead()
     {
@@ -267,6 +336,7 @@ public class EnemyAreaManager : MonsterAreaManager
             }
         }
     }
+
 
     public void PrepareEnemyAttackAmounts()
     {

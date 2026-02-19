@@ -55,7 +55,7 @@ public class AllyAreaManager : MonsterAreaManager
         sharedMaxHP = 0;
         foreach (var ally in spawnedMonsters)
         {
-            sharedMaxHP += ally.GetHP(); // 各味方の最大HPを合算
+            sharedMaxHP += ally.GetMaxHP(); // 各味方の最大HPを合算
         }
         sharedCurrentHP = sharedMaxHP;
 
@@ -136,7 +136,7 @@ public class AllyAreaManager : MonsterAreaManager
         {
             // 継続回復量を[hotEffect.healPerTurn * 0.8,hotEffect.healPerTurn * 1.5]の範囲でランダム化
             int randomizedHealAmount = Mathf.RoundToInt(hotEffect.healPerTurn * Random.Range(0.8f, 1.5f));
-            
+
             // 共有HPを回復する
             HealSharedHP(randomizedHealAmount);
             AudioManager.Instance.PlaySE(HealSoundEffect);
@@ -155,6 +155,22 @@ public class AllyAreaManager : MonsterAreaManager
         foreach (var expEffect in expiredEffects)
         {
             healOverTimeEffects.Remove(expEffect);
+        }
+    }
+
+    public void HighlightAllAllies()
+    {
+        foreach (var ally in spawnedMonsters)
+        {
+            ally.StartHighlight();
+        }
+    }
+
+    public void ClearAllHighlights()
+    {
+        foreach (var ally in spawnedMonsters)
+        {
+            ally.StopHighlight();
         }
     }
 

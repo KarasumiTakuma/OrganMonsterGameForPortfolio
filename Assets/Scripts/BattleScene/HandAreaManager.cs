@@ -23,9 +23,10 @@ public class HandAreaManager : MonoBehaviour
     // 手札UIを更新するメソッド。
     // 引数 onCardPlayed は「カードがプレイされたときに呼ばれる処理をするメソッド」を格納するデリゲート。
     // onCardPlayedに登録されるメソッドは、第一引数をCard型、
-    // 第二引数をAction<bool>型(bool型を引数とする、返り値void)のメソッド
+    // 第二引数をVector2型(カードのドロップ位置)
+    // 第三引数をAction<bool>型(bool型を引数とする、返り値void)のメソッド
     // とする、返り値voidのメソッドである。
-    public void UpdateHandUI(System.Action<Card, System.Action<bool>> onCardPlayed)
+    public void UpdateHandUI(System.Action<Card, Vector2, System.Action<bool>> onCardPlayed, EnemyAreaManager enemyAreaManager, AllyAreaManager allyAreaManager)
     {
         // 1. 既存UI削除
         foreach (var card in spawnedCards)
@@ -76,16 +77,17 @@ public class HandAreaManager : MonoBehaviour
             var dragDrop = cardObj.GetComponent<CardUI_DragDrop>();
             if (dragDrop != null && onCardPlayed != null)
             {
-                dragDrop.Setup(cardData);
+                dragDrop.Setup(cardData, enemyAreaManager, allyAreaManager);
 
                 // 前回登録済みのイベントをクリア（同じイベントの重複防止）
                 dragDrop.ClearOnCardPlayed();
                 // イベント変数にイベントを登録
                 // onCardPlayed変数には、UpdateHandUI()メソッドが呼び出された際に
                 // onCardPlayedに登録されるメソッドは、第一引数をCard型、
-                // 第二引数をAction<bool>型のメソッドとするメソッド群が登録されている。
+                // 第二引数をVector2型
+                // 第三引数をAction<bool>型のメソッドとするメソッド群が登録されている。
                 // onCardPlayedにあるメソッド群を、dragDrop.OnCardPlayedに登録する
-                dragDrop.OnCardPlayed += (card, callback) => onCardPlayed?.Invoke(card, callback);
+                dragDrop.OnCardPlayed += (card, dropPosition, callback) => onCardPlayed?.Invoke(card, dropPosition, callback);
             }
 
             spawnedCards.Add(cardObj);
