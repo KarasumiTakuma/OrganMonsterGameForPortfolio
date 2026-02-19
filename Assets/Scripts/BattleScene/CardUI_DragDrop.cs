@@ -3,11 +3,13 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 
-/// カードのドラッグ＆ドロップ挙動を制御するクラス。
+/// カードのドラッグ＆ドロップ挙動を制御するクラス。「UI操作だけ」を責務とする
 public class CardUI_DragDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
 
-    private Card cardData;
+    private EnemyAreaManager enemyAreaManager;
+    private AllyAreaManager allyAreaManager;
+    private Card card;
     private Transform originalParent;
     private Vector3 originalPosition;
     private Canvas canvas;  // ドラッグ時にUIが隠れないようにする
@@ -15,22 +17,24 @@ public class CardUI_DragDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     // CardPlayedHandlerカードプレイを通知するイベント
     // デリゲートとして扱う。
     // 第一引数としてCard型を受け取り、
-    // 第二引数としてAction<bool>(bool型を引数とする返り値voidのメソッド)を受けとり、
+    // 第二引数としてVector2型(カードをドロップする位置)を受け取り、
+    // 第三引数としてAction<bool>(bool型を引数とする返り値voidのメソッド)を受けとり、
     // そして、voidを返すメソッド(イベント群)を格納するデリゲート。
     // メソッドを変数のように扱える型がdelegate
-    public delegate void CardPlayedHandler(Card card, System.Action<bool> isSuccessCallback);
+    public delegate void CardPlayedHandler(Card card, Vector2 dropPosition, System.Action<bool> isSuccessCallback);
 
     // CardPlayedHandler型の変数OnCardPlayedを「イベント」として宣言
     // 他のクラスからこのイベント変数にメソッドを登録できる。
     public event CardPlayedHandler OnCardPlayed;
 
-    public void Setup(Card card)
+    public void Setup(Card card, EnemyAreaManager enemyAreaManager, AllyAreaManager allyAreaManager)
     {
-        cardData = card;
-        canvas = GetComponentInParent<Canvas>();
+        this.card = card;
+        this.enemyAreaManager = enemyAreaManager;
+        this.allyAreaManager = allyAreaManager;
+        this.canvas = GetComponentInParent<Canvas>();
     }
 
-    // OnCardPlayedに登録されているイベントを全て消去するためのメソッド
     public void ClearOnCardPlayed()
     {
         OnCardPlayed = null;
@@ -48,14 +52,63 @@ public class CardUI_DragDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     public void OnDrag(PointerEventData eventData)
     {
         transform.position = eventData.position;
+
+        switch (card.GetCardEffectType())
+        {
+            case CardEffectType.AttackToSelected:
+            case CardEffectType.DamageOverTime:
+                // ハイライトする位置の調節
+                if (transform.position.y > Screen.height * (5f / 12f))
+                {
+                    enemyAreaManager.HighlightNearestEnemy(transform.position);
+                }
+                else
+                {
+                    enemyAreaManager.ClearAllHighlights();
+                }
+                break;
+
+            case CardEffectType.AttackToAll:
+                // ハイライトする位置の調節
+                if (transform.position.y > Screen.height * (5f / 12f))
+                {
+                    enemyAreaManager.HighlightAllEnemies();
+                }
+                else
+                {
+                    enemyAreaManager.ClearAllHighlights();
+                }
+
+                break;
+
+            case CardEffectType.Heal:
+            case CardEffectType.HealOverTime:
+                // ハイライトする位置の調節
+                if (transform.position.y >= Screen.height * (5f / 12f)
+                    && transform.position.y < Screen.height * (4f / 5f))
+                {
+                    allyAreaManager.HighlightAllAllies();
+                }
+                else
+                {
+                    allyAreaManager.ClearAllHighlights();
+                }
+                break;
+        }
+
     }
+
 
     // ドラッグ終了後(ドロップした時)の処理
     public void OnEndDrag(PointerEventData eventData)
     {
+        Vector2 dropPosition = eventData.position;
 
-        // 仮に画面中央より上でドロップしたとき
-        if (eventData.position.y > Screen.height / 2f)
+        enemyAreaManager.ClearAllHighlights();
+        allyAreaManager.ClearAllHighlights();
+
+        // 画面 * 5f / 12f より上でドロップしたとき
+        if (dropPosition.y > Screen.height * (5f / 12f))
         {
 
             // OnCardPlayed に登録されているメソッドを呼び出す
@@ -65,7 +118,7 @@ public class CardUI_DragDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             // 第一引数として cardData を渡す
             // 第二引数は「プレイが成功したかどうか」を通知するコールバック
             // ラムダ式でisPlaySuccessがtrueならカードを削除、失敗なら元の位置に戻す処理を実行
-            OnCardPlayed?.Invoke(cardData, isPlaySuccess =>
+            OnCardPlayed?.Invoke(card, dropPosition, isPlaySuccess =>
             {
                 if (isPlaySuccess)
                 {

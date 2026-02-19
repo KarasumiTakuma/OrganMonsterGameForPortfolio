@@ -116,7 +116,7 @@ public class MonstersEditor : EditorWindow
                 int newID = EditorGUILayout.IntField("モンスターID", monster.GetID());
                 int newRarity = EditorGUILayout.IntSlider("レアリティ", monster.GetRarity(), 1, 5);
                 MonsterType newType = (MonsterType)EditorGUILayout.EnumPopup("タイプ", monster.GetMonsterType());
-                int newMaxHP = EditorGUILayout.IntField("最大HP", monster.GetHP());
+                int newMaxHP = EditorGUILayout.IntField("最大HP", monster.GetMaxHP());
                 int newAttackPower = EditorGUILayout.IntField("攻撃力", monster.GetAttackPower());
                 Sprite newIcon = (Sprite)EditorGUILayout.ObjectField("アイコン", monster.GetIcon(), typeof(Sprite), false, GUILayout.Height(64));
                 Sprite newShadowIcon = (Sprite)EditorGUILayout.ObjectField("影アイコン", monster.GetShadowIcon(), typeof(Sprite), false, GUILayout.Height(64));

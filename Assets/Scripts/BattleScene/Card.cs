@@ -16,7 +16,7 @@ public class Card
     {
         cardName = cardData.GetCardName();
         manaCost = cardData.GetManaCost();
-        cardEffectType = cardData.GetCardEffectType(); 
+        cardEffectType = cardData.GetCardEffectType();
         power = cardData.GetPower();
         durationTurn = cardData.GetDurationTurn();
         cardImage = cardData.GetCardImage();
