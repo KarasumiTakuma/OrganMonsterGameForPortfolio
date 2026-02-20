@@ -24,8 +24,8 @@ public class SettingsManager : MonoBehaviour
     public float BgmVolume { get; private set; } = 1.0f;
     public float SeVolume { get; private set; } = 1.0f;
 
-    // 現在のターゲットモード
-    public TargetingMode CurrentTargetingMode { get; private set; } = TargetingMode.ClickedTarget;
+    // 現在のターゲットモード(デフォルトは、DragAutoTarget)
+    public TargetingMode CurrentTargetingMode { get; private set; } = TargetingMode.DragAutoTarget;
 
     private void Awake()
     {
