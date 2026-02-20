@@ -104,8 +104,14 @@ public class SettingsManager : MonoBehaviour
         // スライダーから読み込む0~1の値
         BgmVolume = volume_0_to_1;
 
+        // 人間の耳の感覚に合わせるため、値を3乗カーブさせる
+        float targetVolume = Mathf.Pow(volume_0_to_1, 3.0f);
+
         // スライダーが0（一番左）の時は、-80dB（ほぼ無音）を設定
-        float volume_dB = (volume_0_to_1 == 0) ? -80f : Mathf.Log10(volume_0_to_1) * 20;
+        float volume_dB = (volume_0_to_1 == 0) ? -80f : Mathf.Log10(targetVolume) * 20;
+
+        // Clampedしておくと、万が一プラスの値になるのを防げて安全
+        volume_dB = Mathf.Clamp(volume_dB, -80f, 0f);
 
         // Mixerの "BgmVolume" という名前のパラメータを変更
         mainMixer.SetFloat("BgmVolume", volume_dB);
@@ -118,10 +124,16 @@ public class SettingsManager : MonoBehaviour
     {
         SeVolume = volume_0_to_1;
 
-        // スライダーが0（一番左）の時は、-80dB（ほぼ無音）を設定
-        float volume_dB = (volume_0_to_1 == 0) ? -80f : Mathf.Log10(volume_0_to_1) * 20;
+        // 人間の耳の感覚に合わせるため、値を3乗カーブさせる
+        float targetVolume = Mathf.Pow(volume_0_to_1, 3.0f);
 
-        // ★ Mixerの "SeVolume" という名前のパラメータを変更
+        // スライダーが0（一番左）の時は、-80dB（ほぼ無音）を設定
+        float volume_dB = (volume_0_to_1 == 0) ? -80f : Mathf.Log10(targetVolume) * 20;
+
+        // Clampedしておくと、万が一プラスの値になるのを防げて安全
+        volume_dB = Mathf.Clamp(volume_dB, -80f, 0f);
+
+        // Mixerの "SeVolume" という名前のパラメータを変更
         mainMixer.SetFloat("SeVolume", volume_dB);
     }
 
