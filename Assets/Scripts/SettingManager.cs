@@ -18,10 +18,14 @@ public class SettingsManager : MonoBehaviour
     // PlayerPrefsのキー
     private const string BGM_VOLUME_KEY = "BgmVolume";
     private const string SE_VOLUME_KEY = "SeVolume";
+    private const string TARGETING_MODE_KEY = "TargetingMode";
 
     // 現在の音量（デフォルトは1.0 = Max）
     public float BgmVolume { get; private set; } = 1.0f;
     public float SeVolume { get; private set; } = 1.0f;
+
+    // 現在のターゲットモード
+    public TargetingMode CurrentTargetingMode { get; private set; } = TargetingMode.ClickedTarget;
 
     private void Awake()
     {
@@ -43,14 +47,14 @@ public class SettingsManager : MonoBehaviour
         SetBgmVolume(BgmVolume);
         SetSeVolume(SeVolume);
     }
-    
+
 
     /// <summary>
     /// 設定パネルを開く
     /// </summary>
     public void OpenSettingsPanel()
     {
-        
+
         if (currentSettingsPanel == null)
         {
             Canvas mainCanvas = FindAnyObjectByType<Canvas>();
@@ -64,10 +68,10 @@ public class SettingsManager : MonoBehaviour
             Scene currentActiveScene = GameManager.Instance.GetCurrentActiveScene();
 
             // アクティブなシーンが「BattleScene」や「StageSelectScene」なら、
-            if(currentActiveScene.name == "BattleScene" || currentActiveScene.name == "StageSelectScene")
+            if (currentActiveScene.name == "BattleScene" || currentActiveScene.name == "StageSelectScene")
             {
                 // 戦闘用の設定パネルをCanvasに用意
-                currentSettingsPanel = Instantiate(settingsPanelPrefabForBattle, mainCanvas.transform); 
+                currentSettingsPanel = Instantiate(settingsPanelPrefabForBattle, mainCanvas.transform);
             }
             else //それ以外のシーンなら、
             {
@@ -99,10 +103,10 @@ public class SettingsManager : MonoBehaviour
     {
         // スライダーから読み込む0~1の値
         BgmVolume = volume_0_to_1;
-        
+
         // スライダーが0（一番左）の時は、-80dB（ほぼ無音）を設定
         float volume_dB = (volume_0_to_1 == 0) ? -80f : Mathf.Log10(volume_0_to_1) * 20;
-        
+
         // Mixerの "BgmVolume" という名前のパラメータを変更
         mainMixer.SetFloat("BgmVolume", volume_dB);
     }
@@ -113,12 +117,20 @@ public class SettingsManager : MonoBehaviour
     public void SetSeVolume(float volume_0_to_1)
     {
         SeVolume = volume_0_to_1;
-        
+
         // スライダーが0（一番左）の時は、-80dB（ほぼ無音）を設定
         float volume_dB = (volume_0_to_1 == 0) ? -80f : Mathf.Log10(volume_0_to_1) * 20;
-        
+
         // ★ Mixerの "SeVolume" という名前のパラメータを変更
         mainMixer.SetFloat("SeVolume", volume_dB);
+    }
+
+    /// <summary>
+    /// ターゲット選択モードの切り替え用メソッド
+    /// </summary>
+    public void SetTargetingMode(TargetingMode targetingMode)
+    {
+        CurrentTargetingMode = targetingMode;
     }
 
     /// <summary>
@@ -128,6 +140,9 @@ public class SettingsManager : MonoBehaviour
     {
         PlayerPrefs.SetFloat(BGM_VOLUME_KEY, BgmVolume);
         PlayerPrefs.SetFloat(SE_VOLUME_KEY, SeVolume);
+
+        PlayerPrefs.SetInt(TARGETING_MODE_KEY, (int)CurrentTargetingMode);
+
         PlayerPrefs.Save();
         Debug.Log("設定を保存しました。");
     }
@@ -140,5 +155,17 @@ public class SettingsManager : MonoBehaviour
         // PlayerPrefsからキーをもとに値をロード (デフォルトは1.0 = Max)
         BgmVolume = PlayerPrefs.GetFloat(BGM_VOLUME_KEY, 1.0f);
         SeVolume = PlayerPrefs.GetFloat(SE_VOLUME_KEY, 1.0f);
+
+        // デフォルトのターゲット選択方式はドラッグ自動ターゲット型
+        CurrentTargetingMode = (TargetingMode)PlayerPrefs.GetInt(
+            TARGETING_MODE_KEY, (int)TargetingMode.DragAutoTarget
+        );
     }
+}
+
+// バトル時のターゲット選択方式の種類
+public enum TargetingMode
+{
+    ClickedTarget,   // 敵クリック選択型
+    DragAutoTarget   // ドラッグ自動ターゲット型
 }
