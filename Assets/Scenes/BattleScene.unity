@@ -449,8 +449,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2054367237}
-        m_TargetAssemblyTypeName: BattleManager, Assembly-CSharp
+      - m_Target: {fileID: 995359341}
+        m_TargetAssemblyTypeName: EnemyAreaManager, Assembly-CSharp
         m_MethodName: ClickedEnemy
         m_Mode: 3
         m_Arguments:
@@ -840,11 +840,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6078259872148069464, guid: a4e7ea1bdf26c465dac21e67317886af, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 7.053999
+      value: 7.054022
       objectReference: {fileID: 0}
     - target: {fileID: 6078259872148069464, guid: a4e7ea1bdf26c465dac21e67317886af, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -5.4591928
+      value: -5.459211
       objectReference: {fileID: 0}
     - target: {fileID: 6229858566367056661, guid: a4e7ea1bdf26c465dac21e67317886af, type: 3}
       propertyPath: m_AnchorMax.x
@@ -1171,8 +1171,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2054367237}
-        m_TargetAssemblyTypeName: BattleManager, Assembly-CSharp
+      - m_Target: {fileID: 995359341}
+        m_TargetAssemblyTypeName: EnemyAreaManager, Assembly-CSharp
         m_MethodName: ClickedEnemy
         m_Mode: 3
         m_Arguments:
@@ -1314,8 +1314,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2054367237}
-        m_TargetAssemblyTypeName: BattleManager, Assembly-CSharp
+      - m_Target: {fileID: 995359341}
+        m_TargetAssemblyTypeName: EnemyAreaManager, Assembly-CSharp
         m_MethodName: ClickedEnemy
         m_Mode: 3
         m_Arguments:

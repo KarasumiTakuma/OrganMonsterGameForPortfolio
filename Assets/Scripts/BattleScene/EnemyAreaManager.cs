@@ -6,14 +6,18 @@ public class EnemyAreaManager : MonsterAreaManager
 
     public const int NoSelection = -1;   // 敵が選択されていない状態を表す定数
 
-    // 敵が選択(クリック)された時に、その敵モンスターがspawnedMonsters(生成した敵モンスターリスト)のいずれであるかを示すインデックス
+    // 敵がクリックされた時に、その敵モンスターがspawnedMonsters(生成した敵モンスターリスト)のいずれであるかを示すインデックス
     // どの敵を選択している状態かを示すインデックス情報。初期値は敵が選択されていない状態(-1)に。
-    private int selectedEnemyIndex = NoSelection;
+    private int clickedEnemyIndex = NoSelection;
 
     [SerializeField] private AudioClip AttackSoundEffect;  // 攻撃の効果音
     private List<int> enemyPowersList;
     private List<EnemyMonsterData> enemyDataList = new List<EnemyMonsterData>();  // 各スポーンポイントに出現する敵に対する敵データ
     private List<DamageOverTimeEffect> damageOverTimeEffects = new List<DamageOverTimeEffect>();  // 進行中の継続ダメージ効果をまとめたリスト
+    private bool IsDragAutoMode =>
+        SettingsManager.Instance.CurrentTargetingMode == TargetingMode.DragAutoTarget;
+    private bool IsClickedTargetMode =>
+        SettingsManager.Instance.CurrentTargetingMode == TargetingMode.ClickedTarget;
 
     public void SetEnemyData(List<MonsterData> enemies)
     {
@@ -39,60 +43,27 @@ public class EnemyAreaManager : MonsterAreaManager
         base.SpawnMonsters(baseDataList);
     }
 
-    // 敵がクリックされたときに発生する処理メソッド。
-    // 敵の選択状態を更新する
-    public void UpdateSelectedEnemy(int index)
-    {
-        // インデックスが生成した敵モンスターリスト範囲外にアクセスしていないかをチェック
-        if (index < 0 || index >= spawnedMonsters.Count)
-            return;
-
-        // 同じ敵を再度選択すると、選択解除
-        if (selectedEnemyIndex == index)
-        {
-            var enemy = spawnedMonsters[index] as Enemy;
-            enemy?.SetTargetMarkVisible(false);
-
-            Log($"{spawnedMonsters[selectedEnemyIndex].GetMonsterName()} の選択を解除", BattleLogType.System);  // 元々選択されていた敵の選択を解除したメッセージをログに表示。
-            selectedEnemyIndex = NoSelection;
-            return;
-        }
-
-        // 前の敵の選択を解除
-        if (selectedEnemyIndex != NoSelection)
-        {
-            var prevEnemy = spawnedMonsters[selectedEnemyIndex] as Enemy;
-            prevEnemy?.SetTargetMarkVisible(false);
-        }
-
-        // 新しく選択した敵に対するターゲット処理
-        selectedEnemyIndex = index;// クリックした敵の選択インデックス情報を保持。
-
-        var newEnemy = spawnedMonsters[selectedEnemyIndex] as Enemy;
-        newEnemy?.SetTargetMarkVisible(true);
-
-        Log($"{spawnedMonsters[selectedEnemyIndex].GetMonsterName()}を選択", BattleLogType.System); // 選択した旨をメッセージとしてログに追加
-    }
-
     // 敵モンスター単体に対する攻撃処理用メソッド
-    public void TakeDamageToSelectedEnemy(int targetIndex, int damage)
+    public void TakeDamageToTargetEnemy(int targetIndex, int damage)
     {
         if (spawnedMonsters.Count == 0) return;
 
-        // targetIndex = selectedEnemyIndex;
+        if(IsClickedTargetMode){
+            targetIndex = clickedEnemyIndex;
+        }
 
         // プレイヤーが敵を選択していない、またはプレイヤーが選択している敵がすでに死亡していたら
         if (targetIndex < 0 || targetIndex >= spawnedMonsters.Count || spawnedMonsters[targetIndex].GetIsDead())
         {
             // 敵を選択していない状態にして、ターゲットをランダムに決める
-            selectedEnemyIndex = NoSelection;
+            clickedEnemyIndex = NoSelection;
             targetIndex = GetRandomAliveEnemyIndex();
         }
 
         if (targetIndex == NoSelection) return;  // ランダム取得に失敗
 
         // 選択された敵1体に対するダメージ処理
-        ApplyDamage(targetIndex, damage);
+        ApplyDamageToTargetEnemy(targetIndex, damage);
         // ダメージが与えられた旨を、その敵の名前とともにログに追加
         Log($"{spawnedMonsters[targetIndex].GetMonsterName()}に{damage}ダメージ!", BattleLogType.Attack);
         LogIfDead();
@@ -100,7 +71,7 @@ public class EnemyAreaManager : MonsterAreaManager
 
     // indexで指定した敵モンスターがdamege量の攻撃を受けた際にMonsterAreaManagerクラス(親)のApplyDamageメソッドを呼び出して
     // その敵モンスターへのダメージ処理を行うメソッド
-    protected override void ApplyDamage(int targetIndex, int damage)
+    private void ApplyDamageToTargetEnemy(int targetIndex, int damage)
     {
         if (targetIndex < 0 || targetIndex >= spawnedMonsters.Count) return;  // 生成した敵モンスターリストの範囲外にアクセスした場合は何も返さない
 
@@ -133,16 +104,20 @@ public class EnemyAreaManager : MonsterAreaManager
         LogIfDead();
     }
 
-    public void ApplyDamageOverTimeToSelectedEnemy(int damageAmount, int durationTurns)
+    public void ApplyDamageOverTimeToTargetEnemy(int targetIndex, int damageAmount, int durationTurns)
     {
         if (spawnedMonsters.Count == 0) return;
 
-        int targetIndex = selectedEnemyIndex;
+        if (IsClickedTargetMode)
+        {
+            targetIndex = clickedEnemyIndex;
+        }
+        
 
         if (targetIndex < 0 || targetIndex >= spawnedMonsters.Count || spawnedMonsters[targetIndex].GetIsDead())
         {
             // 敵を選択していない状態にして、ターゲットをランダムに決める
-            selectedEnemyIndex = NoSelection;
+            clickedEnemyIndex = NoSelection;
             targetIndex = GetRandomAliveEnemyIndex();
         }
 
@@ -184,7 +159,7 @@ public class EnemyAreaManager : MonsterAreaManager
                 continue;
             }
 
-            ApplyDamage(dotEffect.targetIndex, randomizedDamage);
+            ApplyDamageToTargetEnemy(dotEffect.targetIndex, randomizedDamage);
             AudioManager.Instance.PlaySE(AttackSoundEffect);
             Log($"{monster.GetMonsterName()}に継続ダメージ {randomizedDamage}!", BattleLogType.DamageOverTime);
 
@@ -253,11 +228,74 @@ public class EnemyAreaManager : MonsterAreaManager
         return enemyAliveList[Random.Range(0, enemyAliveList.Count)];
     }
 
+    // 各敵のスポーン位置(Canvas/EnemyArea/SpawnPoint{1,2,3})に応じた敵キャラのImageをクリックした際に呼ばれるメソッド。
+    // プレイヤーが敵をクリックしたときに呼ばれるメソッド。
+    // 各敵のスポーン位置(Canvas/EnemyArea/SpawnPoint{1,2,3})にButtonコンポーネントをアタッチし、
+    // Inspectorウィンドウから、OnClick()メソッドのAddListenerとして、ClickedEnemy()メソッドを呼び出すように設定している。
+    // ClickedEnemyのtargetIndexの対象は、各敵のスポーン位置(Canvas/EnemyArea/SpawnPoint{1,2,3})
+    // に対応した番号(左から {0,1,2})であるが、実際にクリック判定の対象となるのは各スポーン位置に応じた
+    // 敵のImageである(スポーン位置に生成するEnemyPrefabのEnemyCharacterがImageコンポーネントを持ち、
+    // そのRaycastTargetがONになっているから。)。なので、敵が死んだ場合はその敵がスポーンしていた場所(pawnPoint)
+    // をプレイヤークリックしても、反応しない
+    public void ClickedEnemy(int targetIndex)
+    {
+        // ターゲット選択モードの時のみ有効に
+        if (!IsClickedTargetMode) return;
+        UpdateClickedEnemy(targetIndex);
+    }
+
+    private void UpdateClickedEnemy(int index)
+    {
+        // インデックスが生成した敵モンスターリスト範囲外にアクセスしていないかをチェック
+        if (index < 0 || index >= spawnedMonsters.Count)
+            return;
+
+        // 同じ敵を再度選択すると、選択解除
+        if (clickedEnemyIndex == index)
+        {
+            var enemy = spawnedMonsters[index] as Enemy;
+            enemy?.SetTargetMarkVisible(false);
+
+            Log($"{spawnedMonsters[clickedEnemyIndex].GetMonsterName()} の選択を解除", BattleLogType.System);  // 元々選択されていた敵の選択を解除したメッセージをログに表示。
+           clickedEnemyIndex = NoSelection;
+            return;
+        }
+
+        // 前の敵の選択を解除
+        if (clickedEnemyIndex != NoSelection)
+        {
+            var prevEnemy = spawnedMonsters[clickedEnemyIndex] as Enemy;
+            prevEnemy?.SetTargetMarkVisible(false);
+        }
+
+        // 新しく選択した敵に対するターゲット処理
+        clickedEnemyIndex = index;// クリックした敵の選択インデックス情報を保持。
+
+        var newEnemy = spawnedMonsters[clickedEnemyIndex] as Enemy;
+        newEnemy?.SetTargetMarkVisible(true);
+
+        Log($"{spawnedMonsters[clickedEnemyIndex].GetMonsterName()}を選択", BattleLogType.System); // 選択した旨をメッセージとしてログに追加
+    }
+    
+
+    public int GetSelectedEnemyIndex(Vector2 position)
+    {
+        int selectedEnemyIndex = NoSelection;
+
+        if(IsClickedTargetMode)
+            selectedEnemyIndex = this.clickedEnemyIndex;
+
+        if(IsDragAutoMode)
+            selectedEnemyIndex = GetNearestEnemyIndex(position);
+
+        return selectedEnemyIndex;
+    }
+
 
 
     // 引数で指定されたワールド/ローカル座標に最も近い生存している敵のインデックスを返すメソッド。
     // 生存している敵がいなければ NoSelection を返す
-    public int GetNearestEnemyIndex(Vector2 position)
+    private int GetNearestEnemyIndex(Vector2 position)
     {
         if (spawnedMonsters.Count == 0) return NoSelection;
 
@@ -287,6 +325,7 @@ public class EnemyAreaManager : MonsterAreaManager
     // カードをドラッグしているときに近い敵をハイライト
     public void HighlightNearestEnemy(Vector2 screenPosition)
     {
+        if (!IsDragAutoMode) return;
         if (spawnedMonsters.Count == 0) return;
 
         int nearestIndex = GetNearestEnemyIndex(screenPosition);
@@ -306,10 +345,11 @@ public class EnemyAreaManager : MonsterAreaManager
 
     public void HighlightAllEnemies()
     {
-        foreach(var monster in spawnedMonsters)
+       if (!IsDragAutoMode) return;
+        foreach (var monster in spawnedMonsters)
         {
             if (!monster.GetIsDead())
-            monster.StartHighlight();
+                monster.StartHighlight();
         }
     }
 
@@ -360,8 +400,6 @@ public class EnemyAreaManager : MonsterAreaManager
     public int GetEnemyCount() => base.GetMonsterCount();
 
     public IReadOnlyList<int> GetEnemyPowersList() => enemyPowersList;  // 各敵の攻撃量(attackPowerAmount)を保持したリストを外部クラスから参照するためのメソッド
-
-    public int GetSelectedEnemyIndex() => this.selectedEnemyIndex;
 
     public IReadOnlyList<string> GetAliveEnemyNamesList()
     {

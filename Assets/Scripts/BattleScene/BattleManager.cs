@@ -165,16 +165,14 @@ public class BattleManager : MonoBehaviour
     private bool isSuccessResolveCardAndEffect(Card card, Vector2 dropPosition)
     {
         bool playSuccess = false;
+        int targetIndex = -1;
         switch (card.GetCardEffectType())
         {
             case CardEffectType.AttackToSelected:  // 選択している敵への単体攻撃
-                int targetIndex = enemyAreaManager.GetNearestEnemyIndex(dropPosition); // ドロップ位置に一番近い敵のインデックスを取得
-                if(targetIndex >= 0)
-                {
-                    enemyAreaManager.TakeDamageToSelectedEnemy(targetIndex, card.GetPower());
-                    AudioManager.Instance.PlaySE(AttackSoundEffect);
-                    playSuccess = true;
-                }
+                targetIndex = enemyAreaManager.GetSelectedEnemyIndex(dropPosition);
+                enemyAreaManager.TakeDamageToTargetEnemy(targetIndex, card.GetPower());
+                playSuccess = true;
+                AudioManager.Instance.PlaySE(AttackSoundEffect);
                 break;
 
             case CardEffectType.AttackToAll:      // 敵全体への攻撃
@@ -194,7 +192,8 @@ public class BattleManager : MonoBehaviour
             //     break;
 
             case CardEffectType.DamageOverTime:   // 敵単体への継続ダメージ
-                enemyAreaManager.ApplyDamageOverTimeToSelectedEnemy(card.GetPower(), card.GetDurationTurn());
+                targetIndex = enemyAreaManager.GetSelectedEnemyIndex(dropPosition);
+                enemyAreaManager.ApplyDamageOverTimeToTargetEnemy(targetIndex, card.GetPower(), card.GetDurationTurn());
                 playSuccess = true;
                 break;
 
@@ -291,21 +290,6 @@ public class BattleManager : MonoBehaviour
         if (enemyHPText)
             enemyHPText.text = $"HP: ";
     }
-
-    // 各敵のスポーン位置(Canvas/EnemyArea/SpawnPoint{1,2,3})に応じた敵キャラのImageをクリックした際に呼ばれるメソッド。
-    // プレイヤーが敵をクリックしたときに呼ばれるメソッド。
-    // 各敵のスポーン位置(Canvas/EnemyArea/SpawnPoint{1,2,3})にButtonコンポーネントをアタッチし、
-    // Inspectorウィンドウから、OnClick()メソッドのAddListenerとして、ClickedEnemy()メソッドを呼び出すように設定している。
-    // ClickedEnemyのtargetIndexの対象は、各敵のスポーン位置(Canvas/EnemyArea/SpawnPoint{1,2,3})
-    // に対応した番号(左から {0,1,2})であるが、実際にクリック判定の対象となるのは各スポーン位置に応じた
-    // 敵のImageである(スポーン位置に生成するEnemyPrefabのEnemyCharacterがImageコンポーネントを持ち、
-    // そのRaycastTargetがONになっているから。)。なので、敵が死んだ場合はその敵がスポーンしていた場所(pawnPoint)
-    // をプレイヤークリックしても、反応しない
-    // public void ClickedEnemy(int targetIndex)
-    // {
-    //     if (battleState != BattleState.PlayerTurn) return;
-    //     enemyAreaManager.UpdateSelectedEnemy(targetIndex);
-    // }
 
     // 手札カードデータを入手して、手札UIを更新するメソッド
     private void RefreshHandUI()
