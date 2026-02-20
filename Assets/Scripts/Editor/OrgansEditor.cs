@@ -105,8 +105,8 @@ public class OrgansEditor : EditorWindow
                 EditorGUI.BeginChangeCheck();
                 
                 // --- パラメータ編集 ---
-                string newName = EditorGUILayout.TextField("表示名", organ.GetName());
-                int newID = EditorGUILayout.IntField("臓器ID", organ.GetID());
+                string newName = EditorGUILayout.DelayedTextField("表示名", organ.GetName());
+                int newID = EditorGUILayout.DelayedIntField("臓器ID", organ.GetID());
                 int newRarity = EditorGUILayout.IntSlider("レアリティ", organ.GetRarity(), 1, 5);
                 OrganCategory newCategory = (OrganCategory)EditorGUILayout.EnumPopup("カテゴリー", organ.GetCategory());
                 Sprite newIcon = (Sprite)EditorGUILayout.ObjectField("アイコン", organ.GetIcon(), typeof(Sprite), false, GUILayout.Height(64));
@@ -114,9 +114,9 @@ public class OrgansEditor : EditorWindow
 
 
                 EditorGUILayout.LabelField("説明文");
-                string newDescription = EditorGUILayout.TextArea(organ.GetDescription(), GUILayout.Height(40));
+                string newDescription = EditorGUILayout.DelayedTextField(organ.GetDescription(), GUILayout.Height(40));
                 EditorGUILayout.LabelField("ヒント");
-                string newHint = EditorGUILayout.TextArea(organ.GetHint(), GUILayout.Height(40));
+                string newHint = EditorGUILayout.DelayedTextField(organ.GetHint(), GUILayout.Height(40));
 
                 if (EditorGUI.EndChangeCheck())
                 {
