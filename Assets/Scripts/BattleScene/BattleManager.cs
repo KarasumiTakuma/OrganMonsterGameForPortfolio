@@ -22,8 +22,8 @@ public class BattleManager : MonoBehaviour
     private bool isFirstTurn = true; // 最初のターンであるかどうかのフラグ。
 
     private BattleState battleState; // バトル中の状態をBattleState型として保持するための変数
+
     private bool isEndingBattle = false;  // CheckBattleEndが多重実行されるのを防ぐため変数
-    private int turnSequenceID = 0;     // ターンの切り替えにおいて、古いコルーチンを無効化するための番号
 
 
     // Awake()には、他シーンからバトルシーンに移動した時に、手持ちデータとしてセットした3体モンスターデータから
@@ -91,13 +91,12 @@ public class BattleManager : MonoBehaviour
     // プレイヤーターン開始
     private void StartPlayerTurn()
     {
-        turnSequenceID++;
-        StartCoroutine(PlayerTurnRoutine(turnSequenceID));
+        StartCoroutine(PlayerTurnRoutine());
     }
 
-    private IEnumerator PlayerTurnRoutine(int sequenceID)
+    private IEnumerator PlayerTurnRoutine()
     {
-        
+
         battleState = BattleState.TurnTransition;  // バトルの状態を「演出中」にする
 
         yield return battleNoticeManager.Show(BattleNoticeType.PlayerTurn);
@@ -105,7 +104,7 @@ public class BattleManager : MonoBehaviour
         Log("プレイヤーのターン開始！", BattleLogType.Attention);
 
 
-        allyAreaManager.ProcessHealOverTime();  // 継続回復の処理を行う
+        allyAreaManager.ProcessHealOverTime();
         yield return new WaitForSeconds(1.0f);
 
         battleState = BattleState.PlayerTurn; // その後、プレイヤーターン状態にする
@@ -217,11 +216,10 @@ public class BattleManager : MonoBehaviour
     //　敵ターン
     private void EnemyTurn()
     {
-        turnSequenceID++;
-        StartCoroutine(EnemyTurnRoutine(turnSequenceID));
+        StartCoroutine(EnemyTurnRoutine());
     }
 
-    private IEnumerator EnemyTurnRoutine(int sequenceID)
+    private IEnumerator EnemyTurnRoutine()
     {
         battleState = BattleState.TurnTransition;  // バトルの状態を「演出中」にする
 
@@ -231,9 +229,10 @@ public class BattleManager : MonoBehaviour
         // 継続ダメージ効果を適用し、敵が全滅したかを判定
         enemyAreaManager.ProcessDamageOverTime();
         yield return new WaitForSeconds(1.0f);
-        // 継続ダメージにより、敵が全滅し、バトルが終了したかをチェック
         yield return StartCoroutine(CheckBattleEnd());
-        if (sequenceID != turnSequenceID) yield break;
+        // 継続ダメージにより、敵が全滅し、バトルが終了したかをチェック
+        if (battleState == BattleState.Victory) yield break;
+
 
         yield return new WaitForSeconds(0.8f);  // 演出の待ち時間
 
@@ -250,8 +249,8 @@ public class BattleManager : MonoBehaviour
         // プレイヤーが死亡し、バトルが終了したか(ゲームオーバーか)を確かめ、ゲーム終了していたら
         // コルーチンも終了させる
         yield return StartCoroutine(CheckBattleEnd());
+
         if (battleState == BattleState.GameOver) yield break;
-        if (sequenceID != turnSequenceID) yield break;
 
         // 次のプレイヤーターンへ
         StartPlayerTurn();
@@ -308,6 +307,7 @@ public class BattleManager : MonoBehaviour
         if (enemyAreaManager.GetIsAllMonstersDead())
         {
             isEndingBattle = true;
+            battleState = BattleState.Victory;
             Log("敵は全滅した！", BattleLogType.Attention);
             handAreaManager.SetVisible(false);  // 手札の非表示
             endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
@@ -367,7 +367,6 @@ public class BattleManager : MonoBehaviour
     // 次のフェーズへ行く際の処理を行うコルーチン
     private IEnumerator StartNextPhaseRoutine()
     {
-        battleState = BattleState.TurnTransition;
         Log("次のフェーズへ！", BattleLogType.System);
         yield return StartCoroutine(battleNoticeManager.Show(BattleNoticeType.NextPhase));
 
@@ -377,8 +376,6 @@ public class BattleManager : MonoBehaviour
         var currentStage = battleSessionData.GetCurrentStage();
 
         StagePhase nextPhase = currentStage.GetStagePhases()[battleSessionData.GetCurrentPhaseIndex()];
-
-        enemyAreaManager.ClearAllDamageOverTime();  // 前フェーズで残っているDOTを削除
 
         enemyAreaManager.SetEnemyData(nextPhase.GetEnemiesList());
 
