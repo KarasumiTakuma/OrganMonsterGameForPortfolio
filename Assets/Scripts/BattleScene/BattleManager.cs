@@ -107,6 +107,7 @@ public class BattleManager : MonoBehaviour
 
         allyAreaManager.ProcessHealOverTime();
 
+        UpdateHPUI();
         yield return new WaitForSeconds(1.0f);
 
         battleState = BattleState.PlayerTurn; // その後、プレイヤーターン状態にする
@@ -154,8 +155,10 @@ public class BattleManager : MonoBehaviour
             deckManager.DiscardCard(card);  // 使用したカードは墓地へ
             RefreshHandUI(); // カード使用後に、残った手札カード情報で手札UIを更新する
         }
+
+        UpdateHPUI();
         isSuccessCallback?.Invoke(playSuccess);  // カードを使用できたことを(isSuccessCallbackに登録しているメソッドに)通知して、その時の処理を行う。
-        CheckBattleEnd();   // 敵が全滅して、バトルが終了しているかをチェック
+        CheckBattleEnd();    // 敵が全滅して、ゲームが終了しているかをチェック
     }
 
     // カードの種類に応じて、味方や敵に効果を適用するメソッド。カードの効果発動が解決すれば、trueを返す
@@ -272,6 +275,17 @@ public class BattleManager : MonoBehaviour
 
             yield return new WaitForSeconds(1.0f);      // 攻撃後は少し間を空ける
         }
+    }
+
+    /// <summary>
+    /// HP表示更新
+    /// </summary>
+    private void UpdateHPUI()
+    {
+        if (playerHPText)
+            playerHPText.text = $"HP: {allyAreaManager.GetSharedCurrentHP()}";
+        if (enemyHPText)
+            enemyHPText.text = $"HP: ";
     }
 
     // 手札カードデータを入手して、手札UIを更新するメソッド

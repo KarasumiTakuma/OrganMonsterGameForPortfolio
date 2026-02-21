@@ -19,6 +19,9 @@ public class Monster : MonoBehaviour
     private Color originalColor;  // モンスターの元画像の色
     private Color damageColor = Color.red;  // ダメージ時のモンスターの色。赤に設定しておく。
 
+    private Coroutine highlightCoroutine;    // この敵に対してカードを使う場合に、画像をハイライトするためのコルーチン
+    private Color highlightColor = Color.blue;  // ハイライト時のモンスターの色。赤に設定しておく。
+
     private void Awake()
     {
         characterImage = GetComponentInChildren<Image>();  //　アタッチされている画像コンポーネントを取得
@@ -91,12 +94,52 @@ public class Monster : MonoBehaviour
 
     }
 
+    // この敵キャラクターの画像をハイライト(薄白く点滅)するアニメーションを開始するメソッド
+    public void StartHighlight()
+    {
+        if(characterImage == null) return;
+
+        if(highlightCoroutine != null)
+        {
+            StopCoroutine(highlightCoroutine);
+        }
+
+        highlightCoroutine = StartCoroutine(HighlightCoroutine());
+    }
+
+    public void StopHighlight()
+    {
+        if(characterImage == null) return;
+
+        if(highlightCoroutine != null)
+        {
+            StopCoroutine(highlightCoroutine);
+            highlightCoroutine = null;
+        }
+
+        characterImage.color = originalColor;
+    }
+
+    // ハイライト(薄白く点滅する)アニメーションのための子ルーチン
+    private IEnumerator HighlightCoroutine()
+    {
+
+        while (true)
+        {
+            characterImage.color = highlightColor;
+            yield return new WaitForSeconds(0.3f);
+
+            characterImage.color = originalColor;
+            yield return new WaitForSeconds(0.3f);
+        }
+    }
+
 
 
     // ゲッター（必要な情報だけ外部に公開）
     public int GetMonsterID() => monsterID;
     public string GetMonsterName() => monsterName;
-    public int GetHP() => maxHP;
+    public int GetMaxHP() => maxHP;
     public int GetCurrentHP() => currentHP;
     public int GetAttackPower() => attackPower;
     public Sprite GetImage() => monsterImage;
