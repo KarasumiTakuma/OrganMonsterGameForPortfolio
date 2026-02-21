@@ -23,6 +23,8 @@ public class BattleManager : MonoBehaviour
 
     private BattleState battleState; // バトル中の状態をBattleState型として保持するための変数
 
+    private bool isEndingBattle = false;  // CheckBattleEndが多重実行されるのを防ぐため変数
+
 
     // Awake()には、他シーンからバトルシーンに移動した時に、手持ちデータとしてセットした3体モンスターデータから
     // 30枚のカードデッキ情報を読み出して、deckManagerを用いて山札にセットする処理を行う予定
@@ -37,7 +39,7 @@ public class BattleManager : MonoBehaviour
         }
 
         var currentStage = battleSessionData.GetCurrentStage();
-        StagePhase firstPhase = 
+        StagePhase firstPhase =
             currentStage.GetStagePhases()[battleSessionData.GetCurrentPhaseIndex()];
 
         enemyAreaManager.SetEnemyData(firstPhase.GetEnemiesList());
@@ -79,10 +81,8 @@ public class BattleManager : MonoBehaviour
     {
         battleState = BattleState.TurnTransition;
 
-        battleNoticeManager.Show(BattleNoticeType.BattleStart);  // 「バトル開始」の通知を表示
+        yield return battleNoticeManager.Show(BattleNoticeType.BattleStart);  // 「バトル開始」の通知を表示
         Log("バトル開始！", BattleLogType.System);  // 「バトル開始」の戦闘ログ表示
-
-        yield return new WaitForSeconds(2.0f);  // バトル開始の通知、ログ表示時間
 
         // 1ターン目開始
         StartPlayerTurn();
@@ -99,14 +99,12 @@ public class BattleManager : MonoBehaviour
 
         battleState = BattleState.TurnTransition;  // バトルの状態を「演出中」にする
 
-        battleNoticeManager.Show(BattleNoticeType.PlayerTurn);
+        yield return battleNoticeManager.Show(BattleNoticeType.PlayerTurn);
 
         Log("プレイヤーのターン開始！", BattleLogType.Attention);
 
-        yield return new WaitForSeconds(2.0f);  // 少し間を空ける
 
         allyAreaManager.ProcessHealOverTime();
-
         yield return new WaitForSeconds(1.0f);
 
         battleState = BattleState.PlayerTurn; // その後、プレイヤーターン状態にする
@@ -155,7 +153,9 @@ public class BattleManager : MonoBehaviour
             RefreshHandUI(); // カード使用後に、残った手札カード情報で手札UIを更新する
         }
         isSuccessCallback?.Invoke(playSuccess);  // カードを使用できたことを(isSuccessCallbackに登録しているメソッドに)通知して、その時の処理を行う。
-        CheckBattleEnd();   // 敵が全滅して、バトルが終了しているかをチェック
+
+        // 敵が全滅して、バトルが終了しているかをチェック
+        StartCoroutine(CheckBattleEnd()); 
     }
 
     // カードの種類に応じて、味方や敵に効果を適用するメソッド。カードの効果発動が解決すれば、trueを返す
@@ -223,16 +223,17 @@ public class BattleManager : MonoBehaviour
     {
         battleState = BattleState.TurnTransition;  // バトルの状態を「演出中」にする
 
-        battleNoticeManager.Show(BattleNoticeType.EnemyTurn);
+        yield return battleNoticeManager.Show(BattleNoticeType.EnemyTurn);
         Log("敵のターン!", BattleLogType.Attention);
-
-        yield return new WaitForSeconds(2.0f);  // ターン開始演出の待ち時間
 
         // 継続ダメージ効果を適用し、敵が全滅したかを判定
         enemyAreaManager.ProcessDamageOverTime();
         yield return new WaitForSeconds(1.0f);
+        yield return StartCoroutine(CheckBattleEnd());
+        // 継続ダメージにより、敵が全滅し、バトルが終了したかをチェック
+        if (battleState == BattleState.Victory) yield break;
 
-        if (CheckBattleEnd()) yield break;  // 継続ダメージにより、敵が全滅し、バトルが終了したかをチェック
+
         yield return new WaitForSeconds(0.8f);  // 演出の待ち時間
 
 
@@ -247,7 +248,9 @@ public class BattleManager : MonoBehaviour
 
         // プレイヤーが死亡し、バトルが終了したか(ゲームオーバーか)を確かめ、ゲーム終了していたら
         // コルーチンも終了させる
-        if (CheckBattleEnd()) yield break;
+        yield return StartCoroutine(CheckBattleEnd());
+
+        if (battleState == BattleState.GameOver) yield break;
 
         // 次のプレイヤーターンへ
         StartPlayerTurn();
@@ -296,12 +299,14 @@ public class BattleManager : MonoBehaviour
 
     // バトルが終了しているかを確認し、その結果に応じた処理をし、
     // 終了状態をtrueとして返すメソッド
-    private bool CheckBattleEnd()
+    private IEnumerator CheckBattleEnd()
     {
+        if (isEndingBattle) yield break;
 
         // 敵が全滅していたら、「勝利」として処理する
         if (enemyAreaManager.GetIsAllMonstersDead())
         {
+            isEndingBattle = true;
             battleState = BattleState.Victory;
             Log("敵は全滅した！", BattleLogType.Attention);
             handAreaManager.SetVisible(false);  // 手札の非表示
@@ -323,54 +328,47 @@ public class BattleManager : MonoBehaviour
 
                 int clearRewardPoints = currentPhase.GetClearRewardPoints();
 
-                battleNoticeManager.ShowVictoryAndReward(clearRewardPoints);// 勝利した際の通知・報酬の表示
+                yield return battleNoticeManager.ShowVictoryAndReward(clearRewardPoints);  // 勝利した際の通知・報酬の表示
 
                 GameManager.Instance.PlayerData.AddPoints(clearRewardPoints);
 
                 if (battleSessionData.IsThereNextPhase())
                 {
-                    StartCoroutine(StartNextPhaseRoutine());
-                    return true;
+                    yield return StartCoroutine(StartNextPhaseRoutine());
                 }
                 else
                 {
                     // 最終フェーズのみステージクリア
                     Log("ステージクリア！", BattleLogType.Attention);
 
-                    battleNoticeManager.Show(BattleNoticeType.StageClear);
+                    yield return battleNoticeManager.Show(BattleNoticeType.StageClear);
 
                     GameManager.Instance.PlayerData.SetClearedStage(currentStage.GetStageID());
 
-                    StartCoroutine(ReturnToLabScene()); // LabSceneに戻る
-
-                    return true;
+                    yield return StartCoroutine(ReturnToLabScene()); // LabSceneに戻る
                 }
             }
-            return true;
         }
 
         // 味方(プレイヤー)が死んでいたら、「GameOver」として処理する
         if (allyAreaManager.GetIsDead())
         {
+            isEndingBattle = true;
             battleState = BattleState.GameOver;
             Log("味方は全滅した…", BattleLogType.Attention);
-            battleNoticeManager.Show(BattleNoticeType.GameOver);    // 敗北した際の通知の表示
+            yield return StartCoroutine(battleNoticeManager.Show(BattleNoticeType.GameOver));    // 敗北した際の通知の表示
             handAreaManager.SetVisible(false);  // 手札の非表示
             endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
             fireballManager.StopSpawning();  // fireballの生成を停止する
             StartCoroutine(ReturnToLabScene());  // LabSceneに戻る
-            return true;
         }
-
-        return false;
     }
 
     // 次のフェーズへ行く際の処理を行うコルーチン
     private IEnumerator StartNextPhaseRoutine()
     {
-        yield return new WaitForSeconds(5.0f);  // 前の演出の待ち時間
         Log("次のフェーズへ！", BattleLogType.System);
-        battleNoticeManager.Show(BattleNoticeType.NextPhase);
+        yield return StartCoroutine(battleNoticeManager.Show(BattleNoticeType.NextPhase));
 
         var battleSessionData = BattleSessionData.Instance;
         battleSessionData.AdvancePhase();
@@ -387,18 +385,20 @@ public class BattleManager : MonoBehaviour
 
         UpdatePhaseUI();
 
-        StartPlayerTurn();
+        isEndingBattle = false;
+
         yield return new WaitForSeconds(1.5f);
+        StartPlayerTurn();
     }
 
     // 数秒待ってからラボシーンへ戻るコルーチン
     private IEnumerator ReturnToLabScene()
     {
-        yield return new WaitForSeconds(3.0f); // 演出等が終了するまで待つ
+        yield return new WaitForSeconds(2.0f);
         GameManager.Instance.GoToLab();  // ラボシーンへ移動
     }
 
-    
+
 
     // 戦闘ログにメッセージを追加するメソッド。メッセージのタイプも引数として与えること。
     private void Log(string message, BattleLogType type)
@@ -412,10 +412,8 @@ public class BattleManager : MonoBehaviour
     {
         var battleSessionData = BattleSessionData.Instance;
         var currentStage = battleSessionData.GetCurrentStage();
-
-        stagePhaseUI.text =  
+        stagePhaseUI.text =
             battleSessionData.GetCurrentPhaseIndex() + 1 + " / " + currentStage.GetStagePhases().Count;
-
     }
 
 
@@ -444,7 +442,9 @@ public class BattleManager : MonoBehaviour
                 allyAreaManager.HealSharedHP(effectResult.effectAmount);
                 break;
         }
-        CheckBattleEnd();  // 　バトルが終了(勝利 or GameOver)しているかを確かめる。
+
+        // 　バトルが終了(勝利 or GameOver)しているかを確かめる。
+        StartCoroutine(CheckBattleEnd());
     }
 }
 

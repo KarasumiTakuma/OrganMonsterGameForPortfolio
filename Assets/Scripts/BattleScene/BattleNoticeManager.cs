@@ -17,7 +17,7 @@ public class BattleNoticeManager : MonoBehaviour
 
     // 通知の表示を行う処理を外部から呼び出すメソッド
     // battleNoticeTypeは、表示する通知の種類。durationは表示したい時間
-    public void Show(BattleNoticeType battleNoticeType, float duration = 2.0f)
+    public IEnumerator Show(BattleNoticeType battleNoticeType, float duration = 2.0f)
     {
         // 表示中の通知があるなら、コルーチンを止めて、
         // 新たな通知を表示する
@@ -27,7 +27,7 @@ public class BattleNoticeManager : MonoBehaviour
             noticeObject.SetActive(false); 
         }
 
-        currentRoutine = StartCoroutine(ShowRoutine(battleNoticeType, duration));
+         yield return currentRoutine = StartCoroutine(ShowRoutine(battleNoticeType, duration));
     }
 
     // 通知の種類に応じたメッセージをduration秒間表示し続けるコルーチン
@@ -72,7 +72,7 @@ public class BattleNoticeManager : MonoBehaviour
     }
 
     //　「報酬ポイント」の通知表示専用の処理を外部から呼び出すメソッド
-    public void ShowVictoryAndReward(int points, float duration = 1.5f)
+    public IEnumerator ShowVictoryAndReward(int points, float duration = 2.0f)
     {
         if(currentRoutine != null)
         {
@@ -80,7 +80,7 @@ public class BattleNoticeManager : MonoBehaviour
             noticeObject.SetActive(false); 
         }
 
-        currentRoutine = StartCoroutine(ShowVictoryAndRewardRoutine(points, duration));
+        yield return currentRoutine = StartCoroutine(ShowVictoryAndRewardRoutine(points, duration));
     }
     
     // 獲得した研究ポイントのメッセージをduration秒間表示し続けるコルーチン
