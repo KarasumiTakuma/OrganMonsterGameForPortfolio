@@ -502,4 +502,3 @@ public enum BattleState
     Victory,        // 勝利状態
     GameOver        // ゲームオーバーの状態
 }
-
