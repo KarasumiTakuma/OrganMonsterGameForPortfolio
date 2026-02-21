@@ -43,8 +43,10 @@ public class ManaManager : MonoBehaviour
 
     public void ResetMana()
     {
+        turnCount = 0;
         currentMana = 0;
         currentMaxMana = 0;
+        UpdateManaUI();
     }
 
     // マナUI更新
