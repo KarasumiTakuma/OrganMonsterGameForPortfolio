@@ -10,11 +10,12 @@ public class BattleSessionData : MonoBehaviour
     public static BattleSessionData Instance { get; private set; }
 
     private StageInfo currentStage;  // 現在選択されているステージ情報
+    private int currentPhaseIndex;   // 現在選択されているステージの、現在のフェーズ
     private List<AllyMonsterData> playerAllies;  // 選択中のプレイヤーパーティの味方モンスターリスト
     private List<Card> playerCards; // 味方モンスターが持つカード情報をまとめたリスト
 
     private void Awake()
-    {   
+    {
         // 既にこのシングルトンが生成されていたら、このスクリプトを付けた新たなゲームオブジェクトは破壊される
         // シングルトンの二重生成を防止
         if (Instance != null && Instance != this)
@@ -33,17 +34,31 @@ public class BattleSessionData : MonoBehaviour
     public void ClearData()
     {
         currentStage = null;
+        currentPhaseIndex = 0;
         playerAllies = null;
         playerCards = null;
     }
 
-    // ゲットメソッド
+    // ゲッター
     public StageInfo GetCurrentStage() => currentStage;
     public List<AllyMonsterData> GetPlayerAlliesList() => playerAllies;
+    public int GetCurrentPhaseIndex() => currentPhaseIndex;
     public List<Card> GetPlayerCardsList() => playerCards;
 
-    // セットメソッド
-    public void SetCurrentStage(StageInfo stageInfo) {currentStage = stageInfo;}
-    public void SetPlayerAlliesList(List<AllyMonsterData> allyMonsterData) {playerAllies = allyMonsterData;}
-    public void SetPlayerCardList(List<Card> cards) {playerCards = cards;}
+    // セッター
+    public void SetCurrentStage(StageInfo stageInfo) { currentStage = stageInfo; }
+    public void SetPhaseIndex(int phaseIndex) { currentPhaseIndex = phaseIndex; }
+    public void SetPlayerAlliesList(List<AllyMonsterData> allyMonsterData) { playerAllies = allyMonsterData; }
+    public void SetPlayerCardList(List<Card> cards) { playerCards = cards; }
+
+    // フェーズを進める
+    public void AdvancePhase() { currentPhaseIndex++; }
+
+    // 次のフェーズがあるかどうか
+    public bool IsThereNextPhase()
+    {
+        if (currentStage == null) return false;
+
+        return currentPhaseIndex < currentStage.GetStagePhases().Count - 1;
+    }
 }
