@@ -107,7 +107,6 @@ public class BattleManager : MonoBehaviour
 
         allyAreaManager.ProcessHealOverTime();
 
-        UpdateHPUI();
         yield return new WaitForSeconds(1.0f);
 
         battleState = BattleState.PlayerTurn; // その後、プレイヤーターン状態にする
@@ -155,10 +154,52 @@ public class BattleManager : MonoBehaviour
             deckManager.DiscardCard(card);  // 使用したカードは墓地へ
             RefreshHandUI(); // カード使用後に、残った手札カード情報で手札UIを更新する
         }
-
-        UpdateHPUI();
         isSuccessCallback?.Invoke(playSuccess);  // カードを使用できたことを(isSuccessCallbackに登録しているメソッドに)通知して、その時の処理を行う。
-        CheckBattleEnd();    // 敵が全滅して、ゲームが終了しているかをチェック
+        CheckBattleEnd();   // 敵が全滅して、バトルが終了しているかをチェック
+    }
+
+    // カードの種類に応じて、味方や敵に効果を適用するメソッド。カードの効果発動が解決すれば、trueを返す
+    private bool isSuccessResolveCardAndEffect(Card card, Vector2 dropPosition)
+    {
+        bool playSuccess = false;
+        int targetIndex = -1;
+        switch (card.GetCardEffectType())
+        {
+            case CardEffectType.AttackToSelected:  // 選択している敵への単体攻撃
+                targetIndex = enemyAreaManager.GetSelectedEnemyIndex(dropPosition);
+                enemyAreaManager.TakeDamageToTargetEnemy(targetIndex, card.GetPower());
+                playSuccess = true;
+                AudioManager.Instance.PlaySE(AttackSoundEffect);
+                break;
+
+            case CardEffectType.AttackToAll:      // 敵全体への攻撃
+                enemyAreaManager.TakeDamageToAll(card.GetPower());
+                AudioManager.Instance.PlaySE(AttackSoundEffect);
+                playSuccess = true;
+                break;
+
+            case CardEffectType.Heal:             // 味方HPを回復
+                allyAreaManager.HealSharedHP(card.GetPower());
+                AudioManager.Instance.PlaySE(HealSoundEffect);
+                playSuccess = true;
+                break;
+
+            // case CardEffectType.Buff:             // 味方にバフを与えて強化
+            //     allyAreaManager.ApplyBuff(card.GetPower(), card.GetDurationTurn());
+            //     break;
+
+            case CardEffectType.DamageOverTime:   // 敵単体への継続ダメージ
+                targetIndex = enemyAreaManager.GetSelectedEnemyIndex(dropPosition);
+                enemyAreaManager.ApplyDamageOverTimeToTargetEnemy(targetIndex, card.GetPower(), card.GetDurationTurn());
+                playSuccess = true;
+                break;
+
+            case CardEffectType.HealOverTime:     // 味方HPの継続回復
+                allyAreaManager.ApplyHealOverTime(card.GetPower(), card.GetDurationTurn());
+                playSuccess = true;
+                break;
+        }
+        return playSuccess;
     }
 
     // カードの種類に応じて、味方や敵に効果を適用するメソッド。カードの効果発動が解決すれば、trueを返す
@@ -275,17 +316,6 @@ public class BattleManager : MonoBehaviour
 
             yield return new WaitForSeconds(1.0f);      // 攻撃後は少し間を空ける
         }
-    }
-
-    /// <summary>
-    /// HP表示更新
-    /// </summary>
-    private void UpdateHPUI()
-    {
-        if (playerHPText)
-            playerHPText.text = $"HP: {allyAreaManager.GetSharedCurrentHP()}";
-        if (enemyHPText)
-            enemyHPText.text = $"HP: ";
     }
 
     // 手札カードデータを入手して、手札UIを更新するメソッド
@@ -472,3 +502,4 @@ public enum BattleState
     Victory,        // 勝利状態
     GameOver        // ゲームオーバーの状態
 }
+
