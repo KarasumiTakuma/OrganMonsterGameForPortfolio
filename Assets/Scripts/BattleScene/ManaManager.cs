@@ -5,8 +5,8 @@ public class ManaManager : MonoBehaviour
 {
     [Header("Mana Settings")]
     [SerializeField] private int maxMana = 10;   // 到達できる最大マナ
-    [SerializeField] private int currentMana;    // 現在のマナ(残り使用可能なマナ数)
     [SerializeField] private TMP_Text manaText;  // マナを表示するUI
+    private int currentMana;    // 現在のマナ(残り使用可能なマナ数)
 
     private int currentMaxMana; // 今のターンの最大マナ
 
