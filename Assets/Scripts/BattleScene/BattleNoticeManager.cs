@@ -112,4 +112,3 @@ public enum BattleNoticeType
     StageClear,
     GameOver
 }
-
