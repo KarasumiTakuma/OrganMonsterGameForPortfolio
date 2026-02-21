@@ -41,6 +41,12 @@ public class ManaManager : MonoBehaviour
         }
     }
 
+    public void ResetMana()
+    {
+        currentMana = 0;
+        currentMaxMana = 0;
+    }
+
     // マナUI更新
     private void UpdateManaUI()
     {
