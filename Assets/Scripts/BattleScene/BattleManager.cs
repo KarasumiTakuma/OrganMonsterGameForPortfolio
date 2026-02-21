@@ -202,6 +202,50 @@ public class BattleManager : MonoBehaviour
         return playSuccess;
     }
 
+    // カードの種類に応じて、味方や敵に効果を適用するメソッド。カードの効果発動が解決すれば、trueを返す
+    private bool isSuccessResolveCardAndEffect(Card card, Vector2 dropPosition)
+    {
+        bool playSuccess = false;
+        int targetIndex = -1;
+        switch (card.GetCardEffectType())
+        {
+            case CardEffectType.AttackToSelected:  // 選択している敵への単体攻撃
+                targetIndex = enemyAreaManager.GetSelectedEnemyIndex(dropPosition);
+                enemyAreaManager.TakeDamageToTargetEnemy(targetIndex, card.GetPower());
+                playSuccess = true;
+                AudioManager.Instance.PlaySE(AttackSoundEffect);
+                break;
+
+            case CardEffectType.AttackToAll:      // 敵全体への攻撃
+                enemyAreaManager.TakeDamageToAll(card.GetPower());
+                AudioManager.Instance.PlaySE(AttackSoundEffect);
+                playSuccess = true;
+                break;
+
+            case CardEffectType.Heal:             // 味方HPを回復
+                allyAreaManager.HealSharedHP(card.GetPower());
+                AudioManager.Instance.PlaySE(HealSoundEffect);
+                playSuccess = true;
+                break;
+
+            // case CardEffectType.Buff:             // 味方にバフを与えて強化
+            //     allyAreaManager.ApplyBuff(card.GetPower(), card.GetDurationTurn());
+            //     break;
+
+            case CardEffectType.DamageOverTime:   // 敵単体への継続ダメージ
+                targetIndex = enemyAreaManager.GetSelectedEnemyIndex(dropPosition);
+                enemyAreaManager.ApplyDamageOverTimeToTargetEnemy(targetIndex, card.GetPower(), card.GetDurationTurn());
+                playSuccess = true;
+                break;
+
+            case CardEffectType.HealOverTime:     // 味方HPの継続回復
+                allyAreaManager.ApplyHealOverTime(card.GetPower(), card.GetDurationTurn());
+                playSuccess = true;
+                break;
+        }
+        return playSuccess;
+    }
+
     // プレイヤーがターンエンド
     public void EndPlayerTurn()
     {

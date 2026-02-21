@@ -49,6 +49,14 @@ public class BattleNoticeManager : MonoBehaviour
                 noticeText.text = "敵のターン";
                 noticeText.color = Color.red;
                 break;
+            case BattleNoticeType.NextPhase:
+                noticeText.text = "次のフェーズへ!";
+                noticeText.color = Color.white;
+                break;
+            case BattleNoticeType.StageClear:
+                noticeText.text = "ステージクリア！";
+                noticeText.color = Color.yellow;
+                break;
             case BattleNoticeType.GameOver:
                 noticeText.text = "GameOver";
                 noticeText.color = Color.red;
@@ -64,7 +72,7 @@ public class BattleNoticeManager : MonoBehaviour
     }
 
     //　「報酬ポイント」の通知表示専用の処理を外部から呼び出すメソッド
-    public void ShowVictoryAndReward(int points, float duration = 2.0f)
+    public void ShowVictoryAndReward(int points, float duration = 1.5f)
     {
         if(currentRoutine != null)
         {
@@ -94,12 +102,13 @@ public class BattleNoticeManager : MonoBehaviour
     }
 }
 
-// バトル中の通知を、enum(列挙)型で4つのタイプに分ける
+// バトル中の通知を、enum(列挙)型で6つのタイプに分ける
 public enum BattleNoticeType
 {
     BattleStart,
     PlayerTurn,
     EnemyTurn,
+    NextPhase,
+    StageClear,
     GameOver
 }
-

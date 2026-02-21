@@ -69,14 +69,6 @@ public class MonsterAreaManager : MonoBehaviour
         }
     }
 
-    // EnemyAreaManagerクラスの場合、生成したモンスターが攻撃を受けた際にMonsterクラスのTakeDamageメソッドを呼び出して
-    // そのモンスターへのダメージ処理をするメソッド。AllyAreaManagerクラスの場合は、共有HPへのダメージ処理
-    // ↑コメント変更予定
-    protected virtual void ApplyDamage(int index, int damage)
-    {
-
-    }
-
     // 生成した各モンスターの各々に対してMonsterクラスのTakeDamageメソッドを呼び出して、
     // 全体攻撃によるダメージ処理をするメソッド(味方側Allyは共有HPであるので、そのまま共有HPにダメージを与える)
     protected virtual void ApplyDamageToAll(int damage)

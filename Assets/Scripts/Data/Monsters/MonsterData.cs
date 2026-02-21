@@ -33,7 +33,7 @@ public class MonsterData : ScriptableObject, IDisplayable
     // --- ゲッターメソッド ---
     public int GetID() => monsterID;
     public string GetName() => monsterName;
-    public int GetHP() => maxHp;
+    public int GetMaxHP() => maxHp;
     public int GetAttackPower() => attackPower;
     public MonsterType GetMonsterType() => type;
     public int GetRarity() => rarity;

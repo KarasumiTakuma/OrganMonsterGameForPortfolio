@@ -9,7 +9,7 @@ public class CardData : ScriptableObject
     [SerializeField] private int manaCost;             // 消費マナ
 
     [Header("効果情報")]
-    [SerializeField] private CardEffectType effectType;  // カードの効果の種類
+    [SerializeField] private CardEffectType cardEffectType;  // カードの効果の種類
 
     [Header("効果設定")]
     [SerializeField] private int power;                // 効果量（攻撃力や回復量など）
@@ -26,7 +26,7 @@ public class CardData : ScriptableObject
 
     public string GetCardName() => cardName;
     public int GetManaCost() => manaCost;
-    public CardEffectType GetCardEffectType() => effectType;
+    public CardEffectType GetCardEffectType() => cardEffectType;
     public int GetPower() => power;
     public int GetDurationTurn() => durationTurn;
     public Sprite GetCardImage() => cardImage;

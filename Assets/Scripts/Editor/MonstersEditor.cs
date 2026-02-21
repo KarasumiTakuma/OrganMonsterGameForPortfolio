@@ -113,18 +113,18 @@ public class MonstersEditor : EditorWindow
                 // --- ゲッターで現在の値をUIに表示 ---
                 // DelayedTextFieldはEnterかフォーカスを外した時に値の変更を確定させる->入力流にEndChangeCheck()が実行されるのを防ぐ
                 string newName = EditorGUILayout.DelayedTextField("表示名", monster.GetName());
-                int newID = EditorGUILayout.IntField("モンスターID", monster.GetID());
+                int newID = EditorGUILayout.DelayedIntField("モンスターID", monster.GetID());
                 int newRarity = EditorGUILayout.IntSlider("レアリティ", monster.GetRarity(), 1, 5);
                 MonsterType newType = (MonsterType)EditorGUILayout.EnumPopup("タイプ", monster.GetMonsterType());
-                int newMaxHP = EditorGUILayout.IntField("最大HP", monster.GetHP());
+                int newMaxHP = EditorGUILayout.IntField("最大HP", monster.GetMaxHP());
                 int newAttackPower = EditorGUILayout.IntField("攻撃力", monster.GetAttackPower());
                 Sprite newIcon = (Sprite)EditorGUILayout.ObjectField("アイコン", monster.GetIcon(), typeof(Sprite), false, GUILayout.Height(64));
                 Sprite newShadowIcon = (Sprite)EditorGUILayout.ObjectField("影アイコン", monster.GetShadowIcon(), typeof(Sprite), false, GUILayout.Height(64));
 
                 EditorGUILayout.LabelField("説明文");
-                string newDescription = EditorGUILayout.TextArea(monster.GetDescription(), GUILayout.Height(40));
+                string newDescription = EditorGUILayout.DelayedTextField(monster.GetDescription(), GUILayout.Height(40));
                 EditorGUILayout.LabelField("ヒント");
-                string newHint = EditorGUILayout.TextArea(monster.GetHint(), GUILayout.Height(40));
+                string newHint = EditorGUILayout.DelayedTextField(monster.GetHint(), GUILayout.Height(40));
 
                 
 
