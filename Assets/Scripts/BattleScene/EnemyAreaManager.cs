@@ -48,7 +48,8 @@ public class EnemyAreaManager : MonsterAreaManager
     {
         if (spawnedMonsters.Count == 0) return;
 
-        if(IsClickedTargetMode){
+        if (IsClickedTargetMode)
+        {
             targetIndex = clickedEnemyIndex;
         }
 
@@ -112,7 +113,7 @@ public class EnemyAreaManager : MonsterAreaManager
         {
             targetIndex = clickedEnemyIndex;
         }
-        
+
 
         if (targetIndex < 0 || targetIndex >= spawnedMonsters.Count || spawnedMonsters[targetIndex].GetIsDead())
         {
@@ -180,6 +181,11 @@ public class EnemyAreaManager : MonsterAreaManager
         }
 
         LogIfDead();
+    }
+
+    public void ClearAllDamageOverTime()
+    {
+        damageOverTimeEffects.Clear();
     }
 
 
@@ -257,7 +263,7 @@ public class EnemyAreaManager : MonsterAreaManager
             enemy?.SetTargetMarkVisible(false);
 
             Log($"{spawnedMonsters[clickedEnemyIndex].GetMonsterName()} の選択を解除", BattleLogType.System);  // 元々選択されていた敵の選択を解除したメッセージをログに表示。
-           clickedEnemyIndex = NoSelection;
+            clickedEnemyIndex = NoSelection;
             return;
         }
 
@@ -276,16 +282,16 @@ public class EnemyAreaManager : MonsterAreaManager
 
         Log($"{spawnedMonsters[clickedEnemyIndex].GetMonsterName()}を選択", BattleLogType.System); // 選択した旨をメッセージとしてログに追加
     }
-    
+
 
     public int GetSelectedEnemyIndex(Vector2 position)
     {
         int selectedEnemyIndex = NoSelection;
 
-        if(IsClickedTargetMode)
+        if (IsClickedTargetMode)
             selectedEnemyIndex = this.clickedEnemyIndex;
 
-        if(IsDragAutoMode)
+        if (IsDragAutoMode)
             selectedEnemyIndex = GetNearestEnemyIndex(position);
 
         return selectedEnemyIndex;
@@ -345,7 +351,7 @@ public class EnemyAreaManager : MonsterAreaManager
 
     public void HighlightAllEnemies()
     {
-       if (!IsDragAutoMode) return;
+        if (!IsDragAutoMode) return;
         foreach (var monster in spawnedMonsters)
         {
             if (!monster.GetIsDead())
