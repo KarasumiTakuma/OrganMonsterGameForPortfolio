@@ -10,6 +10,7 @@ public class Card
     private CardEffectType cardEffectType;
     private int power;
     private int durationTurn;
+    private string description;
     private Sprite cardImage;
 
     public Card(CardData cardData)
@@ -19,6 +20,7 @@ public class Card
         cardEffectType = cardData.GetCardEffectType();
         power = cardData.GetPower();
         durationTurn = cardData.GetDurationTurn();
+        description = cardData.GetDescription();
         cardImage = cardData.GetCardImage();
     }
 
@@ -27,5 +29,6 @@ public class Card
     public CardEffectType GetCardEffectType() => cardEffectType;
     public int GetPower() => power;
     public int GetDurationTurn() => durationTurn;
+    public string GetDescription() => description;
     public Sprite GetSprite() => cardImage;
 }

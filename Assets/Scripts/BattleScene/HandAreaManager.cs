@@ -12,6 +12,8 @@ public class HandAreaManager : MonoBehaviour
     [Header("Visual Control")]
     [SerializeField] private CanvasGroup canvasGroup;  // CanvasGroupは、子オブジェクトを含めたUI全体を制御するためのもの
 
+    [SerializeField] private CardDescriptionPanel cardDescriptionPanel;
+
     private readonly List<GameObject> spawnedCards = new List<GameObject>();
     private List<Card> handCardData;
 
@@ -77,7 +79,7 @@ public class HandAreaManager : MonoBehaviour
             var dragDrop = cardObj.GetComponent<CardUI_DragDrop>();
             if (dragDrop != null && onCardPlayed != null)
             {
-                dragDrop.Setup(cardData, enemyAreaManager, allyAreaManager);
+                dragDrop.Setup(cardData, enemyAreaManager, allyAreaManager, cardDescriptionPanel);
 
                 // 前回登録済みのイベントをクリア（同じイベントの重複防止）
                 dragDrop.ClearOnCardPlayed();
@@ -88,6 +90,12 @@ public class HandAreaManager : MonoBehaviour
                 // 第三引数をAction<bool>型のメソッドとするメソッド群が登録されている。
                 // onCardPlayedにあるメソッド群を、dragDrop.OnCardPlayedに登録する
                 dragDrop.OnCardPlayed += (card, dropPosition, callback) => onCardPlayed?.Invoke(card, dropPosition, callback);
+            }
+
+            var cardHoverHandler = cardObj.GetComponent<CardHoverHandler>();
+            if(cardHoverHandler != null && cardDescriptionPanel != null)
+            {
+                cardHoverHandler.Setup(cardData, cardDescriptionPanel);
             }
 
             spawnedCards.Add(cardObj);

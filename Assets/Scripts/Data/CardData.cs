@@ -29,6 +29,7 @@ public class CardData : ScriptableObject
     public CardEffectType GetCardEffectType() => cardEffectType;
     public int GetPower() => power;
     public int GetDurationTurn() => durationTurn;
+    public string GetDescription() => description;
     public Sprite GetCardImage() => cardImage;
 }
 
