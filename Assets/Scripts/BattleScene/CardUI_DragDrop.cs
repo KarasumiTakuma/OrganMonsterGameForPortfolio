@@ -12,6 +12,7 @@ public class CardUI_DragDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private Card card;
     private Transform originalParent;
     private Vector3 originalPosition;
+    private CardDescriptionPanel cardDescriptionPanel;
     private Canvas canvas;  // ドラッグ時にUIが隠れないようにする
 
     // CardPlayedHandlerカードプレイを通知するイベント
@@ -27,11 +28,12 @@ public class CardUI_DragDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     // 他のクラスからこのイベント変数にメソッドを登録できる。
     public event CardPlayedHandler OnCardPlayed;
 
-    public void Setup(Card card, EnemyAreaManager enemyAreaManager, AllyAreaManager allyAreaManager)
+    public void Setup(Card card, EnemyAreaManager enemyAreaManager, AllyAreaManager allyAreaManager, CardDescriptionPanel descriptionPanel)
     {
         this.card = card;
         this.enemyAreaManager = enemyAreaManager;
         this.allyAreaManager = allyAreaManager;
+        this.cardDescriptionPanel = descriptionPanel;
         this.canvas = GetComponentInParent<Canvas>();
     }
 
@@ -43,6 +45,10 @@ public class CardUI_DragDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     // ドラッグ開始直後の処理
     public void OnBeginDrag(PointerEventData eventData)
     {
+        if(cardDescriptionPanel != null)
+        {
+            cardDescriptionPanel.HideDescriptionPanel();
+        }
         originalParent = transform.parent;
         originalPosition = transform.position;
         transform.SetParent(canvas.transform); // UIが最前面になるように

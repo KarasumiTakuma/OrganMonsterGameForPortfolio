@@ -497,6 +497,7 @@ GameObject:
   - component: {fileID: 3635816274676653824}
   - component: {fileID: 7219771252235312611}
   - component: {fileID: 3162222350120367514}
+  - component: {fileID: -8393193688011340493}
   m_Layer: 5
   m_Name: CardPrefab
   m_TagString: Untagged
@@ -621,7 +622,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 341d9df2715a6404eadb07010ab35cc1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyAreaManager: {fileID: 0}
 --- !u!114 &3162222350120367514
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -638,3 +638,15 @@ MonoBehaviour:
   nameText: {fileID: 7622796254017178624}
   manaText: {fileID: 8889995620827628438}
   powerText: {fileID: 4610692868339999013}
+--- !u!114 &-8393193688011340493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8429789375590404261}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3667c28582a0e44ceb3ba858655e9cb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CardHoverHandler
