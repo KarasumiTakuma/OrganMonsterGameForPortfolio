@@ -157,8 +157,8 @@ public class HistoryDetailSystem : MonoBehaviour
         if (discoveredArtifacts.Contains(artifactData))
         {
             icon.sprite = artifactData.GetIcon();
-            objectName.text = artifactData.GetArtifactName();
-            rarityText.text = artifactData.GetArtifactRarity().ToString();
+            objectName.text = artifactData.GetName();
+            rarityText.text = artifactData.GetRarity().ToString();
             ownedCountText.text = artifactData.GetCount().ToString();
             descriptionText.text = artifactData.GetDescription();
 

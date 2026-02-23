@@ -22,8 +22,8 @@ public class ArtifactData : ScriptableObject
 
     // --- ゲッターメソッド ---
     public int GetArtifactID() => artifactID;
-    public string GetArtifactName() => artifactName;
-    public int GetArtifactRarity() => artifactRarity;
+    public string GetName() => artifactName;
+    public int GetRarity() => artifactRarity;
     public Sprite GetIcon() => icon;
     public Sprite GetShadowIcon() => shadowIcon;
     public string GetDescription() => description;
