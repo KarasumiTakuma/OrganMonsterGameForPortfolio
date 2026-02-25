@@ -46,7 +46,7 @@ public class AllyAreaManager : MonsterAreaManager
             else
             {
                 // MonsterData を味方用データへ変換
-                allyDat = MonsterDataConverter.ToAllyMonster(data);
+                allyDat = MonsterDataConverter.CreateAllyMonsterFrom(data);
             }
 
             allyDataList.Add(allyDat);
