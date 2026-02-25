@@ -152,7 +152,7 @@ public class MonstersEditor : EditorWindow
                     monster.SetID(newID);
                     monster.SetRarity(newRarity);
                     monster.SetMonsterType(newType);
-                    monster.SetHP(newMaxHP);
+                    monster.SetMaxHP(newMaxHP);
                     monster.SetAttackPower(newAttackPower);
                     monster.SetIcon(newIcon);
                     monster.SetShadowIcon(newShadowIcon);
@@ -232,7 +232,7 @@ public class MonstersEditor : EditorWindow
         newMonster.SetID(newMonsterId);
         newMonster.SetRarity(newMonsterRarity);
         newMonster.SetMonsterType(newMonsterType);
-        newMonster.SetHP(newMonsterMaxHp);
+        newMonster.SetMaxHP(newMonsterMaxHp);
         newMonster.SetAttackPower(newMonsterAttackPower);
         newMonster.SetIcon(newMonsterIcon);
 
