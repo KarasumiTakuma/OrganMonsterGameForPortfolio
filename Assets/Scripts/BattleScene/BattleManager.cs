@@ -3,31 +3,65 @@ using UnityEngine;
 using System.Collections;
 using TMPro;
 
+/// <summary>
+/// バトル全体の進行管理を担当するクラス。
+/// ターン制御、カード使用処理、バトル終了判定、UI更新などを統括する。
+/// </summary>
 public class BattleManager : MonoBehaviour
 {
     [Header("Managers")]
+    /// <summary>デッキ制御用マネージャ</summary>
     [SerializeField] private DeckManager deckManager;
+
+    /// <summary>マナ制御用マネージャ</summary>
     [SerializeField] private ManaManager manaManager;
-    [SerializeField] private HandAreaManager handAreaManager; // HandAreaManagerの参照
+
+    /// <summary>手札UI制御用マネージャ</summary>
+    [SerializeField] private HandAreaManager handAreaManager;
+
+    /// <summary>敵エリア制御用マネージャ</summary>
     [SerializeField] private EnemyAreaManager enemyAreaManager;
+
+    /// <summary>味方エリア制御用マネージャ</summary>
     [SerializeField] private AllyAreaManager allyAreaManager;
-    [SerializeField] private GameObject endTurnButton;  // プレイヤーターンの終了用ボタン
-    [SerializeField] private AudioClip AttackSoundEffect;  // 攻撃の効果音
-    [SerializeField] private AudioClip HealSoundEffect; // 回復の効果音
-    [SerializeField] private BattleNoticeManager battleNoticeManager;  // バトル中の通知の表示管理用
-    [SerializeField] private FireballManager fireballManager;  // Fireballの生成を 制御(実行/停止)
+
+    /// <summary>プレイヤーターン終了ボタン</summary>
+    [SerializeField] private GameObject endTurnButton;
+
+    /// <summary>攻撃効果音</summary>
+    [SerializeField] private AudioClip attackSoundEffect;
+
+    /// <summary>回復効果音</summary>
+    [SerializeField] private AudioClip healSoundEffect;
+
+    /// <summary>バトル通知表示マネージャ</summary>
+    [SerializeField] private BattleNoticeManager battleNoticeManager;
+
+    /// <summary>Fireball生成マネージャ</summary>
+    [SerializeField] private FireballManager fireballManager;
 
     [Header("UI")]
-    [SerializeField] private TMP_Text stagePhaseUI;       // ステージのフェーズ表示用
-    private bool isFirstTurn = true; // 最初のターンであるかどうかのフラグ。
 
-    private BattleState battleState; // バトル中の状態をBattleState型として保持するための変数
-    private bool isEndingBattle = false;  // CheckBattleEndが多重実行されるのを防ぐため変数
-    private int turnSequenceID = 0;     // ターンの切り替えにおいて、古いコルーチンを無効化するための番号
+    /// <summary>フェーズ表示UI</summary>
+    [SerializeField] private TMP_Text stagePhaseUI;
+
+    /// <summary>最初のターンであるかどうかのフラグ</summary>
+    private bool isFirstTurn = true;
+
+    /// <summary>現在のバトル状態</summary>
+    private BattleState battleState;
+
+    /// <summary>終了処理の多重実行を防止するフラグ</summary>
+    private bool isEndingBattle = false;
+
+    /// <summary>ターンの切り替えにおいて、古いコルーチンを無効化するための番号</summary>
+    private int turnSequenceID = 0;
 
 
-    // Awake()には、他シーンからバトルシーンに移動した時に、手持ちデータとしてセットした3体モンスターデータから
-    // 30枚のカードデッキ情報を読み出して、deckManagerを用いて山札にセットする処理を行う予定
+    /// <summary>
+    /// シーン開始前の初期化処理。
+    /// デッキ生成・敵/味方データ設定などを行う。
+    /// </summary>
     void Awake()
     {
 
@@ -42,13 +76,13 @@ public class BattleManager : MonoBehaviour
         StagePhase firstPhase =
             currentStage.GetStagePhases()[battleSessionData.GetCurrentPhaseIndex()];
 
+        // 敵・味方データ設定
         enemyAreaManager.SetEnemyData(firstPhase.GetEnemiesList());
-
         allyAreaManager.SetAllyData(battleSessionData.GetPlayerAlliesList().ConvertAll(ally => (MonsterData)ally));
 
-        // デッキを作成
+        // デッキ構築
         deckManager.ClearDeck();
-        foreach (var cardData in battleSessionData.GetPlayerCardsList())
+        foreach (var cardData in battleSessionData.GetPlayerDeckList())
         {
             deckManager.AddCardToDeck(cardData);
         }
@@ -57,83 +91,89 @@ public class BattleManager : MonoBehaviour
         deckManager.ShuffleDeck();
     }
 
+    /// <summary>
+    /// ゲーム開始時の処理。
+    /// オブジェクト生成・初期ドロー・イベント登録などを行う。
+    /// </summary>
     void Start()
     {
 
-        // 敵を生成
         enemyAreaManager.SpawnEnemies();
         allyAreaManager.SpawnAllies();
 
         // ゲーム開始時の手札5枚ドロー。ゲーム開始時の手札は5枚。
         deckManager.DrawInitialHand();
 
-        // Fireball(火の玉)がクリックされて、その効果を決定する際に
-        // 処理されるイベントメソッドを登録
+        // Fireballのイベント登録
         fireballManager.OnFireballEffectTriggered += HandleFireballEffect;
 
         UpdatePhaseUI();
 
-        StartCoroutine(BattleStartRoutine());  // ゲーム開始の通知やログ表示のためのコルーチンを始動
+        StartCoroutine(BattleStartRoutine());
 
     }
 
+    /// <summary>
+    /// バトル開始演出用コルーチン。
+    /// </summary>
     private IEnumerator BattleStartRoutine()
     {
         battleState = BattleState.TurnTransition;
-
-        yield return battleNoticeManager.Show(BattleNoticeType.BattleStart);  // 「バトル開始」の通知を表示
-        Log("バトル開始！", BattleLogType.System);  // 「バトル開始」の戦闘ログ表示
-
-        // 1ターン目開始
+        yield return battleNoticeManager.Show(BattleNoticeType.BattleStart);
+        Log("バトル開始！", BattleLogType.System);
         StartPlayerTurn();
     }
 
-    // プレイヤーターン開始
+    /// <summary>
+    /// プレイヤーターン開始処理。
+    /// </summary>
     private void StartPlayerTurn()
     {
         turnSequenceID++;
         StartCoroutine(PlayerTurnRoutine(turnSequenceID));
     }
 
+    /// <summary>
+    /// プレイヤーターン進行コルーチン。
+    /// </summary>
+    /// <param name="sequenceID">コルーチン識別ID</param>
     private IEnumerator PlayerTurnRoutine(int sequenceID)
     {
         
-        battleState = BattleState.TurnTransition;  // バトルの状態を「演出中」にする
+        battleState = BattleState.TurnTransition;
 
         yield return battleNoticeManager.Show(BattleNoticeType.PlayerTurn);
 
         Log("プレイヤーのターン開始！", BattleLogType.Attention);
 
-
-        allyAreaManager.ProcessHealOverTime();  // 継続回復の処理を行う
+        // 継続回復の処理
+        allyAreaManager.ProcessHealOverTime();
         yield return new WaitForSeconds(1.0f);
 
-        battleState = BattleState.PlayerTurn; // その後、プレイヤーターン状態にする
+        battleState = BattleState.PlayerTurn;
 
-        // マナ回復（ターン数に応じて使用可能マナ増加）
         manaManager.StartTurn();
-        DrawCardAtTurnStart(); // ターン開始時に手札が5枚になるまでカードをドローする(但し、手札が4枚以下の場合のみ)
+        DrawCardAtTurnStart(); // ターン開始時に手札が5枚になるまでカードをドローする
         isFirstTurn = false;  // 1ターン目が終了すると、それ以降はフラグがfalseに。
 
-        RefreshHandUI();  // 手札データを入手して、それを元に手札UIを表示。
+        RefreshHandUI();
 
-        handAreaManager.SetVisible(true); // 手札の表示
-        handAreaManager.SetInteractable(true);  // 手札を明るく表示し、操作可能状態に
-        endTurnButton.SetActive(true);  // プレイヤーターン終了ボタンを表示
-        fireballManager.StartSpawning();  // fireballの生成を開始する
+        handAreaManager.SetVisible(true);
+        handAreaManager.SetInteractable(true);
+        endTurnButton.SetActive(true);
+        fireballManager.StartSpawning();
     }
 
-    /// プレイヤーがカードを出したときに、そのカードの効果を使用する処理。マナが足りない場合は、効果を適用しない。
-    /// dropPositionは、カードをドロップした位置。
-    /// System.Action は C# 標準のデリゲート型。Action自体は引数なしのメソッド型。<T>のは引数Tがという意味。
-    /// isSuccessCallbackは、カードを使用できたかどうかをboolで通知し、それに応じた処理を行うメソッドを登録するデリゲート。
-    /// 成功なら true、失敗なら false。
-    /// CardUI_DragDrop側でカード削除や元の位置に戻す処理が記載されている(第二引数isSuccessCallbackの処理内容)
+    /// <summary>
+    /// カードを使用して、効果を発動する処理。
+    /// </summary>
+    /// <param name="card">使用するカード</param>
+    /// <param name="dropPosition">ドロップ位置</param>
+    /// <param name="isSuccessCallback">使用成功通知コールバック</param>
     public void PlayCard(Card card, Vector2 dropPosition, System.Action<bool> isSuccessCallback)
     {
-        if (battleState != BattleState.PlayerTurn) // プレイヤーターン中でない場合、
+        if (battleState != BattleState.PlayerTurn)
         {
-            // カードの効果を適用せずにそのままリターン
             isSuccessCallback?.Invoke(false);
             return;
         }
@@ -146,109 +186,131 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        bool playSuccess = isSuccessResolveCardAndEffect(card, dropPosition);  // カードの種類に応じて効果を適用。
+        bool playSuccess = SuccessResolveCardAndEffect(card, dropPosition);
 
         if (playSuccess)
         {
-            deckManager.DiscardCard(card);  // 使用したカードは墓地へ
-            RefreshHandUI(); // カード使用後に、残った手札カード情報で手札UIを更新する
+            deckManager.DiscardCard(card);
+            RefreshHandUI();
         }
-        isSuccessCallback?.Invoke(playSuccess);  // カードを使用できたことを(isSuccessCallbackに登録しているメソッドに)通知して、その時の処理を行う。
+        // カードを使用できたことを(isSuccessCallbackに登録しているメソッドに)通知して、その時の処理を行う。
+        isSuccessCallback?.Invoke(playSuccess);
 
-        // 敵が全滅して、バトルが終了しているかをチェック
-        StartCoroutine(CheckBattleEnd()); 
+        StartCoroutine(CheckBattleEnd());
     }
 
-    // カードの種類に応じて、味方や敵に効果を適用するメソッド。カードの効果発動が解決すれば、trueを返す
-    private bool isSuccessResolveCardAndEffect(Card card, Vector2 dropPosition)
+    /// <summary>
+    /// カードの効果タイプに応じて処理を分岐し、実際の効果を解決する。
+    /// ダメージ・回復・継続効果(DOT/HOT)の適用を担当する。
+    /// </summary>
+    /// <param name="card"> 使用されたカードデータ。</param>
+    /// <param name="dropPosition">
+    /// カードをドロップした位置。スクリーン座標。
+    /// 対象選択型カードのターゲット判定に使用する。
+    /// </param>
+    /// <returns> カード効果の適用に成功したかどうか。</returns>
+    private bool SuccessResolveCardAndEffect(Card card, Vector2 dropPosition)
     {
         bool playSuccess = false;
         int targetIndex = -1;
+
         switch (card.GetCardEffectType())
         {
-            case CardEffectType.AttackToSelected:  // 選択している敵への単体攻撃
+            case CardEffectType.AttackToSelected:
                 targetIndex = enemyAreaManager.GetSelectedEnemyIndex(dropPosition);
                 enemyAreaManager.TakeDamageToTargetEnemy(targetIndex, card.GetPower());
                 playSuccess = true;
-                AudioManager.Instance.PlaySE(AttackSoundEffect);
+                AudioManager.Instance.PlaySE(attackSoundEffect);
                 break;
 
-            case CardEffectType.AttackToAll:      // 敵全体への攻撃
+            case CardEffectType.AttackToAll:
                 enemyAreaManager.TakeDamageToAll(card.GetPower());
-                AudioManager.Instance.PlaySE(AttackSoundEffect);
+                AudioManager.Instance.PlaySE(attackSoundEffect);
                 playSuccess = true;
                 break;
 
-            case CardEffectType.Heal:             // 味方HPを回復
+            case CardEffectType.Heal:
                 allyAreaManager.HealSharedHP(card.GetPower());
-                AudioManager.Instance.PlaySE(HealSoundEffect);
+                AudioManager.Instance.PlaySE(healSoundEffect);
                 playSuccess = true;
                 break;
 
-            // case CardEffectType.Buff:             // 味方にバフを与えて強化
-            //     allyAreaManager.ApplyBuff(card.GetPower(), card.GetDurationTurn());
-            //     break;
-
-            case CardEffectType.DamageOverTime:   // 敵単体への継続ダメージ
+            case CardEffectType.DamageOverTime:
                 targetIndex = enemyAreaManager.GetSelectedEnemyIndex(dropPosition);
                 enemyAreaManager.ApplyDamageOverTimeToTargetEnemy(targetIndex, card.GetPower(), card.GetDurationTurn());
                 playSuccess = true;
                 break;
 
-            case CardEffectType.HealOverTime:     // 味方HPの継続回復
+            case CardEffectType.HealOverTime:
                 allyAreaManager.ApplyHealOverTime(card.GetPower(), card.GetDurationTurn());
                 playSuccess = true;
                 break;
         }
+
         return playSuccess;
     }
 
-    // プレイヤーがターンエンド
+    /// <summary>
+    /// プレイヤーターンを終了し、敵ターンへ移行する。
+    /// プレイヤー操作UIの停止・演出停止処理を行う。
+    /// </summary>
     public void EndPlayerTurn()
     {
-        if (battleState != BattleState.PlayerTurn) return;  // バトル状態がプレイヤーターンでなければ、何もしない。
+        if (battleState != BattleState.PlayerTurn) return;
 
-        endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
-        handAreaManager.SetInteractable(false); // 手札を暗く表示し、操作不可能状態に
-        fireballManager.StopSpawning();  // fireballの生成を停止する
-        EnemyTurn();
+        // UI・演出停止
+        endTurnButton.SetActive(false);
+        handAreaManager.SetInteractable(false);
+        fireballManager.StopSpawning();
+
+        // 敵ターン開始
+        StartEnemyTurn();
     }
 
-    //　敵ターン
-    private void EnemyTurn()
+    /// <summary>
+    /// 敵ターン開始処理。
+    /// ターン識別IDを更新し、敵ターンコルーチンを起動する。
+    /// </summary>
+    private void StartEnemyTurn()
     {
         turnSequenceID++;
         StartCoroutine(EnemyTurnRoutine(turnSequenceID));
     }
 
+    /// <summary>
+    /// 敵ターン進行コルーチン。
+    /// 継続ダメージ処理 → 攻撃処理 → 終了判定を順に実行する。
+    /// </summary>
+    /// <param name="sequenceID">
+    /// コルーチン識別用ID。
+    /// ターン切替時に古い処理を無効化するために使用。
+    /// </param>
     private IEnumerator EnemyTurnRoutine(int sequenceID)
     {
-        battleState = BattleState.TurnTransition;  // バトルの状態を「演出中」にする
+        battleState = BattleState.TurnTransition;
 
         yield return battleNoticeManager.Show(BattleNoticeType.EnemyTurn);
         Log("敵のターン!", BattleLogType.Attention);
 
-        // 継続ダメージ効果を適用し、敵が全滅したかを判定
+        // 継続ダメージ処理
         enemyAreaManager.ProcessDamageOverTime();
         yield return new WaitForSeconds(1.0f);
+
         // 継続ダメージにより、敵が全滅し、バトルが終了したかをチェック
         yield return StartCoroutine(CheckBattleEnd());
-        if (sequenceID != turnSequenceID) yield break;
+        if (sequenceID != turnSequenceID) yield break;  // ターン更新済みなら処理を中断
 
-        yield return new WaitForSeconds(0.8f);  // 演出の待ち時間
-
+        yield return new WaitForSeconds(0.8f);
 
         battleState = BattleState.EnemyTurn;  // その後、敵ターン状態にする
 
-        // 各敵の攻撃力(attackPower)を元に、味方の共有HPに与えるダメージ量を[power-10, power+30]の範囲でランダムに決定
-        enemyAreaManager.PrepareEnemyAttackAmounts();
+        // 攻撃ダメージ計算
+        enemyAreaManager.PrepareEnemyAttackDamages();
 
-        // 決定したダメージ量(生存している敵の数分)を味方共有HPに与える
-        // この処理が終わるまで待つ
+        // 攻撃実行
         yield return StartCoroutine(AttackToAllySharedHP());
 
-        // プレイヤーが死亡し、バトルが終了したか(ゲームオーバーか)を確かめ、ゲーム終了していたら
-        // コルーチンも終了させる
+        // 再度、バトルが終了していないかを判定
         yield return StartCoroutine(CheckBattleEnd());
         if (battleState == BattleState.GameOver) yield break;
         if (sequenceID != turnSequenceID) yield break;
@@ -257,51 +319,66 @@ public class BattleManager : MonoBehaviour
         StartPlayerTurn();
     }
 
-    // 味方共有HPにダメージを与えるメソッド
+    /// <summary>
+    /// 敵の攻撃処理コルーチン。
+    /// 各敵のダメージを順番に共有HPへ適用する。
+    /// </summary>
     private IEnumerator AttackToAllySharedHP()
     {
-        IReadOnlyList<int> enemyPowersList = enemyAreaManager.GetEnemyPowersList();  // 各敵の攻撃量を保持するリストを参照
-        IReadOnlyList<string> aliveEnemyNamesList = enemyAreaManager.GetAliveEnemyNamesList();  // 生存している敵の名前を保持するリストを参照
+        // 攻撃情報の取得
+        IReadOnlyList<int> enemyAttackList = enemyAreaManager.GetEnemyAttackDamages();
+        IReadOnlyList<string> aliveEnemyNamesList = enemyAreaManager.GetAliveEnemyNamesList();
 
-        for (int i = 0; i < enemyPowersList.Count; i++)
+        for (int i = 0; i < enemyAttackList.Count; i++)
         {
             if (i >= aliveEnemyNamesList.Count) break;
+
             string attackerName = aliveEnemyNamesList[i];
-            int power = enemyPowersList[i];
+            int power = enemyAttackList[i];
+
             Log($"{attackerName}の攻撃！", BattleLogType.Attack);
-            yield return new WaitForSeconds(1.0f);  // ログ表示後の待ち時間
+            yield return new WaitForSeconds(1.0f);
 
-            allyAreaManager.TakeDamageToSharedHP(power); // 味方側の共有HPにpower分のダメージ
-            AudioManager.Instance.PlaySE(AttackSoundEffect); // 攻撃時の効果音を出す
+            // ダメージ適用
+            allyAreaManager.TakeDamageToSharedHP(power);
+            AudioManager.Instance.PlaySE(attackSoundEffect);
 
-            yield return new WaitForSeconds(1.0f);      // 攻撃後は少し間を空ける
+            yield return new WaitForSeconds(1.0f);
         }
     }
 
-    // 手札カードデータを入手して、手札UIを更新するメソッド
+    /// <summary>
+    /// 手札UI更新処理。
+    /// 手札データの同期およびUI再構築を行う。
+    /// </summary>
     private void RefreshHandUI()
     {
-        // deckManagerによってセットされた手札データを入手(ゲット)して、
-        // そのデータをhandAreaManagerにセット
+        // deckManagerによってセットされた手札データを入手し、handAreaManagerにセット
         handAreaManager.setHandCardData(deckManager.GetHand());
-        // セットした手札データを元に手札カードオブジェクトを生成し、UI表示。
-        // そのとき、プレイヤーがカードを使用した時に発生するイベントPlayCard()メソッド(メソッドへのポインタ)を渡す。
+
+        // 手札UI再構築, カード使用イベント登録
         handAreaManager.UpdateHandUI((card, dropPos, callback) => PlayCard(card, dropPos, callback), enemyAreaManager, allyAreaManager);
     }
 
-    // ターン開始時にカードを1枚ドローするメソッド。但し、1ターン目の場合や手札が5枚以上ある場合はドローしない(手札は常に5枚以下)
+    /// <summary>
+    /// ターン開始時のドロー処理。
+    /// 初ターン以外で手札枚数が上限未満の場合のみドローする。
+    /// </summary>
     private void DrawCardAtTurnStart()
     {
-        if (!isFirstTurn && deckManager.GetHandCount() < 5)  // 2ターン目以降で、手札カードが4枚以下なら
+        if (!isFirstTurn && deckManager.GetHandCount() < 5)
         {
-            deckManager.DrawCardFull();  // カードを1枚ドローする(1ターン目は手札は5枚で、以降のターンは開始時に手札が5枚になるまでドロー)
+            deckManager.DrawCardFull();
         }
     }
 
-    // バトルが終了しているかを確認し、その結果に応じた処理をし、
-    // 終了状態をtrueとして返すメソッド
+    /// <summary>
+    /// バトル終了判定コルーチン。
+    /// 勝利・敗北状態を検出し、遷移処理を実行する。
+    /// </summary>
     private IEnumerator CheckBattleEnd()
     {
+        // 多重実行防止
         if (isEndingBattle) yield break;
 
         // 敵が全滅していたら、「勝利」として処理する
@@ -309,29 +386,32 @@ public class BattleManager : MonoBehaviour
         {
             isEndingBattle = true;
             Log("敵は全滅した！", BattleLogType.Attention);
-            handAreaManager.SetVisible(false);  // 手札の非表示
-            endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
-            fireballManager.StopSpawning();  // fireballの生成を停止する
 
-            // 現在のステージ情報(勝利したステージの情報)を取得し、
-            // そのステージの現在のフェーズのインデックスを取得。
-            // 次のフェーズがあれば、その処理を、
-            // 次のフェーズが無ければ、現在のステージを
-            // 「クリア済みのステージ」としてPlayerDataにステージIDを登録する
+            // プレイヤー操作・UI停止
+            handAreaManager.SetVisible(false);
+            endTurnButton.SetActive(false);
+            fireballManager.StopSpawning();
+
+            // 現在のステージ／フェーズ情報取得
             var battleSessionData = BattleSessionData.Instance;
             var currentStage = battleSessionData.GetCurrentStage();
 
             if (currentStage != null)
             {
+                // 現在フェーズの取得
                 int currentPhaseIndex = battleSessionData.GetCurrentPhaseIndex();
                 StagePhase currentPhase = currentStage.GetStagePhases()[currentPhaseIndex];
 
+                // 報酬ポイント取得
                 int clearRewardPoints = currentPhase.GetClearRewardPoints();
 
-                yield return battleNoticeManager.ShowVictoryAndReward(clearRewardPoints);  // 勝利した際の通知・報酬の表示
+                // 勝利演出＋報酬表示
+                yield return battleNoticeManager.ShowVictoryAndReward(clearRewardPoints);
 
+                // プレイヤーデータ更新
                 GameManager.Instance.PlayerData.AddPoints(clearRewardPoints);
 
+                // 次フェーズの有無で分岐
                 if (battleSessionData.IsThereNextPhase())
                 {
                     yield return StartCoroutine(StartNextPhaseRoutine());
@@ -343,47 +423,62 @@ public class BattleManager : MonoBehaviour
 
                     yield return battleNoticeManager.Show(BattleNoticeType.StageClear);
 
+                    // ステージクリアを記録
                     GameManager.Instance.PlayerData.SetClearedStage(currentStage.GetStageID());
 
-                    yield return StartCoroutine(ReturnToLabScene()); // LabSceneに戻る
+                    yield return StartCoroutine(ReturnToLabScene());
                 }
             }
         }
 
         // 味方(プレイヤー)が死んでいたら、「GameOver」として処理する
-        if (allyAreaManager.GetIsDead())
+        if (allyAreaManager.GetIsPlayerDead())
         {
             isEndingBattle = true;
             battleState = BattleState.GameOver;
+
             Log("味方は全滅した…", BattleLogType.Attention);
-            yield return StartCoroutine(battleNoticeManager.Show(BattleNoticeType.GameOver));    // 敗北した際の通知の表示
-            handAreaManager.SetVisible(false);  // 手札の非表示
-            endTurnButton.SetActive(false);  // プレイヤーターン終了ボタンを非表示
-            fireballManager.StopSpawning();  // fireballの生成を停止する
-            StartCoroutine(ReturnToLabScene());  // LabSceneに戻る
+            yield return StartCoroutine(battleNoticeManager.Show(BattleNoticeType.GameOver));// 敗北した際の通知の表示
+
+            // UI・処理停止
+            handAreaManager.SetVisible(false);
+            endTurnButton.SetActive(false);
+            fireballManager.StopSpawning();
+
+            StartCoroutine(ReturnToLabScene());
         }
     }
 
-    // 次のフェーズへ行く際の処理を行うコルーチン
+
+    /// <summary>
+    /// 次フェーズへ遷移するためのコルーチン。
+    /// 演出 → フェーズ更新 → 敵再生成 → 状態初期化 の順で処理する。
+    /// </summary>
     private IEnumerator StartNextPhaseRoutine()
     {
         battleState = BattleState.TurnTransition;
         Log("次のフェーズへ！", BattleLogType.System);
+
+        // フェーズ遷移演出
         yield return StartCoroutine(battleNoticeManager.Show(BattleNoticeType.NextPhase));
 
         var battleSessionData = BattleSessionData.Instance;
-        battleSessionData.AdvancePhase();
+        battleSessionData.AdvancePhase(); // フェーズインデックス更新(一つ進める)
 
         var currentStage = battleSessionData.GetCurrentStage();
 
         StagePhase nextPhase = currentStage.GetStagePhases()[battleSessionData.GetCurrentPhaseIndex()];
 
-        enemyAreaManager.ClearAllDamageOverTime();  // 前フェーズで残っているDOTを削除
+        // 前フェーズから持ち越される継続ダメージ(DOT)を削除
+        enemyAreaManager.ClearAllDamageOverTime();
 
+        // 次フェーズの敵データを設定
         enemyAreaManager.SetEnemyData(nextPhase.GetEnemiesList());
 
+        // 敵を再スポーン
         enemyAreaManager.SpawnEnemies();
 
+        // マナ初期化（フェーズ開始時の値へ）
         manaManager.ResetMana();
 
         UpdatePhaseUI();
@@ -391,19 +486,26 @@ public class BattleManager : MonoBehaviour
         isEndingBattle = false;
 
         yield return new WaitForSeconds(1.5f);
+
         StartPlayerTurn();
     }
 
-    // 数秒待ってからラボシーンへ戻るコルーチン
+    /// <summary>
+    /// 一定時間待機後、ラボシーンへ戻るコルーチン。
+    /// </summary>
     private IEnumerator ReturnToLabScene()
     {
         yield return new WaitForSeconds(2.0f);
-        GameManager.Instance.GoToLab();  // ラボシーンへ移動
+        GameManager.Instance.GoToLab();
     }
 
 
 
-    // 戦闘ログにメッセージを追加するメソッド。メッセージのタイプも引数として与えること。
+    /// <summary>
+    /// 戦闘ログへメッセージを追加する共通処理。
+    /// </summary>
+    /// <param name="message">表示するログメッセージ</param>
+    /// <param name="type">ログ種別（攻撃・回復・注意など）</param>
     private void Log(string message, BattleLogType type)
     {
         // シングルトンインスタンスであるBattleLogManagerインスタンスに追加したいログを送る
@@ -411,6 +513,10 @@ public class BattleManager : MonoBehaviour
         Debug.Log(message);  // デバッグログとしても表示する
     }
 
+    /// <summary>
+    /// フェーズUI表示を更新する。
+    /// 「現在フェーズ / 総フェーズ数」の形式で表示。
+    /// </summary>
     private void UpdatePhaseUI()
     {
         var battleSessionData = BattleSessionData.Instance;
@@ -420,11 +526,15 @@ public class BattleManager : MonoBehaviour
     }
 
 
-    // Fireball(火の玉)の効果の種類に対応した処理
-    // Fireballがクリックされた際に発動するイベントとして登録されている
+    /// <summary>
+    /// Fireballクリック時の効果処理。
+    /// 効果タイプに応じてダメージ・回復を適用する。
+    /// </summary>
+    /// <param name="effectResult"> Fireballの効果内容（効果種別・効果量を保持）</param>
     private void HandleFireballEffect(FireballEffectResult effectResult)
     {
-        if (battleState != BattleState.PlayerTurn) // プレイヤーターン以外なら、Fireball効果は無効
+         // プレイヤーターン以外なら、Fireball効果は無効
+        if (battleState != BattleState.PlayerTurn)
         {
             Debug.Log("プレイヤーターン以外なのでFireball効果は無効");
             return;
@@ -446,18 +556,19 @@ public class BattleManager : MonoBehaviour
                 break;
         }
 
-        // 　バトルが終了(勝利 or GameOver)しているかを確かめる。
+        // 効果適用後の終了判定
         StartCoroutine(CheckBattleEnd());
     }
 }
 
-// バトル中の状態を5タイプに分別
-// enumは列挙型
+/// <summary>
+/// バトル進行状態を表す列挙型。
+/// </summary>
 public enum BattleState
 {
     PlayerTurn,  // プレイヤーの手番
     EnemyTurn,   // 敵の手番
     TurnTransition,  // 演出中の状態
     Victory,        // 勝利状態
-    GameOver        // ゲームオーバーの状態
+    GameOver        // 敗北状態
 }

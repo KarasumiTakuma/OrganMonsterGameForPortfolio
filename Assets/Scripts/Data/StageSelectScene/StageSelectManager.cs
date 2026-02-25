@@ -3,16 +3,22 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-//StageSelectSceneで、全ステージのボタンを自動生成するクラス
-
+/// <summary>
+/// ステージ選択画面の管理クラス。
+/// 登録されたステージ情報をもとに、選択用ボタンを自動生成・初期化する。
+/// </summary>
 public class StageSelectManager : MonoBehaviour
 {
     [Header("ステージ設定")]
-    [SerializeField] private List<StageInfo> allStages = new List<StageInfo>();  // 表示する全ステージの情報リスト
+    /// <summary>表示対象となる全ステージのデータリスト。ステージ順序・解放判定の基準にも使用される</summary>
+    [SerializeField] private List<StageInfo> allStages = new List<StageInfo>();
 
     [Header("UI")]
-    [SerializeField] private List<Transform> buttonPosition;  // 各ステージボタンを配置するポジションを親としてリストに入れる
-    [SerializeField] private GameObject stageButtonPrefab;  // 各ステージボタンのプレハブ
+    /// <summary> ボタンを配置する親Transformのリスト。ステージ数がこの数を超えた場合、最後のTransformが使われる</summary>
+    [SerializeField] private List<Transform> buttonPositions;
+
+    /// <summary>ステージボタンのプレハブ</summary>
+    [SerializeField] private GameObject stageButtonPrefab;
 
     private void Start()
     {
@@ -20,59 +26,53 @@ public class StageSelectManager : MonoBehaviour
         CreateStageButtons();
     }
 
-    // 各ステージに対応したボタンを生成して配置するメソッド
+    /// <summary>
+    /// ステージ情報に対応するボタンを生成・初期化する。
+    /// ボタン生成 → 表示設定 → 解放状態設定 の順で処理を行う。
+    /// </summary>
     private void CreateStageButtons()
     {
-
-        // ステージに応じてボタンを配置
         for (int index = 0; index < allStages.Count; index++)
         {
-            // 配置先の親を決める。buttonPositionの数より多いステージがあっても、最後の親ポジションに配置する
-            Transform parentPosition = buttonPosition[Mathf.Min(index, buttonPosition.Count - 1)];
-
-            // allStageのインデックスに応じたステージ情報を取り出す
+            // ボタン配置先の親Transform。buttonPositions の範囲外アクセスを防ぐため Mathf.Min を使用。
+            Transform parentPosition = buttonPositions[Mathf.Min(index, buttonPositions.Count - 1)];
+            
             StageInfo stageInfo = allStages[index];
 
             // 該当のボタン配置ポジションを親として、stageButtonPrefabを配置する
-            GameObject buttonObj = Instantiate(stageButtonPrefab, parentPosition);
-            buttonObj.name = $"StageButton{stageInfo.GetStageID()}";
+            GameObject stageButtonObject = Instantiate(stageButtonPrefab, parentPosition);
+            stageButtonObject.name = $"StageButton{stageInfo.GetStageID()}";
 
-            // ボタンコンポーネントをボタンオブジェクトから取り出す
-            Button button = buttonObj.GetComponent<Button>();
-
-            // StageSelectButton にステージ情報を渡す
-            StageSelectButton stageSelectButton = buttonObj.GetComponent<StageSelectButton>();
+            StageSelectButton stageSelectButton = stageButtonObject.GetComponent<StageSelectButton>();
             if (stageSelectButton != null)
             {
+                // ボタンにステージデータを登録
                 stageSelectButton.SetStage(stageInfo);
             }
 
-            // ボタンにステージ名を表示
-            TMP_Text buttonText = buttonObj.GetComponentInChildren<TMP_Text>();
+            TMP_Text buttonText = stageButtonObject.GetComponentInChildren<TMP_Text>();
             if (buttonText != null)
             {
+                // ボタンにステージ名を表示
                 buttonText.text = stageInfo.GetStageName();
             }
 
-            bool isUnlocked = false;  // ステージが解放されている状態を示す。trueなら解放
+            // ステージ解放状態（true: 選択可能 / false: ロック状態）
+            bool isUnlocked = false;
 
+            
             if (index == 0)
             {
                 isUnlocked = true;  // 最初のステージは常に解放状態に
             }
             else
             {
-                // 前のステージがクリア済みなら解放
-                // 前のステージのステージIDが
-                // PlayerDataが保持する「クリア済みステージのIDリスト」に含まれていれば、
-                // isUnlockedがtrueになる。
-                StageInfo prevStage = allStages[index - 1];  // 一つ前のステージ情報を取り出し、
-                // そのステージがクリア済みなら、ステージが解放されている状態(isUnlocked = true)にする
+                // 前ステージがクリア済みなら解放
+                StageInfo prevStage = allStages[index - 1];  
                 isUnlocked = GameManager.Instance.PlayerData.IsStageCleared(prevStage.GetStageID());
             }
 
-            // ボタンが押下できるかを設定する
-            // isUnlockedがtrueなら押せる
+            // ボタンの有効 / 無効状態を反映
             stageSelectButton.SetUnlocked(isUnlocked);
         }
     }

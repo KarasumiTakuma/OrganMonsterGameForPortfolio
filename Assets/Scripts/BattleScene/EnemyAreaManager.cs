@@ -1,24 +1,42 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 敵モンスター配置エリアの管理クラス。
+/// 敵の生成、ターゲット選択、ダメージ処理、継続ダメージ管理などを担当。
+/// </summary>
 public class EnemyAreaManager : MonsterAreaManager
 {
+    /// <summary> 敵が選択されていない状態を表すインデックス </summary>
+    public const int NoSelection = -1;
 
-    public const int NoSelection = -1;   // 敵が選択されていない状態を表す定数
-
-    // 敵がクリックされた時に、その敵モンスターがspawnedMonsters(生成した敵モンスターリスト)のいずれであるかを示すインデックス
-    // どの敵を選択している状態かを示すインデックス情報。初期値は敵が選択されていない状態(-1)に。
+    /// <summary> 現在選択中の敵インデックス。spawnPoints / spawnedMonsters に対応。</summary>
     private int clickedEnemyIndex = NoSelection;
 
-    [SerializeField] private AudioClip AttackSoundEffect;  // 攻撃の効果音
-    private List<int> enemyPowersList;
-    private List<EnemyMonsterData> enemyDataList = new List<EnemyMonsterData>();  // 各スポーンポイントに出現する敵に対する敵データ
-    private List<DamageOverTimeEffect> damageOverTimeEffects = new List<DamageOverTimeEffect>();  // 進行中の継続ダメージ効果をまとめたリスト
+    /// <summary> 攻撃の効果音 </summary>
+    [SerializeField] private AudioClip attackSoundEffect;
+
+    /// <summary> 各敵の攻撃量キャッシュ用リスト </summary>
+    private List<int> enemyAttackDamagesList;
+
+    /// <summary> スポーン用の敵データリスト </summary>
+    private List<EnemyMonsterData> enemyDataList = new List<EnemyMonsterData>();
+
+    /// <summary> 継続ダメージ効果管理リスト </summary>
+    private List<DamageOverTimeEffect> damageOverTimeEffects = new List<DamageOverTimeEffect>();
+
+    /// <summary> /ドラッグ自動ターゲットモードかどうか </summary>
     private bool IsDragAutoMode =>
         SettingsManager.Instance.CurrentTargetingMode == TargetingMode.DragAutoTarget;
+    
+    /// <summary> 敵クリック選択モードか </summary>
     private bool IsClickedTargetMode =>
         SettingsManager.Instance.CurrentTargetingMode == TargetingMode.ClickedTarget;
 
+    /// <summary>
+    /// 敵データを設定。
+    /// </summary>
+    /// <param name="enemies"> 登録するモンスターデータ一覧 </param>
     public void SetEnemyData(List<MonsterData> enemies)
     {
         enemyDataList.Clear();
@@ -32,79 +50,91 @@ public class EnemyAreaManager : MonsterAreaManager
 
 
     /// <summary>
-    /// スポーンポイントに敵を生成
+    /// 敵をスポーンポイントへ生成。
     /// </summary>
     public void SpawnEnemies()
     {
-        // MonsterAreaManager(親クラス)のSpawnMonsters()を利用して各スポーンポイントに敵を生成
-        // enemyDataListにある敵データEnemyMonsterData型のものなので、ConvertAllでリストの全要素を
-        // MonsterData型に変換してから親クラスのメソッドSpawnMonsters()を呼び出す
+        // 親クラス用に型変換
         List<MonsterData> baseDataList = enemyDataList.ConvertAll(data => (MonsterData)data);
         base.SpawnMonsters(baseDataList);
     }
 
-    // 敵モンスター単体に対する攻撃処理用メソッド
+    /// <summary>
+    /// 指定の敵へダメージ適用。
+    /// </summary>
+    /// <param name="targetIndex"> 対象の敵インデックス </param>
+    /// <param name="damage"> ダメージ量 </param>
     public void TakeDamageToTargetEnemy(int targetIndex, int damage)
     {
         if (spawnedMonsters.Count == 0) return;
 
+        // モードに応じてターゲットを確定
         if (IsClickedTargetMode)
         {
             targetIndex = clickedEnemyIndex;
         }
 
-        // プレイヤーが敵を選択していない、またはプレイヤーが選択している敵がすでに死亡していたら
+        // 無効なターゲット(プレイヤーが敵を選択していない、または選択した敵が既に死亡)を補正
         if (targetIndex < 0 || targetIndex >= spawnedMonsters.Count || spawnedMonsters[targetIndex].GetIsDead())
         {
-            // 敵を選択していない状態にして、ターゲットをランダムに決める
             clickedEnemyIndex = NoSelection;
             targetIndex = GetRandomAliveEnemyIndex();
         }
 
         if (targetIndex == NoSelection) return;  // ランダム取得に失敗
 
-        // 選択された敵1体に対するダメージ処理
         ApplyDamageToTargetEnemy(targetIndex, damage);
-        // ダメージが与えられた旨を、その敵の名前とともにログに追加
+
         Log($"{spawnedMonsters[targetIndex].GetMonsterName()}に{damage}ダメージ!", BattleLogType.Attack);
+
         LogIfDead();
     }
 
-    // indexで指定した敵モンスターがdamege量の攻撃を受けた際にMonsterAreaManagerクラス(親)のApplyDamageメソッドを呼び出して
-    // その敵モンスターへのダメージ処理を行うメソッド
+    /// <summary>
+    /// 単体敵ダメージ処理。
+    /// </summary>
     private void ApplyDamageToTargetEnemy(int targetIndex, int damage)
     {
-        if (targetIndex < 0 || targetIndex >= spawnedMonsters.Count) return;  // 生成した敵モンスターリストの範囲外にアクセスした場合は何も返さない
+        if (targetIndex < 0 || targetIndex >= spawnedMonsters.Count) return;
 
         Enemy enemy = spawnedMonsters[targetIndex] as Enemy;
         if (enemy != null)
         {
-            enemy.TakeDamagePublic(damage);  // TakeDamageメソッドを呼び出してダメージ処理
+            enemy.TakeDamagePublic(damage);
         }
     }
 
-    // 生成した各敵モンスターの各々に対してMonsterAreaManagerクラス(親)のTakeDamageメソッドを呼び出して、
-    // 全体攻撃によるダメージ処理をそれぞれの敵モンスターに適用するメソッド
-    protected override void ApplyDamageToAll(int damage)
+    /// <summary>
+    /// 敵全体へのダメージ処理。
+    /// </summary>
+    protected override void ApplyDamageToAllMonsters(int damage)
     {
-        foreach (var monster in spawnedMonsters) // 生成した各モンスターに対して
+        foreach (var monster in spawnedMonsters)
         {
-            if (monster is Enemy enemy && !enemy.GetIsDead()) // 生成したモンスタが敵モンスターで、そのモンスターが死んでいない場合
+            if (monster is Enemy enemy && !enemy.GetIsDead())
             {
-                enemy.TakeDamagePublic(damage);  // TakeDamagePublicメソッドでダメージを与える
+                enemy.TakeDamagePublic(damage);
             }
         }
     }
 
-    // 敵全体にダメージを与える処理を、外部から呼び出すためのラッパーメソッド
+    /// <summary>
+    /// 外部用の敵全体へのダメージを呼び出すラッパーメソッド
+    /// </summary>
+    /// <param name="damage"> ダメージ量 </param>
     public void TakeDamageToAll(int damage)
     {
-        this.ApplyDamageToAll(damage);
-        // 敵全体にダメージが入ったことをメッセージとしてログに追加
+        this.ApplyDamageToAllMonsters(damage);
         Log($"敵全体に{damage}ダメージ!", BattleLogType.Attack);
         LogIfDead();
     }
 
+    /// <summary>
+    /// 指定した敵への継続ダメージ付与。
+    /// </summary>
+    /// <param name="targetIndex"> 対象敵 </param>
+    /// <param name="damageAmount"> ターン毎ダメージ </param>
+    /// <param name="durationTurns"> 継続ターン数 </param>
     public void ApplyDamageOverTimeToTargetEnemy(int targetIndex, int damageAmount, int durationTurns)
     {
         if (spawnedMonsters.Count == 0) return;
@@ -117,7 +147,6 @@ public class EnemyAreaManager : MonsterAreaManager
 
         if (targetIndex < 0 || targetIndex >= spawnedMonsters.Count || spawnedMonsters[targetIndex].GetIsDead())
         {
-            // 敵を選択していない状態にして、ターゲットをランダムに決める
             clickedEnemyIndex = NoSelection;
             targetIndex = GetRandomAliveEnemyIndex();
         }
@@ -132,12 +161,17 @@ public class EnemyAreaManager : MonsterAreaManager
         Log($"{spawnedMonsters[targetIndex].GetMonsterName()}に継続ダメージ付与！：{randomizedTurns}ターン", BattleLogType.DamageOverTime);
     }
 
-    // 残っている継続ダメージ効果を適用するメソッド(ダメージ量はターンごとに変動)
+
+    /// <summary>
+    /// 継続継続ダメージ効果を処理。(ダメージ量はターンごとに変動)
+    /// </summary>
+    
     public void ProcessDamageOverTime()
     {
-        if (damageOverTimeEffects.Count == 0) return;  // 適用する継続ダメージ効果が残っていなければ何もしない
+        if (damageOverTimeEffects.Count == 0) return;
 
         List<DamageOverTimeEffect> expiredEffects = new List<DamageOverTimeEffect>(); // 期限切れの効果を保持(効果削除用)
+
 
         // 現在適用中の継続ダメージの効果を発動する
         foreach (var dotEffect in damageOverTimeEffects)
@@ -153,7 +187,6 @@ public class EnemyAreaManager : MonsterAreaManager
 
             // 効果の対象の敵が死んでいなければ、ダメージを与える
             var monster = spawnedMonsters[dotEffect.targetIndex];
-
             if (monster.GetIsDead())
             {
                 expiredEffects.Add(dotEffect);
@@ -161,10 +194,10 @@ public class EnemyAreaManager : MonsterAreaManager
             }
 
             ApplyDamageToTargetEnemy(dotEffect.targetIndex, randomizedDamage);
-            AudioManager.Instance.PlaySE(AttackSoundEffect);
+            AudioManager.Instance.PlaySE(attackSoundEffect);
             Log($"{monster.GetMonsterName()}に継続ダメージ {randomizedDamage}!", BattleLogType.DamageOverTime);
 
-            dotEffect.remainingTurns--;   // 継続ダメージを適用する残りターン数を減らす
+            dotEffect.remainingTurns--;
 
             // 継続ダメージの残りターン数が0になると、効果が切れる
             if (dotEffect.remainingTurns <= 0)
@@ -174,7 +207,7 @@ public class EnemyAreaManager : MonsterAreaManager
             }
         }
 
-        // 期限が切れた効果は削除する
+        // 期限が切れた効果は削除
         foreach (var expEffect in expiredEffects)
         {
             damageOverTimeEffects.Remove(expEffect);
@@ -183,29 +216,35 @@ public class EnemyAreaManager : MonsterAreaManager
         LogIfDead();
     }
 
+    /// <summary> 継続ダメージの全解除処理 </summary>
     public void ClearAllDamageOverTime()
     {
         damageOverTimeEffects.Clear();
     }
 
 
-    /// 指定の敵の現在HPを取得
+    /// <summary>
+    /// 指定の敵HP取得。
+    /// </summary>
+    /// <param name="index"> 対象の敵 </param>
+    /// <returns>現在HP</returns>
     public int GetCurrentHP(int index)
     {
         if (index < 0 || index >= spawnedMonsters.Count) return 0;
         return spawnedMonsters[index].GetCurrentHP();
     }
 
-    // 敵モンスターが全員死亡している状態であるかを取得するメソッド
-    // trueなら 敵モンスターは全滅している状態
+    /// <summary>
+    /// 敵全滅判定用のラッパーメソッド
+    /// </summary>
+    /// <returns>全滅していれば true</returns>
     public bool GetIsAllMonstersDead()
     {
         bool isAllMonstersDead = true;  // 全てのモンスターが死亡しているかどうかのフラグ
 
-        // 生成した各敵モンスターについて、死亡しているかどうかの確認
         foreach (var enemyMonster in spawnedMonsters)
         {
-            if (!enemyMonster.GetIsDead()) //死亡していなければ
+            if (!enemyMonster.GetIsDead())
             {
                 isAllMonstersDead = false;
                 break;
@@ -214,7 +253,11 @@ public class EnemyAreaManager : MonsterAreaManager
         return isAllMonstersDead;
     }
 
-    // 生存している敵の中から、ランダムに(spawnedMonstersにおける)インデックスを返すメソッド
+    
+    /// <summary>
+    /// 生存している敵の中から、ランダムにインデックスを取得
+    /// </summary>
+    /// <returns>敵インデックス / 取得失敗時 NoSelection</returns>
     private int GetRandomAliveEnemyIndex()
     {
         int monsterIndex = 0;
@@ -229,20 +272,15 @@ public class EnemyAreaManager : MonsterAreaManager
             monsterIndex++;
         }
 
-        if (enemyAliveList.Count == 0) return NoSelection;  // 全敵が死んでいた場合は、敵が選択されていない状態のインデックス
+        if (enemyAliveList.Count == 0) return NoSelection;
 
         return enemyAliveList[Random.Range(0, enemyAliveList.Count)];
     }
 
-    // 各敵のスポーン位置(Canvas/EnemyArea/SpawnPoint{1,2,3})に応じた敵キャラのImageをクリックした際に呼ばれるメソッド。
-    // プレイヤーが敵をクリックしたときに呼ばれるメソッド。
-    // 各敵のスポーン位置(Canvas/EnemyArea/SpawnPoint{1,2,3})にButtonコンポーネントをアタッチし、
-    // Inspectorウィンドウから、OnClick()メソッドのAddListenerとして、ClickedEnemy()メソッドを呼び出すように設定している。
-    // ClickedEnemyのtargetIndexの対象は、各敵のスポーン位置(Canvas/EnemyArea/SpawnPoint{1,2,3})
-    // に対応した番号(左から {0,1,2})であるが、実際にクリック判定の対象となるのは各スポーン位置に応じた
-    // 敵のImageである(スポーン位置に生成するEnemyPrefabのEnemyCharacterがImageコンポーネントを持ち、
-    // そのRaycastTargetがONになっているから。)。なので、敵が死んだ場合はその敵がスポーンしていた場所(pawnPoint)
-    // をプレイヤークリックしても、反応しない
+    /// <summary>
+    /// クリックした敵を選択する処理。
+    /// </summary>
+    /// <param name="targetIndex"> クリックされた敵のインデックス </param>
     public void ClickedEnemy(int targetIndex)
     {
         // ターゲット選択モードの時のみ有効に
@@ -250,9 +288,11 @@ public class EnemyAreaManager : MonsterAreaManager
         UpdateClickedEnemy(targetIndex);
     }
 
+    /// <summary>
+    /// クリック選択状態の更新。
+    /// </summary>
     private void UpdateClickedEnemy(int index)
     {
-        // インデックスが生成した敵モンスターリスト範囲外にアクセスしていないかをチェック
         if (index < 0 || index >= spawnedMonsters.Count)
             return;
 
@@ -262,7 +302,7 @@ public class EnemyAreaManager : MonsterAreaManager
             var enemy = spawnedMonsters[index] as Enemy;
             enemy?.SetTargetMarkVisible(false);
 
-            Log($"{spawnedMonsters[clickedEnemyIndex].GetMonsterName()} の選択を解除", BattleLogType.System);  // 元々選択されていた敵の選択を解除したメッセージをログに表示。
+            Log($"{spawnedMonsters[clickedEnemyIndex].GetMonsterName()} の選択を解除", BattleLogType.System);
             clickedEnemyIndex = NoSelection;
             return;
         }
@@ -275,15 +315,24 @@ public class EnemyAreaManager : MonsterAreaManager
         }
 
         // 新しく選択した敵に対するターゲット処理
-        clickedEnemyIndex = index;// クリックした敵の選択インデックス情報を保持。
+        clickedEnemyIndex = index;
 
         var newEnemy = spawnedMonsters[clickedEnemyIndex] as Enemy;
         newEnemy?.SetTargetMarkVisible(true);
 
-        Log($"{spawnedMonsters[clickedEnemyIndex].GetMonsterName()}を選択", BattleLogType.System); // 選択した旨をメッセージとしてログに追加
+        Log($"{spawnedMonsters[clickedEnemyIndex].GetMonsterName()}を選択", BattleLogType.System);
     }
 
 
+    /// <summary>
+    /// 選択されたターゲット取得。
+    /// </summary>
+    /// <param name="position">　
+    /// 判定用の座標。
+    /// IsDragAutoModeなら、
+    /// この座標に近い位置の敵のインデックスが返される
+    /// </param>
+    /// <returns>敵インデックス</returns>
     public int GetSelectedEnemyIndex(Vector2 position)
     {
         int selectedEnemyIndex = NoSelection;
@@ -298,9 +347,14 @@ public class EnemyAreaManager : MonsterAreaManager
     }
 
 
-
-    // 引数で指定されたワールド/ローカル座標に最も近い生存している敵のインデックスを返すメソッド。
-    // 生存している敵がいなければ NoSelection を返す
+    /// <summary>
+    /// 最も近い敵のインデックス取得。
+    /// </summary>
+    /// <param name="position">
+    /// 基準座標。
+    /// ここに最も近い敵のインデックスが返される。
+    /// </param>
+    /// <returns>敵インデックス</returns>
     private int GetNearestEnemyIndex(Vector2 position)
     {
         if (spawnedMonsters.Count == 0) return NoSelection;
@@ -328,15 +382,25 @@ public class EnemyAreaManager : MonsterAreaManager
         return nearestEnemyIndex;
     }
 
-    // カードをドラッグしているときに近い敵をハイライト
+    /// <summary>
+    /// ドラッグ中のスクリーン座標に最も近い敵をハイライトする。
+    /// DragAutoTarget モード時のみ有効。
+    /// </summary>
+    /// <param name="screenPosition">
+    /// 現在のドラッグ位置（スクリーン座標）。
+    /// 最寄り敵を判定するために使用。
+    /// </param>
     public void HighlightNearestEnemy(Vector2 screenPosition)
     {
+        // 自動ターゲットモードでない場合は処理しない
         if (!IsDragAutoMode) return;
+
         if (spawnedMonsters.Count == 0) return;
 
+        // 指定座標に最も近い敵のインデックスを取得
         int nearestIndex = GetNearestEnemyIndex(screenPosition);
 
-        // まず全てのハイライトを消す
+        // 既存のハイライトをすべて解除
         foreach (var monster in spawnedMonsters)
         {
             monster.StopHighlight();
@@ -349,6 +413,11 @@ public class EnemyAreaManager : MonsterAreaManager
         }
     }
 
+    /// <summary>
+    /// 生存している敵全体をハイライトする。
+    /// 範囲攻撃カード使用時などを想定。
+    /// DragAutoTarget モード時のみ有効にする。
+    /// </summary>
     public void HighlightAllEnemies()
     {
         if (!IsDragAutoMode) return;
@@ -359,7 +428,10 @@ public class EnemyAreaManager : MonsterAreaManager
         }
     }
 
-    // ドラッグ終了時に全てのハイライトを消す
+    /// <summary>
+    /// 全ての敵ハイライトを解除する。
+    /// ドラッグ終了時に呼び出すことを想定。
+    /// </summary>
     public void ClearAllHighlights()
     {
         foreach (var monster in spawnedMonsters)
@@ -368,7 +440,9 @@ public class EnemyAreaManager : MonsterAreaManager
         }
     }
 
-    // 敵が倒れたら、それに応じたログを出すメソッド
+    /// <summary>
+    /// 敵死亡時のログ処理。
+    /// </summary>
     private void LogIfDead()
     {
         // 各敵に対して、死亡ログの表示が必要かどうかを判断する
@@ -384,9 +458,13 @@ public class EnemyAreaManager : MonsterAreaManager
     }
 
 
-    public void PrepareEnemyAttackAmounts()
+    /// <summary>
+    /// 各敵の攻撃量の準備。
+    /// </summary>
+    /// <returns>なし</returns>
+    public void PrepareEnemyAttackDamages()
     {
-        enemyPowersList = new List<int>();
+        enemyAttackDamagesList = new List<int>();
         foreach (var enemyMonster in spawnedMonsters)
         {
             // 既に該当のモンスターが倒れていたら、そのモンスターの攻撃処理は行わない
@@ -398,15 +476,20 @@ public class EnemyAreaManager : MonsterAreaManager
             // [attackPowe-10, attackPoewr+30]の範囲でランダムに「味方HPに与えるダメージ量(attackPowerAmount)」を決める。
             int baseAttackPower = enemyMonster.GetAttackPower();
             int attackPowerAmount = UnityEngine.Random.Range(baseAttackPower - 10, baseAttackPower + 41);
-            enemyPowersList.Add(attackPowerAmount);
+            enemyAttackDamagesList.Add(attackPowerAmount);
         }
     }
 
-    // 現在の敵の数を取得。MonsterAreaManagerクラス(親)のGetMonsterCount()メソッドを呼び出す
-    public int GetEnemyCount() => base.GetMonsterCount();
+    /// <summary>
+    /// 敵の撃量リスト取得用のゲッター
+    /// </summary>
+    /// <returns>敵の攻撃量一覧</returns>
+    public IReadOnlyList<int> GetEnemyAttackDamages() => enemyAttackDamagesList;
 
-    public IReadOnlyList<int> GetEnemyPowersList() => enemyPowersList;  // 各敵の攻撃量(attackPowerAmount)を保持したリストを外部クラスから参照するためのメソッド
-
+    /// <summary>
+    /// 生存している敵の名前リストを取得するゲッター
+    /// </summary>
+    /// <returns>敵の名前リスト</returns>
     public IReadOnlyList<string> GetAliveEnemyNamesList()
     {
         var aliveEnemyNamesList = new List<string>();
@@ -422,11 +505,13 @@ public class EnemyAreaManager : MonsterAreaManager
     }
 
 
-    // 継続ダメージ効果用のクラスデータ構造(内部クラス)
+    /// <summary>
+    /// 継続ダメージ効果のデータ構造。
+    /// </summary>
     private class DamageOverTimeEffect
     {
-        public int targetIndex;      // 継続ダメージを与える対象の敵のインデックス
-        public int damagePerTurn;    // 1ターン当たりのダメージ量
+        public int targetIndex;      // 対象の敵のインデックス
+        public int damagePerTurn;    // ターンあたりのダメージ量
         public int remainingTurns;  // 残り継続ターン数
 
         // コンストラクタ

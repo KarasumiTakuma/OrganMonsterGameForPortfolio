@@ -1,16 +1,26 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-// 1ステージにおけるフェーズ(段階)単位のデータをScriptableObjectで分離
+/// <summary>
+/// ステージ内の単一フェーズ(戦闘段階)を定義するデータクラス。
+/// 出現する敵モンスター構成およびクリア報酬を保持する。
+/// ScriptableObject として作成。
+/// </summary>
 [CreateAssetMenu(fileName = "NewStagePhase", menuName = "Data/StagePhase")]
 public class StagePhase : ScriptableObject
 {
-    [SerializeField] private List<MonsterData> enemiesList;  // このフェーズに配置する敵モンスターのリスト
+    /// <summary> このフェーズで出現する敵モンスターの定義リスト</summary>
+    [SerializeField] private List<MonsterData> enemiesList;
 
     [Header("Rewards")]
-    [SerializeField] private int clearRewardPoints;  // このフェーズクリア後に報酬としてもらえる研究ポイント
+    /// <summary> フェーズクリア時にプレイヤーへ付与される報酬ポイント</summary>
+    [SerializeField] private int clearRewardPoints;
 
-    // ゲッター
+    /// <summary> このフェーズに設定された敵モンスターリストを取得</summary>
+    /// <returns>敵モンスターデータのリスト</returns>
     public List<MonsterData> GetEnemiesList() => enemiesList;
+
+    /// <summary> フェーズクリア報酬ポイントを取得する</summary>
+    /// <returns>クリア報酬ポイント</returns>
     public int GetClearRewardPoints() => clearRewardPoints;
 }

@@ -2,21 +2,35 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 味方モンスター3体をスポーン・管理するクラス
-/// EnemyAreaManager と同様の構造
-/// さらに3体のHPを合算して共有HPとして管理
+/// 味方モンスターをスポーン・管理するクラス。
+/// 複数の味方HPを合算し、共有HPとして扱う。
 /// </summary>
 public class AllyAreaManager : MonsterAreaManager
 {
 
     [Header("UI")]
-    [SerializeField] private HpGaugeController sharedHpGauge; // 共有HPゲージ
-    [SerializeField] private AudioClip HealSoundEffect;  // 回復の効果音
-    private int sharedMaxHP;      // 3体の最大HP合算
-    private int sharedCurrentHP;  // 現在の共有HP（ダメージや回復後とかに使う値）
-    private List<AllyMonsterData> allyDataList = new List<AllyMonsterData>();  // 3体の味方データ
-    private List<HealOverTimeEffect> healOverTimeEffects = new List<HealOverTimeEffect>();  // 進行中の継続回復効果をまとめたリスト
+    /// <summary> 共有HPを表示するHPゲージ </summary>
+    [SerializeField] private HpGaugeController sharedHpGauge;
 
+    /// <summary> 回復時に再生する効果音 </summary>
+    [SerializeField] private AudioClip healSoundEffect;
+
+    /// <summary> 味方全体の最大HP合計 </summary>
+    private int sharedMaxHP;
+
+    /// <summary> 現在の共有HP </summary>
+    private int sharedCurrentHP;
+
+    /// <summary> スポーン用の味方データリスト </summary>
+    private List<AllyMonsterData> allyDataList = new List<AllyMonsterData>();
+
+    /// <summary> 継続回復効果の管理リスト </summary>
+    private List<HealOverTimeEffect> healOverTimeEffects = new List<HealOverTimeEffect>();
+
+    /// <summary>
+    /// 味方データを設定する
+    /// </summary>
+    /// <param name="allies">設定する味方モンスターデータ</param>
     public void SetAllyData(List<MonsterData> allies)
     {
         allyDataList.Clear();
@@ -31,7 +45,7 @@ public class AllyAreaManager : MonsterAreaManager
             }
             else
             {
-                // 通常の MonsterData を AllyMonsterData に変換
+                // MonsterData を味方用データへ変換
                 allyDat = MonsterDataConverter.ToAllyMonster(data);
             }
 
@@ -40,82 +54,105 @@ public class AllyAreaManager : MonsterAreaManager
     }
 
     /// <summary>
-    /// 味方モンスターをスポーン
+    /// 味方モンスターをスポーンする
     /// </summary>
     public void SpawnAllies()
     {
+        // 基底クラス(MonsterData)用のデータ形式へ変換
         List<MonsterData> baseDataList = allyDataList.ConvertAll(data => (MonsterData)data);
         base.SpawnMonsters(baseDataList);
-        InitializeSharedHP(); // スポーン直後に共有HPを初期化
+
+        // スポーン直後に共有HPを初期化
+        InitializeSharedHP();
     }
 
-    /// 共有HPを初期化
+    /// <summary>
+    /// 共有HPを初期化する
+    /// </summary>
     private void InitializeSharedHP()
     {
         sharedMaxHP = 0;
+
+        // 各味方の最大HPを合算
         foreach (var ally in spawnedMonsters)
         {
-            sharedMaxHP += ally.GetMaxHP(); // 各味方の最大HPを合算
+            sharedMaxHP += ally.GetMaxHP();
         }
+
         sharedCurrentHP = sharedMaxHP;
 
+        // HPゲージの初期化
         if (sharedHpGauge != null)
         {
             sharedHpGauge.SetMaxHP(sharedMaxHP);
         }
     }
 
-    /// 共有HPにダメージ
-    protected override void ApplyDamageToAll(int damage) // 親クラスのApplyDamageToAllをオーバーライド(引数はdamegeの1つのみ)
+    /// <summary>
+    /// 共有HPへダメージを適用する
+    /// </summary>
+    /// <param name="damage">与えるダメージ量</param>
+    protected override void ApplyDamageToAllMonsters(int damage)
     {
+        // HPを減算（0未満にならないよう制限）
         sharedCurrentHP = Mathf.Max(sharedCurrentHP - damage, 0);
 
-        foreach (var monster in spawnedMonsters)// 各味方モンスターオブジェクトに対して
+        // 味方モンスターへダメージエフェクトを適用
+        foreach (var monster in spawnedMonsters)
         {
-            // Monster型オブジェクトmonsterをAlly型のallyとしてキャストできる場合のみ
             if (monster != null && monster is Ally ally)
             {
-                // ダメージエフェクトを再生
                 ally.AllyPlayDamageEffect();
             }
         }
 
+        // HPゲージ更新
         if (sharedHpGauge != null)
             sharedHpGauge.BeInjured(damage);
     }
 
 
-    // 味方HPにダメージを与える処理を、外部から呼び出すためのラッパーメソッド
+    /// <summary>
+    /// 外部から共有HPへダメージを与えるラッパーメソッド
+    /// </summary>
+    /// <param name="damage">与えるダメージ量</param>
     public void TakeDamageToSharedHP(int damage)
     {
-        this.ApplyDamageToAll(damage);
-        Log($"プレイヤーに{damage}ダメージ!", BattleLogType.Attack); // // ダメージが与えられた旨をログに追加
+        this.ApplyDamageToAllMonsters(damage);
+        Log($"プレイヤーに{damage}ダメージ!", BattleLogType.Attack);
     }
 
 
-    /// 共有HPを回復するメソッド
+    /// <summary>
+    /// 共有HPを回復する
+    /// </summary>
+    /// <param name="amount">回復量</param>
     public void HealSharedHP(int amount)
     {
         int previousHP = sharedCurrentHP;
+
+        // 最大HPを超えないよう制限
         sharedCurrentHP = Mathf.Min(sharedCurrentHP + amount, sharedMaxHP);
 
         int healedAmount = sharedCurrentHP - previousHP;
 
-        if (sharedHpGauge != null)
+        if (sharedHpGauge != null && healedAmount > 0)
         {
-            // 回復分をゲージに反映
-            if (healedAmount > 0)
-                sharedHpGauge.BeHealed(healedAmount);// ゲージを更新(ゲージの回復処理)
+            sharedHpGauge.BeHealed(healedAmount);
         }
 
-        // プレイヤーHPが回復した旨を戦闘ログにメッセージとして追加
         Log($"プレイヤーのHPが{healedAmount}回復!", BattleLogType.Heal);
 
-        // シーン内に存在するScreenHealEffectコンポーネントを持つオブジェクトを探して、そのコンポーネントを取得し、
+        // 画面回復エフェクトの実行
         ScreenHealEffect healEffect = Object.FindAnyObjectByType<ScreenHealEffect>();
-        healEffect?.PlayHealEffect();  // コンポーネントが正しく取得できた場合は回復エフェクトのアニメーションを実行
+        healEffect?.PlayHealEffect();
     }
 
+    /// <summary>
+    /// 継続回復効果を付与する
+    /// </summary>
+    /// <param name="healAmount">1ターン当たりの回復量</param>
+    /// <param name="durationTurns">継続ターン数</param>
     public void ApplyHealOverTime(int healAmount, int durationTurns)
     {
         // 継続ターン数durationTurnsを、[durationTurns, durationTurns+2]の範囲でランダム化
@@ -124,26 +161,28 @@ public class AllyAreaManager : MonsterAreaManager
         Log($"プレイヤーに継続回復付与!：{randomizedTurns}ターン", BattleLogType.Heal);
     }
 
-    // 残っている継続回復効果を適用するメソッド(回復量はターンごとに変動)
+    /// <summary>
+    /// 残っている継続回復効果を処理する(回復量はターンごとに変動)
+    /// </summary>
     public void ProcessHealOverTime()
     {
-        if (healOverTimeEffects.Count == 0) return;  // 適用する継続回復効果が残っていなければ何もしない
+        if (healOverTimeEffects.Count == 0) return;
 
-        List<HealOverTimeEffect> expiredEffects = new List<HealOverTimeEffect>(); // 期限切れの効果を保持(効果削除用)
+        // 期限切れの効果を保持(効果削除用)
+        List<HealOverTimeEffect> expiredEffects = new List<HealOverTimeEffect>();
 
-        // 現在適用中の継続ダメージの効果を発動する
+        // 現在適用中の継続回復効果を処理
         foreach (var hotEffect in healOverTimeEffects)
         {
             // 継続回復量を[hotEffect.healPerTurn * 0.8,hotEffect.healPerTurn * 1.5]の範囲でランダム化
             int randomizedHealAmount = Mathf.RoundToInt(hotEffect.healPerTurn * Random.Range(0.8f, 1.5f));
 
-            // 共有HPを回復する
             HealSharedHP(randomizedHealAmount);
-            AudioManager.Instance.PlaySE(HealSoundEffect);
+            AudioManager.Instance.PlaySE(healSoundEffect);
 
-            hotEffect.remainingTurns--;   // 継続回復を適用する残りターン数を減らす
+            hotEffect.remainingTurns--;
 
-            // 継続回復の残りターン数が0になると、効果が切れる
+            // 効果が切れたかの判定
             if (hotEffect.remainingTurns <= 0)
             {
                 expiredEffects.Add(hotEffect);
@@ -158,6 +197,9 @@ public class AllyAreaManager : MonsterAreaManager
         }
     }
 
+    /// <summary>
+    /// 全味方をハイライト表示する
+    /// </summary>
     public void HighlightAllAllies()
     {
         foreach (var ally in spawnedMonsters)
@@ -166,6 +208,9 @@ public class AllyAreaManager : MonsterAreaManager
         }
     }
 
+    /// <summary>
+    /// 全ハイライトを解除する
+    /// </summary>
     public void ClearAllHighlights()
     {
         foreach (var ally in spawnedMonsters)
@@ -174,28 +219,30 @@ public class AllyAreaManager : MonsterAreaManager
         }
     }
 
-    // 味方(プレイヤー)が死んでいるかどうかの判定
-    public bool GetIsDead()
+    /// <summary>
+    /// プレイヤーが死亡しているか判定
+    /// </summary>
+    /// <returns>死亡していたら、true</returns>
+    public bool GetIsPlayerDead()
     {
-        return sharedCurrentHP <= 0 ? true : false;  // 共有HPが0以下なら、死亡している
+        return sharedCurrentHP <= 0;  // 共有HPが0以下なら、死亡している
     }
 
+    /// <summary>現在の共有HP取得</summary>
     public int GetSharedCurrentHP() => sharedCurrentHP;
+
+    /// <summary>最大共有HP取得</summary>
     public int GetSharedMaxHP() => sharedMaxHP;
 
-    public List<Monster> GetAllies() => spawnedMonsters;
+    /// <summary>味方リスト取得（読み取り専用）</summary>
+    public IReadOnlyList<Monster> GetAllies() => spawnedMonsters;
+
+    /// <summary>味方数取得</summary>
     public int GetAllyCount() => spawnedMonsters.Count;
 
-    // 既存の味方を削除
-    public void ClearAllies()
-    {
-        foreach (var ally in spawnedMonsters)
-        {
-            if (ally != null) Destroy(ally.gameObject);
-        }
-        spawnedMonsters.Clear();
-    }
-
+    /// <summary>
+    /// 継続回復効果データ構造
+    /// </summary>
     private class HealOverTimeEffect
     {
         public int healPerTurn;     // 1ターン当たりの回復量

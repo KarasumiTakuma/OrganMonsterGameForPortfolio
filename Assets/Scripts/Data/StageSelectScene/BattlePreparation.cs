@@ -3,16 +3,29 @@ using UnityEngine.UI;
 using System.Linq;
 using System.Collections.Generic;
 
-// BattleSessionDataに戦闘前のデータ(プレイヤーパーティとカード情報)を準備するクラス
-
-public class BattlePreparation : MonoBehaviour
+/// <summary>
+/// バトル開始前のデータ準備を担当するクラス。
+/// プレイヤーパーティの検証、味方データ変換、デッキ生成を行い、
+/// BattleSessionDataへ必要な情報を登録する。
+/// </summary>
+public class BattlePreparation
 {
 
-    // 戦闘前データを準備する処理を外部から呼び出すメソッド。返り値がtrueなら準備できたことを示す。
+    /// <summary>
+    /// バトル用データの準備を試行する。
+    /// パーティ検証 → 味方データ変換 → デッキ生成 の順で処理を行う。
+    /// </summary>
+    /// <returns>
+    /// データ準備が正常に完了した場合true。
+    /// パーティ不足やデッキ未構築などの失敗時はfalse。
+    /// </returns>
     public static bool TryPrepareBattle()
     {
-
-        // 現在のプレイヤーパーティリストを取得し、味方モンスターが3体揃っているかを確認(非nullの数でカウント)
+        
+        /// <summary>
+        /// パーティ検証処理。
+        /// null でないモンスターが3体未満の場合は準備失敗。
+        /// </summary>
         List<MonsterData> currentPartyList = GameManager.Instance.PlayerData.CurrentParty.ToList();
         if (currentPartyList.Count(partyMonster => partyMonster != null) < 3)
         {
@@ -22,41 +35,43 @@ public class BattlePreparation : MonoBehaviour
 
         var battleSessionData = BattleSessionData.Instance;
 
-        // プレイヤーパーティのMonsterData型オブジェクト1体1体に対して、
-        // AllyMonsterData型にキャストまたは変換した後、まとめて味方リストに味方データとしてを追加する
         List<AllyMonsterData> allyMonsters = new List<AllyMonsterData>();
+
+        // パーティ内モンスターを AllyMonsterData に変換
         foreach (var monster in currentPartyList)
         {
             if (monster == null) continue;
 
-            AllyMonsterData ally;
+            AllyMonsterData allyData;
 
-            if (monster is AllyMonsterData existingAlly) // AllyMonsterData型にキャストする
+            if (monster is AllyMonsterData allyCastData) // AllyMonsterData型にキャストする
             {
-                ally = existingAlly;
+                allyData = allyCastData;
             }
-            else //キャストできなければ
+            else
             {
-                // MonsterDataをAllyMonsterDataに変換
-                ally = MonsterDataConverter.ToAllyMonster(monster);
+                // キャストできなければ、MonsterDataをAllyMonsterDataに変換
+                allyData = MonsterDataConverter.ToAllyMonster(monster);
             }
 
-            allyMonsters.Add(ally);
+            allyMonsters.Add(allyData);
         }
-        // BattleSessionData の味方リストに味方データを追加する
+
+        // BattleSessionData に味方データ登録
         battleSessionData.SetPlayerAlliesList(allyMonsters);
 
 
-        // 味方データからカードデッキを生成
         List<Card> deck = new List<Card>();
-        foreach (var ally in allyMonsters) // 味方モンスターそれぞれに対して
-        {
-            if (ally.cards == null) continue;  // カード情報がセットされていなければ、次のモンスターへ処理を移す
 
-            foreach (var cardData in ally.cards) // 味方モンスター1体が持つカードリスト内の複数カード(10枚分)を取得していく
+        // 味方ごとのカード情報からデッキを構築
+        foreach (var ally in allyMonsters)
+        {
+            if (ally.cards == null) continue;
+
+            foreach (var cardData in ally.cards)
             {
-                if (cardData != null) // カードデータが空でなければ
-                    deck.Add(new Card(cardData)); // そのカードをデッキとして一時的なリストに追加
+                if (cardData != null)
+                    deck.Add(new Card(cardData)); // カードをデッキとして一時的なリストに追加
             }
         }
 
@@ -66,8 +81,8 @@ public class BattlePreparation : MonoBehaviour
             return false;
         }
 
-        // プレイヤーが使うカードの山札情報としてBattleSessionDataにセットしておく
-        battleSessionData.SetPlayerCardList(deck);
+        // BattleSessionData にデッキを登録
+        battleSessionData.SetPlayerDeckList(deck);
 
         return true;
     }
