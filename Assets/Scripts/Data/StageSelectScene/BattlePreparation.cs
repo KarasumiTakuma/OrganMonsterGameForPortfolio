@@ -48,7 +48,7 @@ public class BattlePreparation
             else
             {
                 // キャストできなければ、MonsterDataをAllyMonsterDataに変換
-                allyData = MonsterDataConverter.ToAllyMonster(monster);
+                allyData = MonsterDataConverter.CreateAllyMonsterFrom(monster);
             }
 
             allyMonsters.Add(allyData);
