@@ -45,7 +45,7 @@ public class MonsterData : ScriptableObject, IDisplayable
     // --- セッターメソッド ---
     public void SetID(int newID) { monsterID = newID; }
     public void SetName(string newName) { monsterName = newName; }
-    public void SetHP(int newHP) { maxHp = newHP; }
+    public void SetMaxHP(int newMaxHP) { maxHp = newMaxHP; }
     public void SetAttackPower(int newAttack) { attackPower = newAttack; }
     public void SetMonsterType(MonsterType newType) { type = newType; }
     public void SetRarity(int newRarity) { rarity = newRarity; }

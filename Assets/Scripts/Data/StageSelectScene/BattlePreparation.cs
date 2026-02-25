@@ -22,10 +22,7 @@ public class BattlePreparation
     public static bool TryPrepareBattle()
     {
         
-        /// <summary>
-        /// パーティ検証処理。
-        /// null でないモンスターが3体未満の場合は準備失敗。
-        /// </summary>
+        // 現在のプレイヤーパーティリストを取得し、味方モンスターが3体揃っているかを確認(非nullの数でカウント)
         List<MonsterData> currentPartyList = GameManager.Instance.PlayerData.CurrentParty.ToList();
         if (currentPartyList.Count(partyMonster => partyMonster != null) < 3)
         {

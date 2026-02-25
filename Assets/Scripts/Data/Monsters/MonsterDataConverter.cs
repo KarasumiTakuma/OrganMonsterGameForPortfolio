@@ -15,7 +15,7 @@ public static class MonsterDataConverter
         // 基本情報をコピー
         ally.SetID(baseData.GetID());
         ally.SetName(baseData.GetName());
-        ally.SetHP(baseData.GetMaxHP());
+        ally.SetMaxHP(baseData.GetMaxHP());
         ally.SetAttackPower(baseData.GetAttackPower());
         ally.SetMonsterType(baseData.GetMonsterType());
         ally.SetRarity(baseData.GetRarity());
