@@ -5,32 +5,57 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+/// <summary>
+/// 手札に表示されるカード1枚分のUI表示を担当するクラス。
+/// HandAreaManager から生成されたカードに対応し、
+/// カード名・マナコスト・効果量・カード画像などの
+/// 見た目(UI)を更新する責務を持つ。
+/// ゲームロジックは持たず、表示専用(View)として機能する。
+/// </summary>
 public class CardView : MonoBehaviour
 {
-    [SerializeField] private Image cardImage;
+    /// <summary>カード名を表示するTextMeshProテキスト</summary>
     [SerializeField] private TMP_Text nameText;
-    [SerializeField] private TMP_Text manaText;
-    [SerializeField] private TMP_Text amountText; // 攻撃力や回復量など
 
+    /// <summary>マナコストを表示するTextMeshProテキスト</summary>
+    [SerializeField] private TMP_Text manaCostText;
+
+    /// <summary>カード画像を表示するImageコンポーネント</summary>
+    [SerializeField] private Image cardImage;
+
+    /// <summary>
+    /// カードの効果量を表示する TextMeshPro テキスト。
+    /// 攻撃力・回復量・継続効果の数値などを用途に応じて表示する。
+    /// </summary>
+    [SerializeField] private TMP_Text amountText;
+
+    /// <summary>このCardViewが表示対象として保持しているカードモデル</summary>
     private Card card;
 
+    /// <summary>
+    /// 表示対象となるカードを設定し、UIを更新する。
+    /// HandAreaManager などから生成直後に呼び出される。
+    /// </summary>
+    /// <param name="cardData">表示対象となるカードモデル</param>
     public void SetCard(Card cardData)
     {
         card = cardData;
         UpdateUI();
     }
 
+    /// <summary>
+    /// 現在設定されているカード情報をもとに、
+    /// カードUI（名前・マナ・効果量・画像）を更新する。
+    /// </summary>
     private void UpdateUI()
     {
         if (card == null) return;
 
-        // カード名
         nameText.text = card.GetName();
 
-        // マナコストを「Cost：」付きで表示
-        manaText.text = $"Cost：{card.GetManaCost()}";
+        manaCostText.text = $"Cost : {card.GetManaCost()}";
 
-        // 効果量をカードタイプに応じて表示（攻撃ならAck、回復ならHealなど）
+        // カード効果タイプに応じて効果量テキストを切り替える
         switch (card.GetCardEffectType())
         {
             case CardEffectType.AttackToSelected:
@@ -54,11 +79,11 @@ public class CardView : MonoBehaviour
                 break;
 
             default:
-                amountText.text = card.GetAmount().ToString();
+                // 未分類の効果タイプの場合は数値のみ表示
+                amountText.text = $"{card.GetAmount()}";
                 break;
         }
 
-        // カード画像
         cardImage.sprite = card.GetSprite();
     }
 }

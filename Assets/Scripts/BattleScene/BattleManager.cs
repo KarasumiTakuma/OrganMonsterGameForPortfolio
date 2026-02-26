@@ -368,7 +368,7 @@ public class BattleManager : MonoBehaviour
     {
         if (!isFirstTurn && deckManager.GetHandCount() < 5)
         {
-            deckManager.DrawCardFull();
+            deckManager.DrawUntilFullHand();
         }
     }
 
