@@ -2,10 +2,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+/// <summary>
+/// アイテムの売却システムを管理するクラス
+/// </summary>
 public class ItemSellSystem : MonoBehaviour
 {
     [Header("Main Controls")]
-    [SerializeField] private Button openPanelButton;   // 売却画面を開くボタン（インベントリ画面に常設）
+    [SerializeField] private Button openPanelButton;   // 売却画面を開くボタン
 
     [Header("Sell Panel UI")]
     [SerializeField] private GameObject sellPanel;         // 売却パネル全体
@@ -16,9 +19,9 @@ public class ItemSellSystem : MonoBehaviour
     [SerializeField] private Button executeSellButton;     // 売却実行ボタン
 
     [Header("Price Settings (レアリティごと)")]
-    [SerializeField] private int organPricePerRarity = 100;     // 臓器：レアリティ × 100
-    [SerializeField] private int monsterPricePerRarity = 500;   // モンスター：レアリティ × 500
-    [SerializeField] private int artifactPricePerRarity = 2000; // アーティファクト：レアリティ × 2000
+    [SerializeField] private int organPricePerRarity = 100;     // 臓器売却単価：レアリティ × 100
+    [SerializeField] private int monsterPricePerRarity = 500;   // モンスター売却単価：レアリティ × 500
+    [SerializeField] private int artifactPricePerRarity = 2000; // アーティファクト売却単価：レアリティ × 2000
 
     // 内部変数
     private ScriptableObject currentSelectedItem;
@@ -41,12 +44,12 @@ public class ItemSellSystem : MonoBehaviour
         if (quantityInput != null)
         {
             quantityInput.onValueChanged.AddListener(OnQuantityInputChanged);
-            quantityInput.contentType = TMP_InputField.ContentType.IntegerNumber;
+            quantityInput.contentType = TMP_InputField.ContentType.IntegerNumber;  // Inteferのみ許可
         }
 
         // 初期状態設定
         sellPanel.SetActive(false);        // パネルは隠す
-        openPanelButton.interactable = false; // 何も選択してないので「開くボタン」は押せない
+        openPanelButton.interactable = false; // 何も選択してないので「開くボタン」は押せない状態に設定
     }
 
     private void OnEnable()
@@ -60,17 +63,16 @@ public class ItemSellSystem : MonoBehaviour
     }
 
     // スロットがクリックされた時の処理
-    // スロットがクリックされた時の処理
     private void OnItemSelected(ScriptableObject data)
     {
         // 1. 無効なデータが来た場合 -> 解除
         if (data == null)
         {
-            ClearSelection();
+            ClearSelection(); // 開くボタンを無効化して、パネルも閉じる
             return;
         }
 
-        // 2. ★追加：すでに選択中のアイテムと同じものをクリックした場合 -> 解除（トグル動作）
+        // 2. すでに選択中のアイテムと同じものをクリックした場合 -> 解除（トグル動作）
         if (currentSelectedItem == data)
         {
             ClearSelection();
@@ -88,7 +90,7 @@ public class ItemSellSystem : MonoBehaviour
         }
     }
 
-    // ★追加：選択解除時の処理をまとめたメソッド
+    // 選択解除時の処理をまとめたメソッド
     private void ClearSelection()
     {
         currentSelectedItem = null;
@@ -169,7 +171,7 @@ public class ItemSellSystem : MonoBehaviour
     // 個数入力が変わった時
     private void OnQuantityInputChanged(string input)
     {
-        if (int.TryParse(input, out int quantity))
+        if (int.TryParse(input, out int quantity)) // int.TryParseでinputを整数に変換できるか試す
         {
             if (quantity > currentOwnedCount)
             {
@@ -189,6 +191,7 @@ public class ItemSellSystem : MonoBehaviour
         }
     }
 
+    // 価格情報の更新と、売却実行ボタンの有効/無効を切り替えるメソッド
     private void UpdatePriceInfo(int quantity)
     {
         int total = quantity * currentUnitPrice;
@@ -196,7 +199,7 @@ public class ItemSellSystem : MonoBehaviour
             priceInfoText.text = $"@{currentUnitPrice} x {quantity} = <color=yellow>{total} Pt</color>";
 
         // 売却実行ボタンは個数が正しくないと押せない
-        executeSellButton.interactable = (quantity > 0);
+        executeSellButton.interactable = (quantity > 0); // 個数が0以下なら無効化
     }
 
     // 売却実行
@@ -211,6 +214,7 @@ public class ItemSellSystem : MonoBehaviour
         var player = GameManager.Instance.PlayerData;
         player.AddPoints(totalPoints);
 
+        // アイテムの所持数を減らす
         if (currentSelectedItem is OrganData o) player.RemoveOrgan(o, quantity);
         else if (currentSelectedItem is MonsterData m) player.RemoveMonster(m, quantity);
         else if (currentSelectedItem is ArtifactData a) player.RemoveArtifact(a, quantity);
