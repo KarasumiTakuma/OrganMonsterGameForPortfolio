@@ -102,7 +102,7 @@ public class AllyAreaManager : MonsterAreaManager
         {
             if (monster != null && monster is Ally ally)
             {
-                ally.AllyPlayDamageEffect();
+                ally.PlayDamageEffect();
             }
         }
 

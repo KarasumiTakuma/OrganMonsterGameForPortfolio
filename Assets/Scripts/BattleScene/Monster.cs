@@ -2,60 +2,113 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
+/// <summary>
+/// バトルシーンに登場するモンスターの共通基底クラス。
+/// HP・攻撃力などの基本ステータス管理、
+/// ダメージ演出やハイライト表示といった共通挙動を提供する。
+/// Enemy / Ally クラスは本クラスを継承して実装される。
+/// </summary>
 public class Monster : MonoBehaviour
 {
-    protected int monsterID;  // モンスターID
-    protected string monsterName;  // モンスター名
-    protected int maxHP;  // モンスターの最大HP
-    protected int currentHP;  // モンスターの現在のHP(戦闘時のHP)
-    protected int attackPower;  // モンスターの攻撃力
-    protected Sprite monsterImage;  // モンスターのキャラ画像
-    protected bool isDead = false;  // 死亡判定。trueならこのモンスターは死んでいる(小クラスEnemyで利用)
+    /// <summary>モンスターを一意に識別するID（MonsterData由来）</summary>
+    protected int monsterID;
 
+    /// <summary>モンスターの表示名</summary>
+    protected string monsterName;
+
+    /// <summary>モンスターの最大HP</summary>
+    protected int maxHP;
+
+    /// <summary>現在のHP（戦闘中に増減）</summary>
+    protected int currentHP;
+
+    /// <summary>モンスターの攻撃力(敵モンスターEnemy用)</summary>
+    protected int attackPower;
+
+    /// <summary>モンスターの見た目として使用するスプライト</summary>
+    protected Sprite monsterImage;
+
+    /// <summary>死亡状態フラグ。true の場合、このモンスターは戦闘不能である</summary>
+    protected bool isDead = false;
+
+    /// <summary>ダメージエフェクト1回分の表示時間</summary>
     [SerializeField, Header("ダメージエフェクトの時間")] private float damageEffectTime;
+
+    /// <summary>ダメージ時の点滅回数</summary>
     [SerializeField, Header("エフェクトの点滅回数")] private int blinkCount = 3;
 
-    private Image characterImage; // モンスターの画像コンポーネントを保持する変数
-    private Color originalColor;  // モンスターの元画像の色
-    private Color damageColor = Color.red;  // ダメージ時のモンスターの色。赤に設定しておく。
+    /// <summary>モンスター画像を表示する UI Image コンポーネント</summary>
+    private Image characterImage;
 
-    private Coroutine highlightCoroutine;    // この敵に対してカードを使う場合に、画像をハイライトするためのコルーチン
-    private Color highlightColor = Color.blue;  // ハイライト時のモンスターの色。赤に設定しておく。
+    /// <summary>元の画像カラー（エフェクト終了後に戻すため保持）</summary>
+    private Color originalColor;
 
+    /// <summary>ダメージ時に使用する色</summary>
+    private Color damageColor = Color.red;
+
+    /// <summary>ハイライト演出用のコルーチン参照</summary>
+    private Coroutine highlightCoroutine;
+
+    /// <summary>ハイライト表示時の色</summary>
+    private Color highlightColor = Color.blue;
+
+    /// <summary>
+    /// 初期化処理。
+    /// 子オブジェクトに存在する Image コンポーネントを取得し、
+    /// 元のカラーを保存する。
+    /// </summary>
     private void Awake()
     {
-        characterImage = GetComponentInChildren<Image>();  //　アタッチされている画像コンポーネントを取得
+        characterImage = GetComponentInChildren<Image>();
         if(characterImage != null)
-            originalColor = characterImage.color;  // モンスターの元画像の色を保持
+            originalColor = characterImage.color;
     }
 
-
+    /// <summary>
+    /// モンスター共通の初期化処理。
+    /// データクラス（MonsterData）の内容を、
+    /// 実体モンスターに反映するために使用される。
+    /// </summary>
+    /// <param name="id">モンスターID</param>
+    /// <param name="name">モンスター名</param>
+    /// <param name="maxHp">最大HP</param>
+    /// <param name="attack">攻撃力</param>
+    /// <param name="image">表示用スプライト</param>
     protected void InitializeBase(int id, string name, int maxHp, int attack, Sprite image)
     {
         monsterID = id;
         monsterName = name;
         maxHP = maxHp;
-        currentHP = maxHp;  // 初期はcurrentHPは最大体力(子クラスEnemyでのみ用いる)
+        currentHP = maxHp;
         attackPower = attack;
-        monsterImage = image;  // monsterImageに画像データ(Sprite)として保持する
+        monsterImage = image;
 
         UpdateImage();
     }
-    // 共通のUI更新
+
+    /// <summary>
+    /// モンスター画像の表示を更新する。
+    /// monsterImage の内容を UI Image に反映する。
+    /// </summary>
     protected void UpdateImage()
     {
-        // モンスターの元画像コンポーネントcharacterImageの画像データにmonsterImageの画像データをセットして見た目を更新する
         if (characterImage != null)
             characterImage.sprite = monsterImage;
     }
 
-    protected void PlayDamageEffect()
+    /// <summary>
+    /// ダメージを受けた際の視覚エフェクトを再生する。
+    /// </summary>
+    public void PlayDamageEffect()
     {
         if(characterImage == null) return;
 
         StartCoroutine(DamageEffectCoroutine());
     }
 
+    /// <summary>
+    /// ダメージ時に画像を点滅させるコルーチン。
+    /// </summary>
     private IEnumerator DamageEffectCoroutine()
     {
         if(characterImage == null) yield break;
@@ -70,31 +123,9 @@ public class Monster : MonoBehaviour
         }
     }
 
-    // モンスターの初期状態(スポーン時の状態値)設定用メソッド（子クラスから呼び出す）
-
-    // モンスターがダメージを受けた際に呼ばれるメソッド(HP・ダメージ管理)
-    protected virtual void TakeDamage(int amount)   // Enemyクラスで参照する
-    {
-        currentHP = Mathf.Max(currentHP - amount, 0);
-
-        // ダメージエフェクト再生
-        PlayDamageEffect();
-
-        if (currentHP <= 0)
-        {
-            isDead = true;
-            OnDeath();
-        }
-    }
-
-
-    // このモンスターが死んだときにするべき処理。子クラスEnemyでオーバーライドする
-    protected virtual void OnDeath()
-    {
-
-    }
-
-    // この敵キャラクターの画像をハイライト(薄白く点滅)するアニメーションを開始するメソッド
+    /// <summary>
+    /// 対象選択時などに使用されるハイライト演出を開始する。
+    /// </summary>
     public void StartHighlight()
     {
         if(characterImage == null) return;
@@ -107,6 +138,9 @@ public class Monster : MonoBehaviour
         highlightCoroutine = StartCoroutine(HighlightCoroutine());
     }
 
+    /// <summary>
+    /// ハイライト演出を停止し、元の表示に戻す。
+    /// </summary>
     public void StopHighlight()
     {
         if(characterImage == null) return;
@@ -120,7 +154,9 @@ public class Monster : MonoBehaviour
         characterImage.color = originalColor;
     }
 
-    // ハイライト(薄白く点滅する)アニメーションのための子ルーチン
+    /// <summary>
+    /// ハイライト表示を点滅で表現するためのコルーチン。
+    /// </summary>
     private IEnumerator HighlightCoroutine()
     {
 
@@ -136,13 +172,24 @@ public class Monster : MonoBehaviour
 
 
 
-    // ゲッター（必要な情報だけ外部に公開）
+    /// <summary>モンスターIDを取得</summary>
     public int GetMonsterID() => monsterID;
+
+    /// <summary>モンスター名を取得</summary>
     public string GetMonsterName() => monsterName;
+
+    /// <summary>最大HPを取得</summary>
     public int GetMaxHP() => maxHP;
+
+    /// <summary>現在HPを取得</summary>
     public int GetCurrentHP() => currentHP;
+
+    /// <summary>攻撃力を取得</summary>
     public int GetAttackPower() => attackPower;
-    public Sprite GetImage() => monsterImage;
-    // 死亡判定のゲッター
+
+    /// <summary>表示用スプライトを取得</summary>
+    public Sprite GetMonsterImage() => monsterImage;
+
+    /// <summary>死亡状態かどうかを取得</summary>
     public bool GetIsDead() => isDead;
 }
