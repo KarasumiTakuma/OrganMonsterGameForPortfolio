@@ -67,12 +67,12 @@ public class MonsterAreaManager : MonoBehaviour
             if (monster is Enemy enemy)
             {
                 // 敵モンスターとして初期化
-                enemy.InitializeSet(monsterDataList[dataIndex] as EnemyMonsterData);
+                enemy.InitializeFromData(monsterDataList[dataIndex] as EnemyMonsterData);
             }
             else if (monster is Ally ally)
             {
                 // 味方モンスターとして初期化
-                ally.InitializeSet(monsterDataList[dataIndex] as AllyMonsterData);
+                ally.InitializeFromData(monsterDataList[dataIndex] as AllyMonsterData);
             }
 
             // 管理リストへ登録

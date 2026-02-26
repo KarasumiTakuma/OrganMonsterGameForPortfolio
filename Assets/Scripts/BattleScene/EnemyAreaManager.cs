@@ -100,7 +100,7 @@ public class EnemyAreaManager : MonsterAreaManager
         Enemy enemy = spawnedMonsters[targetIndex] as Enemy;
         if (enemy != null)
         {
-            enemy.TakeDamagePublic(damage);
+            enemy.TakeDamage(damage);
         }
     }
 
@@ -113,7 +113,7 @@ public class EnemyAreaManager : MonsterAreaManager
         {
             if (monster is Enemy enemy && !enemy.GetIsDead())
             {
-                enemy.TakeDamagePublic(damage);
+                enemy.TakeDamage(damage);
             }
         }
     }
@@ -450,7 +450,7 @@ public class EnemyAreaManager : MonsterAreaManager
         {
             // 該当の敵が死亡しており、その旨を伝えるログが既に表示されている場合は、
             // IsShouldDeathLogged()がfalseになるので、ログの重複表示がされない
-            if (enemyMonster is Enemy enemy && enemy.IsShouldDeathLogged())
+            if (enemyMonster is Enemy enemy && enemy.IsShouldLogDeath())
             {
                 Log($"{enemy.GetMonsterName()}は倒れた！", BattleLogType.Attention);
             }
