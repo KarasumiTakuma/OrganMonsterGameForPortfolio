@@ -4,29 +4,43 @@ using TMPro;
 
 public class DeckManager : MonoBehaviour
 {
-    [Header("Deck Management")]
-    public List<Card> deck = new List<Card>();        // 山札
-    public List<Card> hand = new List<Card>();        // 手札
-    public List<Card> discardPile = new List<Card>(); // 墓地
+    [Header("デッキ管理")]
+    /// <summary>山札。ドロー時にここからカードが引かれる。</summary>
+    private List<Card> deck = new List<Card>();
 
-    [SerializeField] private TMP_Text deckText;  // 山札枚数を表示するUI
-    [SerializeField] private TMP_Text discardPileText;  // 墓地枚数を表示するUI
+    /// <summary>現在プレイヤーが所持している手札。</summary>
+    private List<Card> hand = new List<Card>();
 
+    /// <summary>使用済みカードを保持する墓地。</summary>
+    private List<Card> discardPile = new List<Card>();
+
+    [Header("UI表示")]
+    /// <summary>山札の残り枚数を表示するTextMeshPro</summary>
+    [SerializeField] private TMP_Text deckText;
+
+    /// <summary>墓地のカード枚数を表示するTextMeshPro。</summary>
+    [SerializeField] private TMP_Text discardPileText;
+
+    /// <summary>手札の最大枚数。</summary>
     private const int FullHandSize = 5;
 
-    [Header("Start Game Hand Setting")]
-    private int initialHandSize = FullHandSize; // ゲーム開始時の手札枚数(最大の5枚にする)
+    /// <summary>ゲーム開始時に引く初期手札の枚数</summary>
+    [Header("手札初期設定")]
+    [SerializeField] private int initialHandSize = FullHandSize;
 
     /// <summary>
-    /// デッキにカードを追加
+    /// 山札にカードを1枚追加する。
+    /// デッキ構築や初期化時に使用される。
     /// </summary>
+    /// <param name="card">山札に追加するカード</param>
     public void AddCardToDeck(Card card)
     {
         deck.Add(card);
     }
 
     /// <summary>
-    /// ゲーム開始時に初期手札を引くためのメソッド
+    /// ゲーム開始時に初期手札を引く。
+    /// initialHandSize の枚数分ドローを行う。
     /// </summary>
     public void DrawInitialHand()
     {
@@ -37,7 +51,11 @@ public class DeckManager : MonoBehaviour
         UpdateCardUI();
     }
 
-    public void DrawCardFull()
+    /// <summary>
+    /// 手札が最大枚数になるまでカードをドローする。
+    /// 山札・墓地が尽きた場合は途中で終了する。
+    /// </summary>
+    public void DrawUntilFullHand()
     {
         while (hand.Count < FullHandSize)
         {
@@ -47,7 +65,66 @@ public class DeckManager : MonoBehaviour
         UpdateCardUI();
     }
 
-    /// デッキから1枚ドロー
+
+    /// <summary>
+    /// 使用したカードを手札から墓地へ移動する。
+    /// </summary>
+    /// <param name="card">墓地へ送るカード</param>
+    public void DiscardCard(Card card)
+    {
+        if (hand.Contains(card))
+        {
+            hand.Remove(card);
+            discardPile.Add(card);
+        }
+        UpdateCardUI();
+    }
+
+    /// <summary>
+    /// 墓地のカードを山札に戻し、シャッフルする
+    /// </summary>
+    private void ReshuffleDiscardIntoDeck()
+    {
+        deck.AddRange(discardPile);
+        discardPile.Clear();
+        ShuffleDeck();
+    }
+
+    /// <summary>
+    /// 山札をランダムにシャッフルする
+    /// </summary>
+    public void ShuffleDeck()
+    {
+        for (int i = 0; i < deck.Count; i++)
+        {
+            int rand = Random.Range(i, deck.Count);
+            Card temp = deck[i];
+            deck[i] = deck[rand];
+            deck[rand] = temp;
+        }
+        UpdateCardUI();
+    }
+
+    /// <summary>
+    /// 山札・手札・墓地をすべて空にする。
+    /// バトル終了時やリセット処理で使用。
+    /// </summary>
+    public void ClearDeck()
+    {
+        deck.Clear();
+        hand.Clear();
+        discardPile.Clear();
+        UpdateCardUI();
+    }
+
+    /// <summary>
+    /// 山札からカードを1枚ドローする内部処理。
+    /// 山札が空の場合は墓地をシャッフルして補充する。
+    /// </summary>
+    /// <returns>
+    /// ドローしたカード。
+    /// 山札・墓地ともに空の場合は null。
+    /// </returns>
     private Card DrawCard()
     {
         if (deck.Count == 0)
@@ -68,54 +145,8 @@ public class DeckManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 使用済みカードを墓地に送る
+    /// 山札・墓地の枚数表示UIを更新する。
     /// </summary>
-    public void DiscardCard(Card card)
-    {
-        if (hand.Contains(card))
-        {
-            hand.Remove(card);
-            discardPile.Add(card);
-        }
-        UpdateCardUI();
-    }
-
-    /// <summary>
-    /// 墓地をシャッフルして山札に戻す
-    /// </summary>
-    private void ReshuffleDiscardIntoDeck()
-    {
-        deck.AddRange(discardPile);
-        discardPile.Clear();
-        ShuffleDeck();
-    }
-
-    /// <summary>
-    /// 山札をシャッフル
-    /// </summary>
-    public void ShuffleDeck()
-    {
-        for (int i = 0; i < deck.Count; i++)
-        {
-            int rand = Random.Range(i, deck.Count);
-            Card temp = deck[i];
-            deck[i] = deck[rand];
-            deck[rand] = temp;
-        }
-        UpdateCardUI();
-    }
-
-    /// <summary>
-    /// 山札・手札・墓地をすべてクリア
-    /// </summary>
-    public void ClearDeck()
-    {
-        deck.Clear();
-        hand.Clear();
-        discardPile.Clear();
-        UpdateCardUI();
-    }
-
     private void UpdateCardUI()
     {
         if (deckText != null)
@@ -125,15 +156,20 @@ public class DeckManager : MonoBehaviour
 
         if (discardPileText != null)
         {
-            discardPileText.text = this.GetdiscardPile().ToString();
+            discardPileText.text = this.GetDiscardPileCount().ToString();
         }
     }
 
 
+    /// <summary>現在の手札リストを取得する</summary>
+    public List<Card> GetHand() => hand;
 
-    // ゲッター
-    public List<Card> GetHand() => hand;  // 手札リスト取得のためのゲッター
-    public int GetDeckCount() => deck.Count;  // 山札カード枚数を返す
-    public int GetHandCount() => hand.Count;  // 手札カード枚数を返す
-    public int GetdiscardPile() => discardPile.Count; // 墓地のカード枚数を返す
+    /// <summary>山札の残り枚数を取得する</summary>
+    public int GetDeckCount() => deck.Count;
+
+    /// <summary>手札の枚数を取得する</summary>
+    public int GetHandCount() => hand.Count;
+
+    /// <summary>墓地のカード枚数を取得する</summary>
+    public int GetDiscardPileCount() => discardPile.Count;
 }
