@@ -53,12 +53,14 @@ public class PlayerData : MonoBehaviour
     }
 
     // OnValidateからも呼び出して、非再生中の編集にも対応
-    private void OnValidate()
-    {
-        // すぐに更新するとパフォーマンスに影響する場合があるため、
-        // 念のためエディタの更新ループで一度だけ呼ばれるようにする
-        UnityEditor.EditorApplication.delayCall += UpdateDebugLists;
-    }
+#if UNITY_EDITOR
+private void OnValidate()
+{
+    // すぐに更新するとパフォーマンスに影響する場合があるため、
+    // 念のためエディタの更新ループで一度だけ呼ばれるようにする
+    UnityEditor.EditorApplication.delayCall += UpdateDebugLists;
+}
+#endif
 
     // 更新処理を一つのメソッドにまとめる
     private void UpdateDebugLists()

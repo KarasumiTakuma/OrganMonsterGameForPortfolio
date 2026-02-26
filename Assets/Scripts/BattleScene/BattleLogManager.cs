@@ -5,48 +5,87 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 
+/// <summary>
+/// バトル中の戦闘ログを管理するクラス。
+/// ログメッセージをキューで保持し、
+/// TextMeshPro の UI に一定数まで表示する。
+/// シングルトンとして実装され、バトル中のどこからでもログ追加が可能。
+/// </summary>
 public class BattleLogManager : MonoBehaviour
 {
+    /// <summary>BattleLogManager のシングルトンインスタンス</summary>
     public static BattleLogManager Instance { get; private set; }
 
-    [SerializeField] private TMP_Text logText;  // 戦闘ログのTMP(BattleLogText)をアタッチ
-    [SerializeField] private ScrollRect scrollRect;  // 戦闘ログのScrollView(BattleLogScrollView)のScrollRectコンポーネント
-    [SerializeField] private int maxLogCount = 20;  // キューに入れられるログの最大の数
+    /// <summary>戦闘ログを表示する TextMeshPro のテキストコンポーネント。</summary>
+    [SerializeField] private TMP_Text logText;
 
-    private Queue<string> logQueue = new Queue<string>();  // 戦闘ログをmaxLogCountの個数分保持するキュー。FIFOなので、古いものから順にDequeueされる。
+    /// <summary> 
+    /// 戦闘ログ表示用 ScrollView の ScrollRect コンポーネント。
+    /// ログ追加時に自動スクロールさせるために使用。 
+    /// </summary>
+    [SerializeField] private ScrollRect scrollRect;
 
+    /// <summary>ログキューに保持できる最大ログ数</summary>    
+    [SerializeField] private int maxLogCount = 20;
+
+    /// <summary>戦闘ログを保持するキュー。FIFO（先入れ先出し）で管理され、表示件数制限に使用される。</summary>
+    private Queue<string> logQueue = new Queue<string>();
+
+    /// <summary>
+    /// シングルトンの初期化処理。
+    /// 既にインスタンスが存在する場合は自身を破棄する。
+    /// </summary>
     private void Awake()
     {
-        Instance = this;  // シングルトン(このクラス唯一のオブジェクト)を生成
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+
+        // 初期状態ではログ表示を空に
         logText.text = "";
     }
 
-    // 外部からlogTextにログメッセージを追加するためのメソッド
-    // BattleLogTypeを指定することで、メッセージの種別ごとに色が付く
-    public void AddLog(string message, BattleLogType type)
+    /// <summary>
+    /// 戦闘ログを1件追加する。
+    /// ログ種別に応じて色付けを行い、
+    /// キューに追加後、UI表示を更新する。
+    /// </summary>
+    /// <param name="message">表示するログメッセージ本文</param>
+    /// <param name="type">ログの種別（攻撃・回復・システムなど）</param>
+    public void AddLog(string message, BattleLogType type = BattleLogType.System)
     {
-        // メッセージの種別(type)ごとに色を決める
+        // ログ種別に応じて色を適用
         string coloredMessage = ApplyColor(message, type);
 
-        logQueue.Enqueue(coloredMessage);  // キューに受け取ったメッセージを格納する
+        // ログをキューに追加
+        logQueue.Enqueue(coloredMessage);
 
-        // キューにあるログ数が最大カウントに達していたら、古いものを取り出す。
+        // 最大ログ数を超えた場合、一番古いログを削除
         if (logQueue.Count > maxLogCount)
         {
             logQueue.Dequeue();
         }
 
-        logText.text = string.Join("\n\n", logQueue);  // キューにある複数ログに改行を2回設けて、logTextにtextとして格納(表示)
+        // キュー内のログを改行区切りで表示
+        logText.text = string.Join("\n\n", logQueue);
 
-        // ログを追加した直後に、ログ表示ScrollViewのcontent(テキスト)が自動的に下までスクロールされるように
-        // Contentのアンカーの位置を調節する
+        // ログ追加後に自動で下までスクロール
         scrollRect.content.anchoredPosition = new Vector2(scrollRect.content.anchoredPosition.x, 0f);
     }
 
-    // メッセージの種別(type)ごとに、メッセージに色を与えて、それを返すメソッド。デフォルトでのタイプはSystem
+    /// <summary>
+    /// ログ種別に応じてメッセージに色タグを付与する。
+    /// TextMeshPro のリッチテキスト機能を利用する。
+    /// </summary>
+    /// <param name="message">元のログメッセージ</param>
+    /// <param name="type">ログの種別</param>
+    /// <returns>色タグが付与されたログメッセージ</returns>
     private string ApplyColor(string message, BattleLogType type = BattleLogType.System)
     {
-        // メッセージの種別(type)ごとに、messageに色を与えて(colorタグをつけて)それをリターンする
         return type switch
         {
             BattleLogType.Attack => $"<color=red>{message}</color>",
@@ -54,20 +93,21 @@ public class BattleLogManager : MonoBehaviour
             BattleLogType.Heal => $"<color=green>{message}</color>",
             BattleLogType.Attention => $"<color=yellow>{message}</color>",
             BattleLogType.System => $"<color=white>{message}</color>",
-            _ => message // デフォルトルート。messageをそのまま返す。「_」はディスカード(破棄する引数)
+            _ => message
         };
     }
 
-
 }
 
-// 戦闘ログのメッセージを5つのタイプに分ける
-// enumは列挙型
+/// <summary>
+/// 戦闘ログの種別を表す列挙型。
+/// ログの色分けや意味付けに使用される。
+/// </summary>
 public enum BattleLogType
 {
-    Attack,
-    DamageOverTime,
-    Heal,
-    Attention,
-    System
+    Attack,           // 通常攻撃やスキル攻撃に関するログ
+    DamageOverTime,  // 毒や火傷などの継続ダメージログ
+    Heal,            // 回復効果に関するログ
+    Attention,      // 注意喚起や重要イベントのログ
+    System          // システムメッセージや汎用ログ
 }

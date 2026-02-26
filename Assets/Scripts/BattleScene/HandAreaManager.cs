@@ -76,7 +76,7 @@ public class HandAreaManager : MonoBehaviour
                 cardView.SetCard(cardData);
             }
 
-            var dragDrop = cardObj.GetComponent<CardUI_DragDrop>();
+            var dragDrop = cardObj.GetComponent<CardDragDropUI>();
             if (dragDrop != null && onCardPlayed != null)
             {
                 dragDrop.Setup(cardData, enemyAreaManager, allyAreaManager, cardDescriptionPanel);

@@ -10,7 +10,7 @@ public class CardView : MonoBehaviour
     [SerializeField] private Image cardImage;
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private TMP_Text manaText;
-    [SerializeField] private TMP_Text powerText; // 攻撃力や回復量など
+    [SerializeField] private TMP_Text amountText; // 攻撃力や回復量など
 
     private Card card;
 
@@ -34,27 +34,27 @@ public class CardView : MonoBehaviour
         switch (card.GetCardEffectType())
         {
             case CardEffectType.AttackToSelected:
-                powerText.text = $"攻撃 {card.GetPower()}";
+                amountText.text = $"攻撃 {card.GetAmount()}";
                 break;
 
             case CardEffectType.AttackToAll:
-                powerText.text = $"全攻 {card.GetPower()}";
+                amountText.text = $"全攻 {card.GetAmount()}";
                 break;
 
             case CardEffectType.Heal:
-                powerText.text = $"回復 {card.GetPower()}";
+                amountText.text = $"回復 {card.GetAmount()}";
                 break;
 
             case CardEffectType.DamageOverTime:
-                powerText.text = $"継続ダメージ {card.GetPower()} / {card.GetDurationTurn()}ターン";
+                amountText.text = $"継続ダメージ {card.GetAmount()} / {card.GetDurationTurns()}ターン";
                 break;
 
             case CardEffectType.HealOverTime:
-                powerText.text = $"継続回復 {card.GetPower()} / {card.GetDurationTurn()}ターン";
+                amountText.text = $"継続回復 {card.GetAmount()} / {card.GetDurationTurns()}ターン";
                 break;
 
             default:
-                powerText.text = card.GetPower().ToString();
+                amountText.text = card.GetAmount().ToString();
                 break;
         }
 

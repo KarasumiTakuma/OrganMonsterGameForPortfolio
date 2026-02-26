@@ -1,14 +1,27 @@
 using UnityEngine;
 using TMPro;
 
+/// <summary>
+/// カードの詳細説明を表示するためのUIパネルを制御するクラス。
+/// カードにホバーした際などに、
+/// 説明文を設定し、カード位置を基準にパネルを表示する役割を持つ。
+/// </summary>
 public class CardDescriptionPanel : MonoBehaviour
 {
+    /// <summary>カードの説明文を表示する TextMeshPro テキスト</summary>
     [SerializeField] private TMP_Text cardDescriptionText;
-    [SerializeField] private Vector2 panelOffset = new Vector2(0, 50f);  // // カード位置からのオフセット
+
+    /// <summary>カードの位置を基準としたパネル表示位置のオフセット。通常はカードより少し上に表示する目的で使用</summary>
+    [SerializeField] private Vector2 offsetFromCard = new Vector2(0, 50f);
     
+    /// <summary>このパネル自身の RectTransform。anchoredPosition を操作するために保持。</summary>
     private RectTransform rectTransform;
 
-    // RectTransformを確実に取得する。
+
+    /// <summary>
+    /// RectTransform を確実に取得するための補助メソッド。
+    /// 未取得の場合のみ GetComponent を行う。
+    /// </summary>
     private void EnsureRectTransform()
     {
         if (rectTransform == null)
@@ -17,25 +30,33 @@ public class CardDescriptionPanel : MonoBehaviour
         }
     }
 
-    // カードの詳細説明(cardDescription)とパネルの位置を決め、表示するメソッド
-    public void ShowDescriptionPanel(string cardDescription, Vector3 basePosition)
+    /// <summary>
+    /// カードの説明文を設定し、カード位置を基準に
+    /// 説明パネルを表示する。
+    /// </summary>
+    /// <param name="cardDescription">表示するカードの詳細説明文。</param>
+    /// <param name="cardWorldPosition">カードのワールド座標。パネルはこの位置を基準に表示される。</param>
+    public void ShowDescriptionPanel(string cardDescription, Vector3 cardWorldPosition)
     {
-        EnsureRectTransform();  // RectTransformが入手できていなければ、取得する。
+        // RectTransform が未取得の場合は取得する
+        EnsureRectTransform();
 
+        // 説明文を設定
         cardDescriptionText.text = cardDescription;
-        
+
         // パネルを表示
         gameObject.SetActive(true);
 
-        // パネルのワールド座標をカードの位置に合わせる
-        // カードの場所(ワールド座標における)を、そのままパネルのワールド位置として代入
-        transform.position = basePosition;
-        
-        // オフセット分だけ、RectTransformのローカル座標でずらす
-        rectTransform.anchoredPosition += panelOffset;  // 元のカードの位置から少し上を説明パネル位置とする
+        // パネルのワールド座標をカード位置に合わせる
+        transform.position = cardWorldPosition;
+
+        // カード位置からのオフセット分だけローカル座標をずらす
+        rectTransform.anchoredPosition += offsetFromCard;
     }
 
-    // パネルを非表示にするメソッド
+    /// <summary>
+    /// カード説明パネルを非表示にする。
+    /// </summary>
     public void HideDescriptionPanel()
     {
         gameObject.SetActive(false);
