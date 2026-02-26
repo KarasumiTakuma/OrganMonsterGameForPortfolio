@@ -218,31 +218,31 @@ public class BattleManager : MonoBehaviour
         {
             case CardEffectType.AttackToSelected:
                 targetIndex = enemyAreaManager.GetSelectedEnemyIndex(dropPosition);
-                enemyAreaManager.TakeDamageToTargetEnemy(targetIndex, card.GetPower());
+                enemyAreaManager.TakeDamageToTargetEnemy(targetIndex, card.GetAmount());
                 playSuccess = true;
                 AudioManager.Instance.PlaySE(attackSoundEffect);
                 break;
 
             case CardEffectType.AttackToAll:
-                enemyAreaManager.TakeDamageToAll(card.GetPower());
+                enemyAreaManager.TakeDamageToAll(card.GetAmount());
                 AudioManager.Instance.PlaySE(attackSoundEffect);
                 playSuccess = true;
                 break;
 
             case CardEffectType.Heal:
-                allyAreaManager.HealSharedHP(card.GetPower());
+                allyAreaManager.HealSharedHP(card.GetAmount());
                 AudioManager.Instance.PlaySE(healSoundEffect);
                 playSuccess = true;
                 break;
 
             case CardEffectType.DamageOverTime:
                 targetIndex = enemyAreaManager.GetSelectedEnemyIndex(dropPosition);
-                enemyAreaManager.ApplyDamageOverTimeToTargetEnemy(targetIndex, card.GetPower(), card.GetDurationTurn());
+                enemyAreaManager.ApplyDamageOverTimeToTargetEnemy(targetIndex, card.GetAmount(), card.GetDurationTurns());
                 playSuccess = true;
                 break;
 
             case CardEffectType.HealOverTime:
-                allyAreaManager.ApplyHealOverTime(card.GetPower(), card.GetDurationTurn());
+                allyAreaManager.ApplyHealOverTime(card.GetAmount(), card.GetDurationTurns());
                 playSuccess = true;
                 break;
         }
