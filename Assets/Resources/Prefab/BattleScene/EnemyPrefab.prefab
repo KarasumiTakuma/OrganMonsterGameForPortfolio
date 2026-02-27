@@ -162,7 +162,7 @@ GameObject:
   - component: {fileID: 5549916511410438718}
   - component: {fileID: 8131358505069508779}
   m_Layer: 5
-  m_Name: Gauge
+  m_Name: FrontGauge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -312,7 +312,7 @@ GameObject:
   - component: {fileID: 1973348324795959794}
   - component: {fileID: 9207299475031310091}
   m_Layer: 5
-  m_Name: GraceGauge
+  m_Name: BackGauge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -558,8 +558,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36b695d07b0f243c08250ec71c03fdff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gauge: {fileID: 2009533501551434309}
-  graceGauge: {fileID: 4165802900556456022}
+  frontGauge: {fileID: 2009533501551434309}
+  backGauge: {fileID: 4165802900556456022}
   HPText: {fileID: 5867613071073620116}
 --- !u!1 &8222421346097118413
 GameObject:

@@ -10,7 +10,7 @@ public class AllyAreaManager : MonsterAreaManager
 
     [Header("UI")]
     /// <summary> 共有HPを表示するHPゲージ </summary>
-    [SerializeField] private HpGaugeController sharedHpGauge;
+    [SerializeField] private HPGaugeController sharedHpGauge;
 
     /// <summary> 回復時に再生する効果音 </summary>
     [SerializeField] private AudioClip healSoundEffect;
@@ -84,7 +84,7 @@ public class AllyAreaManager : MonsterAreaManager
         // HPゲージの初期化
         if (sharedHpGauge != null)
         {
-            sharedHpGauge.SetMaxHP(sharedMaxHP);
+            sharedHpGauge.InitializeHP(sharedMaxHP);
         }
     }
 
@@ -108,7 +108,7 @@ public class AllyAreaManager : MonsterAreaManager
 
         // HPゲージ更新
         if (sharedHpGauge != null)
-            sharedHpGauge.BeInjured(damage);
+            sharedHpGauge.TakeDamage(damage);
     }
 
 
@@ -138,7 +138,7 @@ public class AllyAreaManager : MonsterAreaManager
 
         if (sharedHpGauge != null && healedAmount > 0)
         {
-            sharedHpGauge.BeHealed(healedAmount);
+            sharedHpGauge.Heal(healedAmount);
         }
 
         Log($"プレイヤーのHPが{healedAmount}回復!", BattleLogType.Heal);

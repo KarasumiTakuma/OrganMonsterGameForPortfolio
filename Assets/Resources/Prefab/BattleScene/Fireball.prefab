@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29a4baca5a72345bdb8b439b05e14394, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Fireball
-  speed: 3
+  moveSpeed: 2.5
   damageToEnemyAmount: 50
   damageToAllyAmount: 50
   healToAllyAmount: 50
@@ -171,5 +171,5 @@ MonoBehaviour:
   frequencyX: 2
   amplitudeY: 0.2
   frequencyY: 3
-  AttackSoundEffect: {fileID: 8300000, guid: ab1c1e59751594893a3ed2f3f483043d, type: 3}
-  HealSoundEffect: {fileID: 8300000, guid: 8cfef8d02f601450b8895d9f054a2575, type: 3}
+  attackSoundEffect: {fileID: 8300000, guid: ab1c1e59751594893a3ed2f3f483043d, type: 3}
+  healSoundEffect: {fileID: 8300000, guid: 8cfef8d02f601450b8895d9f054a2575, type: 3}

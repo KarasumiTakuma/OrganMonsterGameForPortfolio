@@ -12,7 +12,7 @@ public class CardDescriptionPanel : MonoBehaviour
     [SerializeField] private TMP_Text cardDescriptionText;
 
     /// <summary>カードの位置を基準としたパネル表示位置のオフセット。通常はカードより少し上に表示する目的で使用</summary>
-    [SerializeField] private Vector2 offsetFromCard = new Vector2(0, 50f);
+    [SerializeField] private Vector2 offsetFromCard = new Vector2(0, 110f);
     
     /// <summary>このパネル自身の RectTransform。anchoredPosition を操作するために保持。</summary>
     private RectTransform rectTransform;
