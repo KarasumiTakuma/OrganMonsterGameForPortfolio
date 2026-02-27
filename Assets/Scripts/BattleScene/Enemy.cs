@@ -15,7 +15,7 @@ public class Enemy : Monster
     /// <summary>
     /// 敵のHPゲージを制御するコンポーネント。ダメージ時のゲージ更新や非表示処理に使用される。
     /// </summary>
-    [SerializeField, Header("HPゲージのコントローラ")] private HpGaugeController hpGauge;
+    [SerializeField, Header("HPゲージのコントローラ")] private HPGaugeController hpGauge;
 
     /// <summary>
     /// 現在ターゲットされていることを示すUIマーク。カード選択時などに表示／非表示を切り替える。
@@ -47,7 +47,7 @@ public class Enemy : Monster
         
         // HPゲージ側にも最大HPを設定
         if (hpGauge != null)
-            hpGauge.SetMaxHP(enemyMonsterData.GetMaxHP());
+            hpGauge.InitializeHP(enemyMonsterData.GetMaxHP());
 
         // 初期状態ではターゲットマークは非表示
         if (targetMark != null)
@@ -77,7 +77,7 @@ public class Enemy : Monster
         // HPゲージ更新
         if (hpGauge != null)
         {
-            hpGauge.BeInjured(amount);
+            hpGauge.TakeDamage(amount);
         }
     }
 

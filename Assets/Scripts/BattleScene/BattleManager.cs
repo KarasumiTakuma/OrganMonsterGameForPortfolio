@@ -139,7 +139,7 @@ public class BattleManager : MonoBehaviour
     /// <param name="sequenceID">コルーチン識別ID</param>
     private IEnumerator PlayerTurnRoutine(int sequenceID)
     {
-        
+
         battleState = BattleState.TurnTransition;
 
         yield return battleNoticeManager.Show(BattleNoticeType.PlayerTurn);
@@ -156,7 +156,7 @@ public class BattleManager : MonoBehaviour
         DrawCardAtTurnStart(); // ターン開始時に手札が5枚になるまでカードをドローする
         isFirstTurn = false;  // 1ターン目が終了すると、それ以降はフラグがfalseに。
 
-        RefreshHandUI();
+        RebuildHandUI();
 
         handAreaManager.SetVisible(true);
         handAreaManager.SetInteractable(true);
@@ -191,7 +191,7 @@ public class BattleManager : MonoBehaviour
         if (playSuccess)
         {
             deckManager.DiscardCard(card);
-            RefreshHandUI();
+            RebuildHandUI();
         }
         // カードを使用できたことを(isSuccessCallbackに登録しているメソッドに)通知して、その時の処理を行う。
         isSuccessCallback?.Invoke(playSuccess);
@@ -351,13 +351,17 @@ public class BattleManager : MonoBehaviour
     /// 手札UI更新処理。
     /// 手札データの同期およびUI再構築を行う。
     /// </summary>
-    private void RefreshHandUI()
+    private void RebuildHandUI()
     {
         // deckManagerによってセットされた手札データを入手し、handAreaManagerにセット
-        handAreaManager.setHandCardData(deckManager.GetHand());
+        handAreaManager.SetHandCardData(deckManager.GetHand());
 
         // 手札UI再構築, カード使用イベント登録
-        handAreaManager.UpdateHandUI((card, dropPos, callback) => PlayCard(card, dropPos, callback), enemyAreaManager, allyAreaManager);
+        handAreaManager.RebuildHandUI(
+        (card, dropPos, callback) => PlayCard(card, dropPos, callback),
+         enemyAreaManager,
+         allyAreaManager
+        );
     }
 
     /// <summary>
@@ -533,7 +537,7 @@ public class BattleManager : MonoBehaviour
     /// <param name="effectResult"> Fireballの効果内容（効果種別・効果量を保持）</param>
     private void HandleFireballEffect(FireballEffectResult effectResult)
     {
-         // プレイヤーターン以外なら、Fireball効果は無効
+        // プレイヤーターン以外なら、Fireball効果は無効
         if (battleState != BattleState.PlayerTurn)
         {
             Debug.Log("プレイヤーターン以外なのでFireball効果は無効");

@@ -44,6 +44,14 @@ public class CardView : MonoBehaviour
     }
 
     /// <summary>
+    /// 現在保持しているカード情報を使って表示を再更新する。
+    /// </summary>
+    public void Refresh()
+    {
+        UpdateUI();
+    }
+
+    /// <summary>
     /// 現在設定されているカード情報をもとに、
     /// カードUI（名前・マナ・効果量・画像）を更新する。
     /// </summary>

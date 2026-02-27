@@ -359,7 +359,7 @@ GameObject:
   - component: {fileID: 177482965482166268}
   - component: {fileID: 4610692868339999013}
   m_Layer: 5
-  m_Name: PowerText
+  m_Name: AmountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -634,10 +634,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f430c4032d5134910a7403b362bb4e5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CardView
-  cardImage: {fileID: 7535067933685848600}
   nameText: {fileID: 7622796254017178624}
-  manaText: {fileID: 8889995620827628438}
-  powerText: {fileID: 4610692868339999013}
+  manaCostText: {fileID: 8889995620827628438}
+  cardImage: {fileID: 7535067933685848600}
+  amountText: {fileID: 4610692868339999013}
 --- !u!114 &-8393193688011340493
 MonoBehaviour:
   m_ObjectHideFlags: 0
