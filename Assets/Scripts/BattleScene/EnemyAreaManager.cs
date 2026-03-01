@@ -198,8 +198,8 @@ public class EnemyAreaManager : MonsterAreaManager
                 continue;
             }
 
-            // 継続ダメージ量を[dotEffect.damagePerTurn * 0.8, dotEffect.damagePerTurn*1.5]の範囲でランダム化
-            int randomizedDamage = Mathf.RoundToInt(dotEffect.damagePerTurn * Random.Range(0.8f, 1.5f));
+            // 継続ダメージ量を[dotEffect.damagePerTurn * 0.8, dotEffect.damagePerTurn*1.2]の範囲でランダム化
+            int randomizedDamage = Mathf.RoundToInt(dotEffect.damagePerTurn * Random.Range(0.8f, 1.2f));
 
             // 効果の対象の敵が死んでいなければ、ダメージを与える
             var monster = spawnedMonsters[dotEffect.targetIndex];
