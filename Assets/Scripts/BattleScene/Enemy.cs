@@ -34,11 +34,18 @@ public class Enemy : Monster
     // ★BattleManagerがAIを取得するためのプロパティ
     public EnemyLogicBase Logic => myLogic;
 
+    // ★ダメージ軽減率 (0.0f = 無敵, 1.0f = 通常, 0.5f = 半減)
+    private float damageMultiplier = 1.0f;
+
+    // ★追加: バリアの残りターン数
+    private int guardRemainingTurns = 0;
+
 
     /// <summary>
     /// 敵モンスターの初期化処理。
     /// EnemyMonsterData に定義されたステータスをもとに、
     /// Monster 基底クラスおよびHPゲージの初期状態を設定する。
+    /// 行動ロジックも受け取る
     /// </summary>
     /// <param name="enemyMonsterData">初期化に使用する敵モンスターデータ</param>
     public void InitializeFromData(EnemyMonsterData enemyMonsterData)
@@ -98,7 +105,14 @@ public class Enemy : Monster
     /// <param name="amount">与えるダメージ量</param>
     public void TakeDamage(int amount)
     {
-        ApplyDamage(amount);
+        // 1. 計算
+        int finalDamage = CalculateMitigatedDamage(amount);
+
+        // 2. 攻撃用ログ
+        Log($"{monsterName} に{finalDamage}ダメージ！", BattleLogType.Attack);
+
+        // 3. HPを減らす
+        ApplyDamage(finalDamage);
     }
 
 
@@ -167,6 +181,117 @@ public class Enemy : Monster
     {
         if (targetMark != null)
             targetMark.enabled = isVisible;
+    }
+
+    /// <summary>
+    /// HP回復処理
+    /// </summary>
+    public void Heal(int amount)
+    {
+        if (isDead) return;
+
+        // 最大HPを超えないように回復
+        int prevHP = currentHP;
+        currentHP = Mathf.Min(currentHP + amount, maxHP);
+
+        // 実際に回復した量
+        int healAmount = currentHP - prevHP;
+
+        // UI更新（HPGaugeControllerにHealメソッドがない場合は、仕様に合わせて調整）
+        if (hpGauge != null)
+        {
+            // 簡易的にMaxHPで再初期化して減らすか、専用のHealメソッドを作るのが理想
+            // ここでは簡易表現
+            hpGauge.InitializeHP(maxHP);
+            hpGauge.TakeDamage(maxHP - currentHP);
+        }
+
+        Log($"{monsterName} のHPが{healAmount}回復！", BattleLogType.Heal);
+        // 必要ならここで回復エフェクト再生
+    }
+
+    /// <summary>
+    /// ダメージ軽減バリアを張る
+    /// </summary>
+    /// <param name="multiplier">0.5fならダメージ半減</param>
+    /// <param name="duration">持続ターン数</param>
+    public void SetGuard(float multiplier, int duration)
+    {
+        this.damageMultiplier = multiplier;
+        this.guardRemainingTurns = duration; // ターン数を上書き設定
+
+        // バリアエフェクト表示などをここに入れる
+        Log($"{monsterName} は防御態勢をとった！(残り{duration}ターン)", BattleLogType.Attention);
+    }
+
+    /// <summary>
+    /// ★ターン開始時の更新処理
+    /// BattleManagerから、敵の行動前に呼び出してもらう
+    /// </summary>
+    public void OnTurnStart()
+    {
+        if (guardRemainingTurns > 0)
+        {
+            guardRemainingTurns--;
+
+            // ターン経過でバリアが切れた場合
+            if (guardRemainingTurns <= 0)
+            {
+                ResetGuard();
+                Log($"{monsterName} の防御態勢が解除された。", BattleLogType.Attention);
+            }
+            else
+            {
+                Log($"{monsterName} の防御態勢継続 (残り{guardRemainingTurns}ターン)", BattleLogType.Attention);
+            }
+        }
+    }
+
+    /// <summary>
+    /// ガードを解除する
+    /// </summary>
+    public void ResetGuard()
+    {
+        this.damageMultiplier = 1.0f;
+        this.guardRemainingTurns = 0;
+    }
+
+    /// <summary>
+    /// ガード計算（共通ロジックとして切り出し）
+    /// </summary>
+    private int CalculateMitigatedDamage(int amount)
+    {
+        int finalDamage = Mathf.RoundToInt(amount * damageMultiplier);
+
+        // ガード演出用ログ（必要なら）
+        if (damageMultiplier < 1.0f && amount > 0)
+        {
+            Debug.Log("ガード適用");
+        }
+        return finalDamage;
+    }
+
+    /// <summary>
+    /// ★継続ダメージ専用メソッド
+    /// 軽減はするが、ログの種類を変える
+    /// </summary>
+    public void TakeDoTDamage(int amount)
+    {
+        // 1. 計算（通常と同じ軽減ロジックを使う！）
+        int finalDamage = CalculateMitigatedDamage(amount);
+
+        // 2. 継続ダメージ用ログ（紫色などで表示される）
+        Log($"{monsterName} に継続ダメージ {finalDamage}！", BattleLogType.DamageOverTime);
+
+        // 3. HPを減らす）
+        ApplyDamage(finalDamage);
+    }
+
+    // ログ出力用のヘルパーメソッド
+    protected void Log(string message, BattleLogType type)
+    {
+        if (BattleLogManager.Instance != null)
+            BattleLogManager.Instance.AddLog(message, type);
     }
 
 }

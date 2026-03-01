@@ -100,7 +100,8 @@ public class EnemyAreaManager : MonsterAreaManager
 
         ApplyDamageToTargetEnemy(targetIndex, damage);
 
-        Log($"{spawnedMonsters[targetIndex].GetMonsterName()}に{damage}ダメージ!", BattleLogType.Attack);
+        // enemyクラスでLogを呼び出す陽に変更
+        //Log($"{spawnedMonsters[targetIndex].GetMonsterName()}に{damage}ダメージ!", BattleLogType.Attack);
 
         LogIfDead();
     }
@@ -140,7 +141,7 @@ public class EnemyAreaManager : MonsterAreaManager
     public void TakeDamageToAll(int damage)
     {
         this.ApplyDamageToAllMonsters(damage);
-        Log($"敵全体に{damage}ダメージ!", BattleLogType.Attack);
+        // Log($"敵全体に{damage}ダメージ!", BattleLogType.Attack);
         LogIfDead();
     }
 
@@ -208,9 +209,17 @@ public class EnemyAreaManager : MonsterAreaManager
                 continue;
             }
 
-            ApplyDamageToTargetEnemy(dotEffect.targetIndex, randomizedDamage);
+            // ApplyDamageToTargetEnemy(dotEffect.targetIndex, randomizedDamage);
+
+            if (monster is Enemy enemy)
+            {
+                // ガード計算込み・専用ログ付きでダメージを与える
+                enemy.TakeDoTDamage(randomizedDamage);
+            }
+
             AudioManager.Instance.PlaySE(attackSoundEffect);
-            Log($"{monster.GetMonsterName()}に継続ダメージ {randomizedDamage}!", BattleLogType.DamageOverTime);
+            // Enemy側でログを出すので不要
+            // Log($"{monster.GetMonsterName()}に継続ダメージ {randomizedDamage}!", BattleLogType.DamageOverTime);
 
             dotEffect.remainingTurns--;
 
