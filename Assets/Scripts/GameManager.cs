@@ -37,7 +37,7 @@ public class GameManager : MonoBehaviour
         {
             AudioManager.Instance.PlayBGM(mainBGM);
         }
-        SaveManager.Instance.LoadGame();
+
     }
 
     private void OnEnable()
@@ -71,14 +71,44 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Update()
+    /// <summary>
+    /// デバッグ用。Rキーを押すとセーブデータ(およびゲームデータ)が削除される。
+    /// </summary>
+    //     void Update()
+    //     {
+    // #if UNITY_EDITOR
+    //     if (Input.GetKeyDown(KeyCode.R))
+    //     {
+    //         SaveManager.Instance.DeleteSaveData();
+    //     }
+    // #endif
+    //     }
+
+    // 新規ゲーム開始処理
+    public void StartNewGame()
     {
-#if UNITY_EDITOR
-    if (Input.GetKeyDown(KeyCode.R))
-    {
-        SaveManager.Instance.DeleteSaveData();
-    }
-#endif
+        // 既存データを完全リセット
+        PlayerData.ResetData();
+
+        // 初期モンスターID（仕様として固定）
+        int[] initialMonsterIds = { 1, 2, 3 };
+
+        // ID → MonsterData に変換し、
+        // 初期モンスター3体をPlayerDataに追加していく
+        foreach (int id in initialMonsterIds)
+        {
+            MonsterData monster = DataManager.Instance.GetMonsterByID(id);
+            if (monster == null)
+            {
+                Debug.LogError($"初期モンスターID {id} が見つかりません");
+                continue;
+            }
+
+            // インベントリに該当の初期モンスターを追加
+            PlayerData.AddMonster(monster, 1);
+        }
+
+        SaveManager.Instance.SaveGame();
     }
 
     // BGM再生を public メソッド化(ボス戦でBGMを変更してその後戻す時など)

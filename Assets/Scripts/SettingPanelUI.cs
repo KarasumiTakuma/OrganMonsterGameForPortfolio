@@ -12,6 +12,7 @@ public class SettingsPanelUI : MonoBehaviour
     [SerializeField] private Button closeButton;
     [SerializeField] private AudioClip clickSE; // InspectorでSEを設定
     [SerializeField] private Button saveButton;
+    [SerializeField] private Button returnToTitleButton;  // タイトルへ戻るボタン
 
     [Header("SelectTargetingMode")]
     [SerializeField] private Button targetingModeButton;  // ターゲットモードの切り替え設定へのボタン
@@ -44,6 +45,12 @@ public class SettingsPanelUI : MonoBehaviour
             SaveManager.Instance.SaveGame();
         });
 
+        // タイトルシーンへ戻る
+        returnToTitleButton.onClick.AddListener(() =>
+        {
+            AudioManager.Instance.PlaySE(clickSE);
+            SettingsManager.Instance.ReturnToTitle();
+        });
 
         //  ターゲットモードパネルの初期状態
         targetingModePanel.SetActive(false);
