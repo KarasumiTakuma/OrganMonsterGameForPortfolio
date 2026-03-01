@@ -17,7 +17,7 @@ public class EnemyAreaManager : MonsterAreaManager
     [SerializeField] private AudioClip attackSoundEffect;
 
     /// <summary> 各敵の攻撃量キャッシュ用リスト </summary>
-    private List<int> enemyAttackDamagesList;
+    // ★削除：private List<int> enemyAttackDamagesList; 
 
     /// <summary> スポーン用の敵データリスト </summary>
     private List<EnemyMonsterData> enemyDataList = new List<EnemyMonsterData>();
@@ -57,6 +57,21 @@ public class EnemyAreaManager : MonsterAreaManager
         // 親クラス用に型変換
         List<MonsterData> baseDataList = enemyDataList.ConvertAll(data => (MonsterData)data);
         base.SpawnMonsters(baseDataList);
+    }
+
+    // ★生存しているEnemyクラスのリストを返す（BattleManager用）
+    public List<Enemy> GetAliveEnemies()
+    {
+        var aliveEnemies = new List<Enemy>();
+        foreach (var monster in spawnedMonsters)
+        {
+            // Monster型をEnemy型としてキャストし、生存確認
+            if (monster is Enemy enemy && !enemy.GetIsDead())
+            {
+                aliveEnemies.Add(enemy);
+            }
+        }
+        return aliveEnemies;
     }
 
     /// <summary>
@@ -462,47 +477,50 @@ public class EnemyAreaManager : MonsterAreaManager
     /// 各敵の攻撃量の準備。
     /// </summary>
     /// <returns>なし</returns>
-    public void PrepareEnemyAttackDamages()
-    {
-        enemyAttackDamagesList = new List<int>();
-        foreach (var enemyMonster in spawnedMonsters)
-        {
-            // 既に該当のモンスターが倒れていたら、そのモンスターの攻撃処理は行わない
-            if (enemyMonster.GetIsDead())
-            {
-                continue;
-            }
-            // Enemy型の敵データにセットされている攻撃力attackPowerを入手し、
-            // [attackPowe-10, attackPoewr+30]の範囲でランダムに「味方HPに与えるダメージ量(attackPowerAmount)」を決める。
-            int baseAttackPower = enemyMonster.GetAttackPower();
-            int attackPowerAmount = UnityEngine.Random.Range(baseAttackPower - 10, baseAttackPower + 41);
-            enemyAttackDamagesList.Add(attackPowerAmount);
-        }
-    }
+    /// ★削除：この処理は、敵の攻撃量をリアルタイムで変動させる仕様に変更したため、不要になった。
+    //public void PrepareEnemyAttackDamages()
+    //{
+    //    enemyAttackDamagesList = new List<int>();
+    //    foreach (var enemyMonster in spawnedMonsters)
+    //    {
+    //        // 既に該当のモンスターが倒れていたら、そのモンスターの攻撃処理は行わない
+    //        if (enemyMonster.GetIsDead())
+    //        {
+    //            continue;
+    //        }
+    //        // Enemy型の敵データにセットされている攻撃力attackPowerを入手し、
+    //        // [attackPowe-10, attackPoewr+30]の範囲でランダムに「味方HPに与えるダメージ量(attackPowerAmount)」を決める。
+    //        int baseAttackPower = enemyMonster.GetAttackPower();
+    //        int attackPowerAmount = UnityEngine.Random.Range(baseAttackPower - 10, baseAttackPower + 41);
+    //        enemyAttackDamagesList.Add(attackPowerAmount);
+    //    }
+    //}
 
     /// <summary>
     /// 敵の撃量リスト取得用のゲッター
     /// </summary>
     /// <returns>敵の攻撃量一覧</returns>
-    public IReadOnlyList<int> GetEnemyAttackDamages() => enemyAttackDamagesList;
+    /// ★削除：このゲッターは、敵の攻撃量をリアルタイムで変動させる仕様に変更したため、不要になった。
+    //public IReadOnlyList<int> GetEnemyAttackDamages() => enemyAttackDamagesList;
 
     /// <summary>
     /// 生存している敵の名前リストを取得するゲッター
     /// </summary>
     /// <returns>敵の名前リスト</returns>
-    public IReadOnlyList<string> GetAliveEnemyNamesList()
-    {
-        var aliveEnemyNamesList = new List<string>();
+    /// ★削除：このゲッターは、BattleManagerでの敵の名前表示を、EnemyクラスのGetMonsterName()を直接呼び出す方式に変更したため、不要になった。
+    //public IReadOnlyList<string> GetAliveEnemyNamesList()
+    //{
+    //    var aliveEnemyNamesList = new List<string>();
 
-        foreach (var monster in spawnedMonsters)
-        {
-            if (monster is Enemy enemy && !enemy.GetIsDead())
-            {
-                aliveEnemyNamesList.Add(enemy.GetMonsterName());
-            }
-        }
-        return aliveEnemyNamesList;
-    }
+    //    foreach (var monster in spawnedMonsters)
+    //    {
+    //        if (monster is Enemy enemy && !enemy.GetIsDead())
+    //        {
+    //            aliveEnemyNamesList.Add(enemy.GetMonsterName());
+    //        }
+    //    }
+    //    return aliveEnemyNamesList;
+    //}
 
 
     /// <summary>

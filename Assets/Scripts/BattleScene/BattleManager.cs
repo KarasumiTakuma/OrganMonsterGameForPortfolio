@@ -285,6 +285,7 @@ public class BattleManager : MonoBehaviour
     /// コルーチン識別用ID。
     /// ターン切替時に古い処理を無効化するために使用。
     /// </param>
+    /// ★追加
     private IEnumerator EnemyTurnRoutine(int sequenceID)
     {
         battleState = BattleState.TurnTransition;
@@ -292,30 +293,48 @@ public class BattleManager : MonoBehaviour
         yield return battleNoticeManager.Show(BattleNoticeType.EnemyTurn);
         Log("敵のターン!", BattleLogType.Attention);
 
-        // 継続ダメージ処理
+        // 1. 継続ダメージ(DOT)処理
         enemyAreaManager.ProcessDamageOverTime();
         yield return new WaitForSeconds(1.0f);
 
-        // 継続ダメージにより、敵が全滅し、バトルが終了したかをチェック
+        // DOTで全滅したかチェック
         yield return StartCoroutine(CheckBattleEnd());
-        if (sequenceID != turnSequenceID) yield break;  // ターン更新済みなら処理を中断
+        if (sequenceID != turnSequenceID) yield break;
 
         yield return new WaitForSeconds(0.8f);
 
-        battleState = BattleState.EnemyTurn;  // その後、敵ターン状態にする
+        battleState = BattleState.EnemyTurn;
 
-        // 攻撃ダメージ計算
-        enemyAreaManager.PrepareEnemyAttackDamages();
+        // ★ここから変更：個々の敵AIに行動させる
 
-        // 攻撃実行
-        yield return StartCoroutine(AttackToAllySharedHP());
+        // 生存している敵リストを取得
+        var enemies = enemyAreaManager.GetAliveEnemies();
 
-        // 再度、バトルが終了していないかを判定
-        yield return StartCoroutine(CheckBattleEnd());
-        if (battleState == BattleState.GameOver) yield break;
-        if (sequenceID != turnSequenceID) yield break;
+        foreach (var enemy in enemies)
+        {
+            // 念のため生存確認
+            if (enemy == null || enemy.GetIsDead()) continue;
 
-        // 次のプレイヤーターンへ
+            // 敵が持っているロジックを取得
+            var logic = enemy.Logic;
+
+            if (logic != null)
+            {
+                // ロジックを実行（敵自身、味方マネージャ、敵マネージャを渡す）
+                yield return StartCoroutine(logic.ExecuteTurn(enemy, allyAreaManager, enemyAreaManager));
+            }
+            else
+            {
+                Debug.LogWarning($"{enemy.GetMonsterName()} にAIが設定されていません。");
+            }
+
+            // 1体行動するごとにバトル終了判定（プレイヤー死亡チェックなど）
+            yield return StartCoroutine(CheckBattleEnd());
+            if (battleState == BattleState.GameOver) yield break;
+            if (sequenceID != turnSequenceID) yield break;
+        }
+
+        // 全員の行動終了後、次のプレイヤーターンへ
         StartPlayerTurn();
     }
 
@@ -323,29 +342,30 @@ public class BattleManager : MonoBehaviour
     /// 敵の攻撃処理コルーチン。
     /// 各敵のダメージを順番に共有HPへ適用する。
     /// </summary>
-    private IEnumerator AttackToAllySharedHP()
-    {
-        // 攻撃情報の取得
-        IReadOnlyList<int> enemyAttackList = enemyAreaManager.GetEnemyAttackDamages();
-        IReadOnlyList<string> aliveEnemyNamesList = enemyAreaManager.GetAliveEnemyNamesList();
+    /// ★この処理は、個々の敵AIの実装に置き換えるため、現在は使用していない。
+    //private IEnumerator AttackToAllySharedHP()
+    //{
+    //    // 攻撃情報の取得
+    //    IReadOnlyList<int> enemyAttackList = enemyAreaManager.GetEnemyAttackDamages();
+    //    IReadOnlyList<string> aliveEnemyNamesList = enemyAreaManager.GetAliveEnemyNamesList();
 
-        for (int i = 0; i < enemyAttackList.Count; i++)
-        {
-            if (i >= aliveEnemyNamesList.Count) break;
+    //    for (int i = 0; i < enemyAttackList.Count; i++)
+    //    {
+    //        if (i >= aliveEnemyNamesList.Count) break;
 
-            string attackerName = aliveEnemyNamesList[i];
-            int power = enemyAttackList[i];
+    //        string attackerName = aliveEnemyNamesList[i];
+    //        int power = enemyAttackList[i];
 
-            Log($"{attackerName}の攻撃！", BattleLogType.Attack);
-            yield return new WaitForSeconds(1.0f);
+    //        Log($"{attackerName}の攻撃！", BattleLogType.Attack);
+    //        yield return new WaitForSeconds(1.0f);
 
-            // ダメージ適用
-            allyAreaManager.TakeDamageToSharedHP(power);
-            AudioManager.Instance.PlaySE(attackSoundEffect);
+    //        // ダメージ適用
+    //        allyAreaManager.TakeDamageToSharedHP(power);
+    //        AudioManager.Instance.PlaySE(attackSoundEffect);
 
-            yield return new WaitForSeconds(1.0f);
-        }
-    }
+    //        yield return new WaitForSeconds(1.0f);
+    //    }
+    //}
 
     /// <summary>
     /// 手札UI更新処理。
