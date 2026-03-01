@@ -315,6 +315,9 @@ public class BattleManager : MonoBehaviour
             // 念のため生存確認
             if (enemy == null || enemy.GetIsDead()) continue;
 
+            // ★行動する前に、自身のターン更新処理（バリアの残り時間減少など）を行う
+            enemy.OnTurnStart();
+
             // 敵が持っているロジックを取得
             var logic = enemy.Logic;
 
