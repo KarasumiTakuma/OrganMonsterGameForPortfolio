@@ -28,6 +28,13 @@ public class Enemy : Monster
     /// </summary>
     private bool isShouldLogDeath = true;
 
+    // ★自分の行動ロジック（AI）を保持する変数
+    private EnemyLogicBase myLogic;
+
+    // ★BattleManagerがAIを取得するためのプロパティ
+    public EnemyLogicBase Logic => myLogic;
+
+
     /// <summary>
     /// 敵モンスターの初期化処理。
     /// EnemyMonsterData に定義されたステータスをもとに、
@@ -44,7 +51,10 @@ public class Enemy : Monster
             enemyMonsterData.GetAttackPower(),
             enemyMonsterData.GetIcon()
         );
-        
+
+        // ★追加：データから行動ロジック(AI)を受け取って保持する
+        this.myLogic = enemyMonsterData.BehaviorLogic;
+
         // HPゲージ側にも最大HPを設定
         if (hpGauge != null)
             hpGauge.InitializeHP(enemyMonsterData.GetMaxHP());

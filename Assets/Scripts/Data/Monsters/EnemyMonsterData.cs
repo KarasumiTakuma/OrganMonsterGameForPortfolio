@@ -24,7 +24,15 @@ public class EnemyMonsterData : MonsterData
     [TextArea]
     [SerializeField] private string enemyDetailDescription;
 
+    // ★行動パターンアセットを設定するフィールド
+    [Header("Enemy Logic")]
+    [Tooltip("この敵の行動パターンアセットを設定する")]
+    [SerializeField] private EnemyLogicBase behaviorLogic;
+
     /// <summary>敵モンスターの詳細説明文を取得する。</summary>
     /// <returns> 敵詳細表示用の説明文文字列</returns>
     public string GetEnemyDetailDescription() => enemyDetailDescription;  // descriptionを外部から取得するためのゲッター
+
+    // ★行動パターンを取得するゲッター
+    public EnemyLogicBase BehaviorLogic => behaviorLogic;
 }
