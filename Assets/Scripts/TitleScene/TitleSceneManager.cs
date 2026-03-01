@@ -6,6 +6,7 @@ public class TitleSceneManager : MonoBehaviour
 {
     [SerializeField] private Button startNewButton;
     [SerializeField] private Button continueButton;
+    [SerializeField] private AudioClip clickSE;
     [SerializeField] private CanvasGroup continueButtonCanvasGroup;
 
     private void Start()
@@ -26,6 +27,7 @@ public class TitleSceneManager : MonoBehaviour
     // はじめから
     private void OnStartNewGame()
     {
+        AudioManager.Instance.PlaySE(clickSE);
         SaveManager.Instance.DeleteSaveData();
         GameManager.Instance.StartNewGame();
         GameManager.Instance.GoToLab();
@@ -34,6 +36,7 @@ public class TitleSceneManager : MonoBehaviour
     // 続きから
     private void OnContinueGame()
     {
+        AudioManager.Instance.PlaySE(clickSE);
         SaveManager.Instance.LoadGame();
         GameManager.Instance.GoToLab();
     }
