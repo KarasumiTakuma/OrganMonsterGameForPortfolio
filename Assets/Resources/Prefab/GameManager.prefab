@@ -167,14 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2dee4b50ffa8f49aeb224a15c9854b23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testOrgan:
-  - {fileID: 11400000, guid: 99c226341409d4d56b24d4ee8bb81735, type: 2}
-  - {fileID: 11400000, guid: 8bf1a3e386c7b4f16899b1805c1a17b3, type: 2}
-  - {fileID: 11400000, guid: 246e53a6181764ba596c6d977613c35f, type: 2}
-  - {fileID: 11400000, guid: 3a99bf8e7a57a4fc69485a562bad3cc0, type: 2}
-  - {fileID: 11400000, guid: 60065eee0faef4a64abc1e61be165c12, type: 2}
-  - {fileID: 11400000, guid: f395c94d60d5c4de2ac29ac9b291fabd, type: 2}
-  - {fileID: 11400000, guid: b47477f21088447769f36723a1ed1e51, type: 2}
+  testOrgan: []
 --- !u!1 &6934188369856607683
 GameObject:
   m_ObjectHideFlags: 0

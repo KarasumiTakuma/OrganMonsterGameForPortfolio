@@ -173,6 +173,22 @@ public class SettingsManager : MonoBehaviour
             TARGETING_MODE_KEY, (int)TargetingMode.DragAutoTarget
         );
     }
+
+
+    // タイトルへ戻る処理
+    public void ReturnToTitle()
+    {
+        SaveSettings();
+        Time.timeScale = 1f;
+
+        if (currentSettingsPanel != null)
+        {
+            Destroy(currentSettingsPanel);
+            currentSettingsPanel = null;
+        }
+
+        GameManager.Instance.GoToTitle();
+    }
 }
 
 // バトル時のターゲット選択方式の種類

@@ -44,3 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b57f4554d83ef40e0abc24d7d28a0bf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DataManager
+  defaultInitialMonsters:
+  - {fileID: 11400000, guid: 0884aa10aa387b54aa4538c74e71afec, type: 2}
+  - {fileID: 11400000, guid: 7e1a3c05e6b34744183dc56ad41494a8, type: 2}
+  - {fileID: 11400000, guid: d135b74a799bf694d90c134870eed89d, type: 2}
