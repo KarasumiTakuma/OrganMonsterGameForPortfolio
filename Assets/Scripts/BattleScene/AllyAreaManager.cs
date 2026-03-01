@@ -174,8 +174,8 @@ public class AllyAreaManager : MonsterAreaManager
         // 現在適用中の継続回復効果を処理
         foreach (var hotEffect in healOverTimeEffects)
         {
-            // 継続回復量を[hotEffect.healPerTurn * 0.8,hotEffect.healPerTurn * 1.5]の範囲でランダム化
-            int randomizedHealAmount = Mathf.RoundToInt(hotEffect.healPerTurn * Random.Range(0.8f, 1.5f));
+            // 継続回復量を[hotEffect.healPerTurn * 0.8,hotEffect.healPerTurn * 1.2]の範囲でランダム化
+            int randomizedHealAmount = Mathf.RoundToInt(hotEffect.healPerTurn * Random.Range(0.8f, 1.2f));
 
             HealSharedHP(randomizedHealAmount);
             AudioManager.Instance.PlaySE(healSoundEffect);
