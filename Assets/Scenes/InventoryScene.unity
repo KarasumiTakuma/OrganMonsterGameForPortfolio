@@ -4970,7 +4970,9 @@ MonoBehaviour:
   nameText: {fileID: 1303350039}
   priceInfoText: {fileID: 2142769409}
   executeSellButton: {fileID: 305028706}
-  pricePerRarity: 100
+  organPricePerRarity: 100
+  monsterPricePerRarity: 500
+  artifactPricePerRarity: 2000
 --- !u!4 &1511003599
 Transform:
   m_ObjectHideFlags: 0
@@ -6348,7 +6350,7 @@ PrefabInstance:
       objectReference: {fileID: 538203669}
     - target: {fileID: -5953760870428627947, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
       propertyPath: testOrgan.Array.size
-      value: 11
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: -5953760870428627947, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
       propertyPath: 'testOrgan.Array.data[0]'

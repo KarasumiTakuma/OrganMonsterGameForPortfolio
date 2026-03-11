@@ -35,7 +35,7 @@ public class DataManager : MonoBehaviour
     // Resourcesフォルダから全データをロードする
     private void LoadAllGameData()
     {
-        // ★★★ Resources.LoadAll を使う ★★★
+        // Resources.LoadAll を使う
         AllOrgans = Resources.LoadAll<OrganData>("Data/Organs").OrderBy(o => o.GetID()).ToList();
         AllMonsters = Resources.LoadAll<MonsterData>("Data/Monsters").OrderBy(m => m.GetID()).ToList();
         AllArtifacts = Resources.LoadAll<ArtifactData>("Data/Artifacts").OrderBy(a => a.GetArtifactID()).ToList();

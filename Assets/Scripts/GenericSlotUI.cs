@@ -66,6 +66,7 @@ public class GenericSlotUI : MonoBehaviour
         assignedData = data;
         icon.enabled = true;
         icon.sprite = data.GetIcon();
+        icon.color = Color.white;
         countText.text = count.ToString();
     }
     
@@ -77,6 +78,7 @@ public class GenericSlotUI : MonoBehaviour
         assignedData = data;
         icon.enabled = true;
         icon.sprite = data.GetIcon();
+        icon.color = Color.white;
         countText.text = count.ToString();
     }
 
@@ -88,6 +90,7 @@ public class GenericSlotUI : MonoBehaviour
         assignedData = data;
         icon.enabled = true;
         icon.sprite = data.GetIcon();
+        icon.color = Color.white;
         countText.text = count.ToString();
     }
 
@@ -99,6 +102,7 @@ public class GenericSlotUI : MonoBehaviour
         assignedData = null;
         icon.enabled = false;
         icon.sprite = null;
+        icon.color = Color.white;
         countText.text = "";
     }
 
@@ -111,18 +115,21 @@ public class GenericSlotUI : MonoBehaviour
         icon.enabled = true;
         countText.text = ""; // 個数は表示しない
 
+        // 色を真っ黒にしてシルエット化する
+        icon.color = Color.black;
+
         // 影画像を表示するロジック
-        if (data is MonsterData monsterData && monsterData.GetShadowIcon() != null)
+        if (data is MonsterData monsterData)
         {
-            icon.sprite = monsterData.GetShadowIcon();
+            icon.sprite = monsterData.GetIcon();
         }
-        else if (data is OrganData organData && organData.GetShadowIcon() != null)
+        else if (data is OrganData organData)
         {
             icon.sprite = organData.GetIcon();
         }
-        else if (data is OrganData artifactData && artifactData.GetShadowIcon() != null)
+        else if (data is OrganData artifactData)
         {
-            icon.sprite = artifactData.GetShadowIcon();
+            icon.sprite = artifactData.GetIcon();
         }
         else
         {

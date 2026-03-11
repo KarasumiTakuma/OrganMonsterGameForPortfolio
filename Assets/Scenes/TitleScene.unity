@@ -260,7 +260,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.0000059904, y: -128}
+  m_AnchoredPosition: {x: 196, y: -0.00000023842}
   m_SizeDelta: {x: 312.5078, y: 156.26}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &117099517
@@ -1015,7 +1015,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.0000076294, y: 47}
+  m_AnchoredPosition: {x: -197.6, y: -0.00001359}
   m_SizeDelta: {x: 312.5078, y: 156.26}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1194434290
@@ -1261,6 +1261,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TitleSceneManager
   startNewButton: {fileID: 1194434290}
   continueButton: {fileID: 117099518}
+  clickSE: {fileID: 8300000, guid: 24d73765699ce3e46bb23cabc3a46494, type: 3}
   continueButtonCanvasGroup: {fileID: 117099517}
 --- !u!224 &1475754388
 RectTransform:
