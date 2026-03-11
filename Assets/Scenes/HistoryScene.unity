@@ -1294,7 +1294,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -5953760870428627947, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
       propertyPath: testOrgan.Array.size
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: -5953760870428627947, guid: 1d26d4565d3f54845bd23fcffb369d62, type: 3}
       propertyPath: 'testOrgan.Array.data[0]'
@@ -5104,7 +5104,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 363589680}
   m_HandleRect: {fileID: 363589679}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

@@ -32,7 +32,7 @@ public class BattleNoticeManager : MonoBehaviour
     /// </summary>
     /// <param name="battleNoticeType">表示する通知の種類</param>
     /// <param name="duration">通知を表示する時間（秒）</param>
-    public IEnumerator Show(BattleNoticeType battleNoticeType, float duration = 2.0f)
+    public IEnumerator Show(BattleNoticeType battleNoticeType, float duration = 1.0f)
     {
         // 既に通知が表示中の場合は中断する
         if (currentRoutine != null)
