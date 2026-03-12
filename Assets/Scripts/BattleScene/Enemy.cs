@@ -201,8 +201,8 @@ public class Enemy : Monster
         if (hpGauge != null)
         {
             // ここでは簡易表現
-            hpGauge.InitializeHP(maxHP);
-            hpGauge.TakeDamage(maxHP - currentHP);
+            // hpGauge.InitializeHP(maxHP);
+            hpGauge.Heal(healAmount);
         }
 
         Log($"{monsterName} のHPが{healAmount}回復！", BattleLogType.Heal);
