@@ -141,50 +141,45 @@ public class HPGaugeController : MonoBehaviour
 
     /// <summary>
     /// HPを回復する処理。
-    /// 表ゲージは即時反映し、裏ゲージは遅れて追従させる。
+    /// 裏ゲージを即時反映し、表ゲージを遅れてアニメーションさせる。
     /// </summary>
-    /// <param name="healAmount">回復量</param>
     public void Heal(int healAmount)
     {
-        int oldHP = currentHP;
+        // 現在のHPを更新
         currentHP = Mathf.Min(currentHP + healAmount, maxHP);
-
-        float oldWidth = widthPerHP * oldHP;
         float newWidth = widthPerHP * currentHP;
 
-        Vector2 gaugeSize = frontGaugeRect.sizeDelta;
-        gaugeSize.x = newWidth;
-        frontGaugeRect.sizeDelta = gaugeSize;
+        // 1. 裏ゲージ(back)を先に目標値までパッと伸ばす
+        Vector2 backSize = backGaugeRect.sizeDelta;
+        backSize.x = newWidth;
+        backGaugeRect.sizeDelta = backSize;
 
-        StartCoroutine(HealAnimation(oldWidth, newWidth));
+        // 2. 表ゲージ(front)をアニメーションで追いかけさせる
+        // 以前のコルーチンが動いていたら止める（連打対策）
+        StopAllCoroutines();
+        StartCoroutine(HealAnimation(newWidth));
 
         UpdateHPText();
     }
 
-    /// <summary>
-    /// 回復時の裏ゲージ追従アニメーション。
-    /// </summary>
-    /// <param name="fromWidth">回復前のゲージ幅</param>
-    /// <param name="toWidth">回復後のゲージ幅</param>
-    IEnumerator HealAnimation(float fromWidth, float toWidth)
+    IEnumerator HealAnimation(float targetWidth)
     {
         yield return new WaitForSeconds(frontToBackDelay);
 
-        Vector2 currentSize = backGaugeRect.sizeDelta;
-        Vector2 targetSize = currentSize;
-        targetSize.x = toWidth;
-
+        Vector2 currentSize = frontGaugeRect.sizeDelta;
+        float startWidth = currentSize.x;
         float elapsed = 0f;
 
         while (elapsed < GaugeAnimationDuration)
         {
-            currentSize.x = Mathf.Lerp(currentSize.x, targetSize.x, elapsed / GaugeAnimationDuration);
-            backGaugeRect.sizeDelta = currentSize;
             elapsed += Time.deltaTime;
+            currentSize.x = Mathf.Lerp(startWidth, targetWidth, elapsed / GaugeAnimationDuration);
+            frontGaugeRect.sizeDelta = currentSize;
             yield return null;
         }
 
-        backGaugeRect.sizeDelta = targetSize;
+        currentSize.x = targetWidth;
+        frontGaugeRect.sizeDelta = currentSize;
     }
 
     /// <summary>
