@@ -200,7 +200,6 @@ public class Enemy : Monster
         // UI更新（HPGaugeControllerにHealメソッドがない場合は、仕様に合わせて調整）
         if (hpGauge != null)
         {
-            // 簡易的にMaxHPで再初期化して減らすか、専用のHealメソッドを作るのが理想
             // ここでは簡易表現
             hpGauge.InitializeHP(maxHP);
             hpGauge.TakeDamage(maxHP - currentHP);
