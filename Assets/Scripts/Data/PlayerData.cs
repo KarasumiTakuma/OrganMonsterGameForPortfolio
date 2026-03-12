@@ -53,12 +53,14 @@ public class PlayerData : MonoBehaviour
     }
 
     // OnValidateからも呼び出して、非再生中の編集にも対応
-    private void OnValidate()
-    {
-        // すぐに更新するとパフォーマンスに影響する場合があるため、
-        // 念のためエディタの更新ループで一度だけ呼ばれるようにする
-        UnityEditor.EditorApplication.delayCall += UpdateDebugLists;
-    }
+#if UNITY_EDITOR
+private void OnValidate()
+{
+    // すぐに更新するとパフォーマンスに影響する場合があるため、
+    // 念のためエディタの更新ループで一度だけ呼ばれるようにする
+    UnityEditor.EditorApplication.delayCall += UpdateDebugLists;
+}
+#endif
 
     // 更新処理を一つのメソッドにまとめる
     private void UpdateDebugLists()
@@ -189,6 +191,47 @@ public class PlayerData : MonoBehaviour
         }
         // イベント発行
         OnInventoryChanged?.Invoke();
+    }
+
+    public void RemoveOrgan(OrganData organ, int amount)
+    {
+        if (ownedOrgans.ContainsKey(organ))
+        {
+            ownedOrgans[organ] -= amount;
+            // 0以下になったらリストから削除
+            if (ownedOrgans[organ] <= 0)
+            {
+                ownedOrgans.Remove(organ);
+            }
+            OnInventoryChanged?.Invoke();
+        }
+    }
+
+    public void RemoveMonster(MonsterData monster, int amount)
+    {
+        if (ownedMonsters.ContainsKey(monster))
+        {
+            ownedMonsters[monster] -= amount;
+            if (ownedMonsters[monster] <= 0)
+            {
+                ownedMonsters.Remove(monster);
+            }
+            OnInventoryChanged?.Invoke();
+        }
+    }
+
+    // --- まとめて削除するためのメソッド(インベントリで売却用) ---
+    public void RemoveArtifact(ArtifactData artifact, int amount)
+    {
+        if (ownedArtifacts.ContainsKey(artifact))
+        {
+            ownedArtifacts[artifact] -= amount;
+            if (ownedArtifacts[artifact] <= 0)
+            {
+                ownedArtifacts.Remove(artifact);
+            }
+            OnInventoryChanged?.Invoke();
+        }
     }
 
     /// <summary>

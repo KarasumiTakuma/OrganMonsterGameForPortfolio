@@ -35,6 +35,7 @@ public class SettingsPanelUIForBattleScene : MonoBehaviour
         {
             AudioManager.Instance.PlaySE(clickSE);
             GameManager.Instance.GoToLab();
+            SettingsManager.Instance.CloseSettingsPanel();
         });
     }
 }

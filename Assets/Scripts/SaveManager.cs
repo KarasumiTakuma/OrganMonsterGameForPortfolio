@@ -24,6 +24,15 @@ public class SaveManager : MonoBehaviour
         //saveFilePath = Path.Combine(Application.persistentDataPath, "savedata.json");
     }
 
+    /// <summary>
+    /// セーブデータのキーを持っているかどうかを返す
+    /// </summary>
+    /// <returns>セーブデータを持っているか否か</returns>
+    public bool HasSaveData()
+    {
+        return PlayerPrefs.HasKey(SAVE_KEY);
+    }
+
     /// <button>
     /// ゲームをセーブする
     /// </button>

@@ -21,6 +21,23 @@ public class InventorySystem : BaseTabbedGridSystem
 
         // 最初はモンスターパネルを表示
         ShowMonsterPanel();
+
+        // PlayerDataの変更イベントを購読
+        PlayerData.OnInventoryChanged += RefreshCurrentView;
+    }
+
+    private void OnDestroy() // Startで登録した場合はOnDestroyで解除
+    {
+        // イベント解除（エラー防止）
+        PlayerData.OnInventoryChanged -= RefreshCurrentView;
+    }
+
+    // 現在開いているタブだけ再描画する
+    private void RefreshCurrentView()
+    {
+        if (organPanel.activeSelf) PopulateOrganGrid();
+        else if (monsterPanel.activeSelf) PopulateMonsterGrid();
+        else if (artifactPanel.activeSelf) PopulateArtifactGrid();
     }
 
     // 臓器グリッドにデータを表示

@@ -1,55 +1,96 @@
 using UnityEngine;
 using TMPro;
 
+/// <summary>
+/// マナの管理を行うクラス。
+/// ターン制カードゲームを想定し、
+/// ・ターンごとの最大マナ増加
+/// ・現在使用可能なマナの管理
+/// ・マナUIの更新
+/// を担当する。
+/// </summary>
 public class ManaManager : MonoBehaviour
 {
     [Header("Mana Settings")]
-    [SerializeField] private int maxMana = 10;   // 到達できる最大マナ
-    [SerializeField] private int currentMana;    // 現在のマナ(残り使用可能なマナ数)
-    [SerializeField] private TMP_Text manaText;  // マナを表示するUI
 
-    private int currentMaxMana; // 今のターンの最大マナ
+    /// <summary>到達可能な最大マナ量。ターン数が増えても、この値を上限として制限される</summary>
+    [SerializeField] private int maxMana = 10;
 
-    private int turnCount = 0; // 現在のターン数
+    /// <summary>マナ残量を表示するUIテキスト。「現在マナ / 今ターンの最大マナ」の形式で表示する</summary>
+    [SerializeField] private TMP_Text manaText;
 
-    // ターン開始時
+
+    /// <summary>現在使用可能なマナ量。カード使用などで消費される</summary>
+    private int currentMana;
+
+    /// <summary>今ターンにおける最大マナ量。 ターン数に応じて増加し、maxMana を超えない</summary>
+    private int turnMaxMana;
+
+    /// <summary>現在のターン数。ターン開始時にインクリメントされ、マナ計算に使用される</summary>
+    private int turnCount = 0;
+
+    /// <summary>
+    /// ターン開始時に呼ばれる処理。
+    /// ターン数を進め、最大マナを更新し、
+    /// 今ターンのマナを全回復する。
+    /// </summary>
     public void StartTurn()
     {
         turnCount++;
 
         // ターン数に応じて最大マナを増やす
-        currentMaxMana = Mathf.Min(turnCount, maxMana);
+        turnMaxMana = Mathf.Min(turnCount, maxMana);
 
         // 今ターンのマナを全回復
-        currentMana = currentMaxMana;
+        currentMana = turnMaxMana;
 
         UpdateManaUI();
     }
 
-    // マナを使用
+    /// <summary>
+    /// 指定量のマナを消費する。
+    /// マナが足りない場合は消費せず、falseを返す。
+    /// </summary>
+    /// <param name="amount">消費したいマナ量</param>
+    /// <returns>
+    /// マナを消費できた場合は true、足りない場合は false
+    /// </returns>
     public bool UseMana(int amount)
     {
-        if (currentMana >= amount)
-        {
-            currentMana -= amount;
-            UpdateManaUI();
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        if (currentMana < amount) return false;
+
+        currentMana -= amount;
+        UpdateManaUI();
+        return true;
     }
 
-    // マナUI更新
+    /// <summary>
+    /// マナ関連の状態を初期化する。
+    /// バトル開始時やフェーズ切り替え時に使用される想定。
+    /// </summary>
+    public void ResetMana()
+    {
+        turnCount = 0;
+        currentMana = 0;
+        turnMaxMana = 0;
+        UpdateManaUI();
+    }
+
+    /// <summary>
+    /// マナUIを更新する。
+    /// 現在のマナと今ターンの最大マナを表示する。
+    /// </summary>
     private void UpdateManaUI()
     {
         if (manaText != null)
         {
-            manaText.text = this.GetCurrentMana().ToString() + " / " + currentMaxMana;
+            manaText.text = this.GetCurrentMana().ToString() + " / " + turnMaxMana;
         }
     }
 
-    // 現在のマナ取得
+    /// <summary>
+    /// 現在使用可能なマナ量を取得する。
+    /// </summary>
+    /// <returns>現在のマナ量</returns>
     public int GetCurrentMana() => currentMana;
 }

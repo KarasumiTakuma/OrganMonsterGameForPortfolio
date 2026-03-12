@@ -85,6 +85,7 @@ public class HistoryDetailSystem : MonoBehaviour
         if (discoveredOrgans.Contains(organData))
         {
             icon.sprite = organData.GetIcon(); // アイコンを表示
+            icon.color = Color.white; // 影の色を通常の色に戻す
             objectName.text = organData.GetName();
             rarityText.text = organData.GetRarity().ToString();
             ownedCountText.text = organData.GetCount().ToString();
@@ -103,7 +104,8 @@ public class HistoryDetailSystem : MonoBehaviour
         }
         else // 未発見の場合
         {
-            icon.sprite = organData.GetShadowIcon(); // 影のアイコン
+            icon.sprite = organData.GetIcon(); // 影のアイコン
+            icon.color = Color.black;
             objectName.text = "？？？？？";
             rarityText.text = "?";
             ownedCountText.text = "0";
@@ -122,6 +124,8 @@ public class HistoryDetailSystem : MonoBehaviour
         if (discoveredMonsters.Contains(monsterData))
         {
             icon.sprite = monsterData.GetIcon();
+            icon.color = Color.white;
+
             objectName.text = monsterData.GetName();
             rarityText.text = monsterData.GetRarity().ToString();
             ownedCountText.text = monsterData.GetCount().ToString();
@@ -141,7 +145,8 @@ public class HistoryDetailSystem : MonoBehaviour
         }
         else // 未発見の場合
         {
-            icon.sprite = monsterData.GetShadowIcon(); // 影のアイコン
+            icon.sprite = monsterData.GetIcon(); // 影のアイコン
+            icon.color = Color.black;
             objectName.text = "？？？？？";
             rarityText.text = "?";
             ownedCountText.text = "0";
@@ -157,8 +162,9 @@ public class HistoryDetailSystem : MonoBehaviour
         if (discoveredArtifacts.Contains(artifactData))
         {
             icon.sprite = artifactData.GetIcon();
-            objectName.text = artifactData.GetArtifactName();
-            rarityText.text = artifactData.GetArtifactRarity().ToString();
+            icon.color = Color.white;
+            objectName.text = artifactData.GetName();
+            rarityText.text = artifactData.GetRarity().ToString();
             ownedCountText.text = artifactData.GetCount().ToString();
             descriptionText.text = artifactData.GetDescription();
 
@@ -167,7 +173,9 @@ public class HistoryDetailSystem : MonoBehaviour
         }
         else // 未発見の場合
         {
-            icon.sprite = artifactData.GetShadowIcon(); // 影のアイコン
+            icon.sprite = artifactData.GetIcon(); // 影のアイコン
+            icon.color = Color.black;
+
             objectName.text = "？？？？？";
             rarityText.text = "?";
             ownedCountText.text = "0";
