@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5829af46a5e984fd38348f4efc21f4cf, type: 3}
+  m_Name: "\u30E1\u30C7\u30A3\u30A2"
+  m_EditorClassIdentifier: Assembly-CSharp::SynthesisRecipe
+  ingredients:
+  - {fileID: 11400000, guid: 5bb165451350d45d1ba547ca40b5add2, type: 2}
+  - {fileID: 11400000, guid: 8bf1a3e386c7b4f16899b1805c1a17b3, type: 2}
+  - {fileID: 11400000, guid: f98410244cab1714d81f22ed28b2b72f, type: 2}
+  resultingMonster: {fileID: 11400000, guid: 44da53866868dfc4a9f70531c35642fb, type: 2}

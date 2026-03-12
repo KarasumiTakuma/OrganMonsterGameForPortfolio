@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85887cf8f1f9a4fddb138bb6bb54def1, type: 3}
+  m_Name: "\u307B\u306D\u306E\u3046"
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterID: 10
+  monsterName: "\u307B\u306D\u306E\u3046"
+  maxHP: 700
+  attackPower: 5
+  type: 3
+  rarity: 4
+  description: "\u7D30\u8EAB\u3067\u306F\u3042\u308B\u304C\u3001\u9AA8\u683C\u304C\u304C\u3063\u3057\u308A\u3057\u3066\u3044\u308B\u306E\u3067\u304B\u306A\u308A\u786C\u3044\u3002\u8133\u3092\u6301\u3063\u3066\u3044\u308B\u306E\u3067\u982D\u304C\u826F\u304F\u3001\u4F4E\u30B3\u30B9\u30C8\u3067\u5F37\u3044\u6280\u3092\u51FA\u3059\u3053\u3068\u304C\u3067\u304D\u308B\u3002"
+  hint: "\u9AA8\u3068\u8133\u3001\u30B9\u30D1\u30A4\u30CA\u30EB\u3067\u3067\u304D\u3066\u308B\u3002"
+  icon: {fileID: -2055008003363216766, guid: dc550de8ac3cd4f1c99962a28c5ac9ea, type: 3}
+  shadowIcon: {fileID: 21300000, guid: 56bcf69f62e9f4f4ea32576d134c6522, type: 3}
+  cards:
+  - {fileID: 11400000, guid: b57fa8424ebb34c83b5cd9997ca6f667, type: 2}
+  - {fileID: 11400000, guid: b57fa8424ebb34c83b5cd9997ca6f667, type: 2}
+  - {fileID: 11400000, guid: b57fa8424ebb34c83b5cd9997ca6f667, type: 2}
+  - {fileID: 11400000, guid: ec3d875f2eaa1421d8a1990a9852e238, type: 2}
+  - {fileID: 11400000, guid: ec3d875f2eaa1421d8a1990a9852e238, type: 2}
+  - {fileID: 11400000, guid: 83aaa379e2e6a4766b160fad9b80ffa0, type: 2}
+  - {fileID: 11400000, guid: 83aaa379e2e6a4766b160fad9b80ffa0, type: 2}
+  - {fileID: 11400000, guid: bd2b5bae1c1624c54931078b6ab8f4c5, type: 2}
+  - {fileID: 11400000, guid: bd2b5bae1c1624c54931078b6ab8f4c5, type: 2}
+  - {fileID: 11400000, guid: f370f28b8481b4e1fa296bb20bf94e12, type: 2}

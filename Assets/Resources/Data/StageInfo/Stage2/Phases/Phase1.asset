@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 732418eb071cd4ea2b9c6370d2b6ce5c, type: 3}
+  m_Name: Phase1
+  m_EditorClassIdentifier: Assembly-CSharp::StagePhase
+  enemiesList:
+  - {fileID: 11400000, guid: 7f5641a1e992f43af84736097bedc074, type: 2}
+  - {fileID: 11400000, guid: 5177823c821e6497d916dc4dc1bf37bf, type: 2}
+  - {fileID: 11400000, guid: d3233bce05ae64261bf9d473d7c19649, type: 2}
+  clearRewardPoints: 300
+  fireballDamageToEnemyAmount: 30
+  fireballDamageToAllyAmount: 70
+  fireballHealToAllyAmount: 60

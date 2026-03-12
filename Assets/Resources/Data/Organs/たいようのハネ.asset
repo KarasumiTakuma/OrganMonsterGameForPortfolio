@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cce8e571a05d34642aa2d536ae7bb6fc, type: 3}
+  m_Name: "\u305F\u3044\u3088\u3046\u306E\u30CF\u30CD"
+  m_EditorClassIdentifier: Assembly-CSharp::OrganData
+  organID: 14
+  organName: "\u305F\u3044\u3088\u3046\u306E\u30CF\u30CD"
+  category: 3
+  rarity: 5
+  icon: {fileID: 21300000, guid: 081f4f069b87748af994f7d84905e6ee, type: 3}
+  shadowIcon: {fileID: 0}
+  description: 
+  hint: 
+  price: 3000

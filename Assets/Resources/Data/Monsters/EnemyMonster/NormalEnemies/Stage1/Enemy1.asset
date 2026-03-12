@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50ac0eba6cf140e093625800745ed9c, type: 3}
+  m_Name: Enemy1
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyMonsterData
+  monsterID: 101
+  monsterName: Enemy1
+  maxHP: 140
+  attackPower: 30
+  type: 0
+  rarity: 0
+  description: 
+  hint: 
+  icon: {fileID: 4709995190508499931, guid: 10a256f4dd4e34eb2be3cfa2b4171d97, type: 3}
+  shadowIcon: {fileID: 0}
+  cards: []
+  enemyDetailDescription: 

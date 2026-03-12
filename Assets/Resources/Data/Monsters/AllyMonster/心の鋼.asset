@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85887cf8f1f9a4fddb138bb6bb54def1, type: 3}
+  m_Name: "\u5FC3\u306E\u92FC"
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterID: 4
+  monsterName: "\u5FC3\u306E\u92FC"
+  maxHP: 370
+  attackPower: 5
+  type: 3
+  rarity: 2
+  description: "\u3069\u3093\u306A\u306B\u7F75\u5012\u3055\u308C\u7D9A\u3051\u3066\u3082\u751F\u304D\u7D9A\u3051\u305F\u92FC\u306E\u30E1\u30F3\u30BF\u30EB\u306E\u6301\u3061\u4E3B\u3002\u304B\u306A\u308A\u5FC3\u5F37\u3044\u3002"
+  hint: "\u30B3\u30A2\u30C0\u30B9\u30C8\u3068\u30B9\u30AF\u30E9\u30C3\u30D7\u304C\u5FC5\u8981"
+  icon: {fileID: 21300000, guid: e6a2d2aa9515d1f4b855ba15a18416bd, type: 3}
+  shadowIcon: {fileID: 334658654199690789, guid: f45961d50de044c00bedc8a9f5b4f641, type: 3}
+  cards:
+  - {fileID: 11400000, guid: 262f2ca7584534f898912d57a41ff957, type: 2}
+  - {fileID: 11400000, guid: 262f2ca7584534f898912d57a41ff957, type: 2}
+  - {fileID: 11400000, guid: 262f2ca7584534f898912d57a41ff957, type: 2}
+  - {fileID: 11400000, guid: ec031d39022574958947a364eb8fc2ba, type: 2}
+  - {fileID: 11400000, guid: ec031d39022574958947a364eb8fc2ba, type: 2}
+  - {fileID: 11400000, guid: ec031d39022574958947a364eb8fc2ba, type: 2}
+  - {fileID: 11400000, guid: ce77e046a98054551a8f0430e88c5695, type: 2}
+  - {fileID: 11400000, guid: ce77e046a98054551a8f0430e88c5695, type: 2}
+  - {fileID: 11400000, guid: 2f6dd8a0f0f6847f7998b0a22a598bd9, type: 2}
+  - {fileID: 11400000, guid: 2f6dd8a0f0f6847f7998b0a22a598bd9, type: 2}

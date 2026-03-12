@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18cdba96ac31042359fd5c8517d98080, type: 3}
+  m_Name: "\u3057\u3063\u307D\u30CF\u30EA\u30BB\u30F3"
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  cardName: "\u3057\u3063\u307D\u30CF\u30EA\u30BB\u30F3"
+  manaCost: 2
+  cardEffectType: 1
+  amount: 70
+  durationTurns: 0
+  description: "\u30CF\u30EA\u30BB\u30F3\u72B6\u306E\u3057\u3063\u307D\u3092\u632F\u308A\u56DE\u3059\u3002\u6575\u5168\u4F53\u306B70\u30C0\u30E1\u30FC\u30B8"
+  cardSprite: {fileID: 2605570223516008620, guid: 647a171a9107141aa86899f6c9a8ad8f, type: 3}

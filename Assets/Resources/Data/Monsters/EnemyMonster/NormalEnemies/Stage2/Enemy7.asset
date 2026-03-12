@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50ac0eba6cf140e093625800745ed9c, type: 3}
+  m_Name: Enemy7
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyMonsterData
+  monsterID: 107
+  monsterName: Enemy7
+  maxHP: 180
+  attackPower: 90
+  type: 0
+  rarity: 0
+  description: 
+  hint: 
+  icon: {fileID: -8297269259624129864, guid: 1158ff3f4038c4cc387ee6a1e13b0713, type: 3}
+  shadowIcon: {fileID: 0}
+  cards: []
+  enemyDetailDescription: 
