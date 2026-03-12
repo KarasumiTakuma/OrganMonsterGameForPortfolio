@@ -1904,8 +1904,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 91614a2ef12224c8781cef902f10fc2d, type: 2}
   - {fileID: 11400000, guid: 95394af3278324e7d974d29065e2159d, type: 2}
   - {fileID: 11400000, guid: c5cddb415ecda4761b8ac454276e7f56, type: 2}
-  - {fileID: 11400000, guid: e2d47a0b9361e4eb5a254d4167074cd5, type: 2}
-  - {fileID: 11400000, guid: ba3201f44151a479f833c3d3e8551be9, type: 2}
   normalGachaCost: 100
   premiumGachaPools:
   - {fileID: 11400000, guid: c5cddb415ecda4761b8ac454276e7f56, type: 2}
