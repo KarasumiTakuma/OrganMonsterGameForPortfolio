@@ -168,9 +168,6 @@ public class GachaDirector : MonoBehaviour
             count++;
 
             UpdateRarityStars(organ.GetRarity());
-            
-            // (ここにレアリティごとの「結果表示」演出（例：虹色に光る）を追加)
-            // if (organ.GetRarity() == 5) ...
 
             // 旗を下げて、「次へ」ボタンが押されるのを待つ
             nextButtonPressed = false;
