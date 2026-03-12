@@ -1,6 +1,12 @@
 # モンスターカードゲーム
 
 素材を合成し、モンスターを生成して敵と戦闘
+<img width="1586" height="902" alt="Image" src="https://github.com/user-attachments/assets/95e5c7d9-90a8-4a23-a222-2a8f5e3af36f" />
+図鑑
+<img width="1580" height="886" alt="Image" src="https://github.com/user-attachments/assets/dd5f4067-e74d-49ae-a0bb-8e34c5e317bf" />
+合成
+<img width="1570" height="884" alt="Image" src="https://github.com/user-attachments/assets/924e98fc-ba49-4dc2-9e74-3259fe02b0de" />
+
 
 ### 1. Strategyパターンを用いた敵AIの設計
 敵の行動ロジック（攻撃、回復、ガードなど）を `ScriptableObject` として部品化し、Strategyパターンを用いて実装しました。これにより、新しい行動パターンを追加する際に `Enemy` クラス本体を修正する必要がなくなり、保守性と拡張性の高い設計を実現しています。
