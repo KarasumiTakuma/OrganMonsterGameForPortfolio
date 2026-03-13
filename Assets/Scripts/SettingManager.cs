@@ -12,7 +12,7 @@ public class SettingsManager : MonoBehaviour
     [SerializeField] private AudioMixer mainMixer; // InspectorでAudioMixerアセットを設定
 
     [SerializeField] private GameObject settingsPanelPrefab; // 通常の設定パネルのプレハブ
-    [SerializeField] private GameObject settingsPanelPrefabForBattle; // 戦闘用の設定パネル(BattleSceneやStageSelectSceneでの設定パネル)のプレハブ
+    [SerializeField] private GameObject settingsPanelPrefabForBattle; // 戦闘用の設定パネル(BattleSceneでの設定パネル)のプレハブ
     private GameObject currentSettingsPanel; // 生成したパネル
 
     // PlayerPrefsのキー
@@ -67,8 +67,8 @@ public class SettingsManager : MonoBehaviour
             // GameManagerから、現在アクティブなシーンを取得する
             Scene currentActiveScene = GameManager.Instance.GetCurrentActiveScene();
 
-            // アクティブなシーンが「BattleScene」や「StageSelectScene」なら、
-            if (currentActiveScene.name == "BattleScene" || currentActiveScene.name == "StageSelectScene")
+            // アクティブなシーンが「BattleScene」なら、
+            if (currentActiveScene.name == "BattleScene")
             {
                 // 戦闘用の設定パネルをCanvasに用意
                 currentSettingsPanel = Instantiate(settingsPanelPrefabForBattle, mainCanvas.transform);
