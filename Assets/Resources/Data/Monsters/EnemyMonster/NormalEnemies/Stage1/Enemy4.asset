@@ -15,7 +15,7 @@ MonoBehaviour:
   monsterID: 104
   monsterName: Enemy4
   maxHP: 150
-  attackPower: 50
+  attackPower: 40
   type: 0
   rarity: 0
   description: 

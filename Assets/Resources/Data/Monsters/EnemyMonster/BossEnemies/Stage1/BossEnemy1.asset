@@ -15,7 +15,7 @@ MonoBehaviour:
   monsterID: 201
   monsterName: Boss1
   maxHP: 600
-  attackPower: 170
+  attackPower: 140
   type: 0
   rarity: 0
   description: 

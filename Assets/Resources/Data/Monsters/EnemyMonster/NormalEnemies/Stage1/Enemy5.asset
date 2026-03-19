@@ -15,7 +15,7 @@ MonoBehaviour:
   monsterID: 105
   monsterName: Enemy5
   maxHP: 160
-  attackPower: 60
+  attackPower: 50
   type: 0
   rarity: 0
   description: 
