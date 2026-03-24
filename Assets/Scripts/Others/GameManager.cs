@@ -85,6 +85,18 @@ public class GameManager : MonoBehaviour
     // #endif
     //     }
 
+    /// <summary>
+    /// ゲームを終了させる
+    /// </summary>
+    public void QuitGame()
+    {
+#if UNITY_EDITOR
+    UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+
     // 新規ゲーム開始処理
     public void StartNewGame()
     {
